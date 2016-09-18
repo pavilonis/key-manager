@@ -19,6 +19,7 @@ public class App extends Application {
 
    @Override
    public void start(Stage primaryStage) throws Exception {
+      new AnnotationConfigApplicationContext(AppConfig.class);
 
       TabPane rootPane = new TabPane(new Tab("AAA"), new Tab("BBB"));
 
@@ -27,7 +28,6 @@ public class App extends Application {
       primaryStage.show();
       App.stage = primaryStage;
       composeLayout();
-      new AnnotationConfigApplicationContext(AppConfig.class);
    }
 
    private void composeLayout() {
