@@ -5,10 +5,12 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Optional;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -26,7 +28,9 @@ public class ApiRestClient {
    @Autowired
    private RestTemplate rt;
 
-   public ScanLogRepresentation scan(int scannerId, String cardCode) {
+   private String lastErrorMessage;
+
+   public Optional<ScanLogRepresentation> scan(int scannerId, String cardCode) {
 
       URI scanLogFullUri = UriComponentsBuilder.fromUriString(scanLogUriBase)
             .pathSegment(String.valueOf(scannerId), cardCode)
@@ -35,6 +39,24 @@ public class ApiRestClient {
 
       LOG.debug("Sending scanLog POST request [scannerId={}, cardCode={}]", scannerId, cardCode);
 
-      return rt.postForObject(scanLogFullUri, null, ScanLogRepresentation.class);
+      try {
+         ScanLogRepresentation response = rt.postForObject(scanLogFullUri, null, ScanLogRepresentation.class);
+         lastErrorMessage = null;
+         return Optional.of(response);
+      } catch (HttpClientErrorException httpErr) {
+         switch (httpErr.getStatusCode()) {
+            case NOT_FOUND:
+               lastErrorMessage = "User not found";
+               break;
+            default:
+               lastErrorMessage = httpErr.getMessage();
+         }
+         LOG.error(lastErrorMessage);
+      }
+      return Optional.empty();
+   }
+
+   public Optional<String> getLastErrorMessage() {
+      return Optional.ofNullable(lastErrorMessage);
    }
 }

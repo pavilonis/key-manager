@@ -59,6 +59,7 @@ public class SerialPortObservableReader extends Observable implements SerialPort
       process(event, () -> {
          String result = read().replace("\r", "").replace("\n", "");
          LOG.info("Read result: " + result);
+         setChanged();
          notifyObservers(result);
       });
    }

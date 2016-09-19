@@ -1,6 +1,5 @@
 package lt.pavilonis.cmmscan.client.ui;
 
-import com.google.common.collect.EvictingQueue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -14,6 +13,7 @@ import javafx.scene.layout.VBox;
 import lt.pavilonis.cmmscan.client.representation.KeyRepresentation;
 import lt.pavilonis.cmmscan.client.representation.ScanLogRepresentation;
 import lt.pavilonis.cmmscan.client.representation.UserRepresentation;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,7 +21,12 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+@Component
 public class ScanLogTab extends Tab {
+
+   private final ObservableList<ScanLogCell> logQueue = FXCollections.observableArrayList();
+   private final int QUEUE_LENGTH_LIMIT = 20;
+
    public ScanLogTab() {
       super("Scan Log");
       setClosable(false);
@@ -43,7 +48,6 @@ public class ScanLogTab extends Tab {
             LocalDate.of(1984, 2, 15)
       );
 
-      ObservableList<ScanLogCell> observableList = FXCollections.observableArrayList(EvictingQueue.create(20));
 
       List<ScanLogRepresentation> list = newArrayList(
             new ScanLogRepresentation(
@@ -61,9 +65,10 @@ public class ScanLogTab extends Tab {
 
       list.stream()
             .map(scanLog -> new ScanLogCell(scanLog, (cardCode, keyNumber) -> System.out.println(cardCode + " " + keyNumber)))
-            .forEach(observableList::add);
+            .forEach(logQueue::add);
 
-      ListView<ScanLogCell> listView = new ListView<>(observableList);
+      ListView<ScanLogCell> listView = new ListView<>(logQueue);
+      listView.setFocusTraversable(false);
 
       listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
          if (oldValue != null) {
@@ -89,5 +94,13 @@ public class ScanLogTab extends Tab {
       );
       parent.setPadding(new Insets(15));
       setContent(parent);
+   }
+
+   public void addElement(ScanLogRepresentation representation) {
+      if (logQueue.size() > QUEUE_LENGTH_LIMIT) {
+         logQueue.remove(0);
+      }
+
+      logQueue.add(new ScanLogCell(representation, (cardCode, keyNumber) -> System.out.println("hehe")));
    }
 }
