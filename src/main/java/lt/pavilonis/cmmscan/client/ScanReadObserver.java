@@ -1,6 +1,8 @@
 package lt.pavilonis.cmmscan.client;
 
 import javafx.application.Platform;
+import javafx.geometry.Pos;
+import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -29,6 +31,8 @@ public class ScanReadObserver implements Observer {
    @Autowired
    private ScanLogTab scanLogTab;
 
+   private final HBox warningBox = new HBox();
+
    @Override
    public void update(Observable o, Object arg) {
       LOG.debug("Sending scan request [scannerId={}, cardCode={}]", scannerId, String.valueOf(arg));
@@ -37,15 +41,29 @@ public class ScanReadObserver implements Observer {
       if (response.isPresent()) {
          LOG.debug("Response [user={}]", response.get().user.firstName + " " + response.get().user.lastName);
          scanLogTab.addElement(response.get());
+         clearWarningIfExists();
 
       } else {
          displayWarning();
       }
    }
 
+   private void clearWarningIfExists() {
+      Platform.runLater(() -> {
+         if (App.rootPane.getChildren().contains(warningBox)) {
+            App.rootPane.getChildren().remove(warningBox);
+         }
+      });
+   }
+
    private void displayWarning() {
+      clearWarningIfExists();
       Text textNode = new Text("Error: " + wsClient.getLastErrorMessage().orElse("Unknown"));
+
       textNode.setFont(Font.font(null, FontWeight.BOLD, 50));
-      Platform.runLater(() -> App.rootPane.getChildren().add(textNode));
+      warningBox.getChildren().add(textNode);
+      warningBox.setAlignment(Pos.CENTER);
+      warningBox.setOnMouseClicked(click -> Platform.runLater(() -> App.rootPane.getChildren().remove(warningBox)));
+      Platform.runLater(() -> App.rootPane.getChildren().add(warningBox));
    }
 }

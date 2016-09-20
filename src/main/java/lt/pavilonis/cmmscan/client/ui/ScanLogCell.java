@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
@@ -26,9 +27,9 @@ public class ScanLogCell extends HBox {
    private final Button addKeyButton = new Button(" + ");
 
    public ScanLogCell(ScanLogRepresentation representation, BiConsumer<String, Integer> buttonClickConsumer) {
-      setSpacing(15);
+      setSpacing(10);
       setAlignment(Pos.CENTER_LEFT);
-      keyNumberField.setPrefWidth(70);
+      keyNumberField.setPrefWidth(50);
       addKeyButton.setPrefWidth(50);
 
       addKeyButton.setOnAction(action -> addKey(representation, buttonClickConsumer));
@@ -41,8 +42,8 @@ public class ScanLogCell extends HBox {
 
       this.getChildren().addAll(
             text(TIME_FORMAT.format(representation.dateTime), 80),
-            text(representation.user.firstName + " " + representation.user.lastName, 200),
-            text(representation.user.description, 200),
+            text(representation.user.firstName + " " + representation.user.lastName, 260),
+            text(representation.user.description, 260),
             keyNumberField,
             addKeyButton
       );
@@ -60,7 +61,7 @@ public class ScanLogCell extends HBox {
 
    private Text text(String content, int width) {
       Text text = new Text(content);
-      text.setFont(Font.font(null, FontWeight.SEMI_BOLD, 16));
+      text.setFont(Font.font(null, FontWeight.SEMI_BOLD, 15));
       text.setWrappingWidth(width);
       return text;
    }

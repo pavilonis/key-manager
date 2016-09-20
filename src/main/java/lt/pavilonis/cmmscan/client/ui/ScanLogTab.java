@@ -1,5 +1,6 @@
 package lt.pavilonis.cmmscan.client.ui;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -10,62 +11,19 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import lt.pavilonis.cmmscan.client.representation.KeyRepresentation;
 import lt.pavilonis.cmmscan.client.representation.ScanLogRepresentation;
-import lt.pavilonis.cmmscan.client.representation.UserRepresentation;
 import org.springframework.stereotype.Component;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 @Component
 public class ScanLogTab extends Tab {
 
-   private final ObservableList<ScanLogCell> logQueue = FXCollections.observableArrayList();
-   private final int QUEUE_LENGTH_LIMIT = 20;
+   private static final int POSITION_FIRST = 0;
+   private static final int QUEUE_LENGTH = 99;
+   private final ObservableList<ScanLogCell> logQueue = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
 
    public ScanLogTab() {
       super("Scan Log");
       setClosable(false);
-
-      UserRepresentation vasia = new UserRepresentation("777",
-            "Vasia",
-            "Pupking",
-            "Desc1",
-            false,
-            "http://pensamientolateral.org/wp-content/uploads/2014/04/yo.jpg",
-            LocalDate.of(1986, 7, 31)
-      );
-      UserRepresentation petia = new UserRepresentation("777",
-            "Piotr",
-            "Bobrov",
-            "Desc2",
-            false,
-            "http://pensamientolateral.org/wp-content/uploads/2014/04/yo.jpg",
-            LocalDate.of(1984, 2, 15)
-      );
-
-
-      List<ScanLogRepresentation> list = newArrayList(
-            new ScanLogRepresentation(
-                  LocalDateTime.now(),
-                  vasia,
-                  newArrayList(new KeyRepresentation(206, LocalDateTime.now().minusHours(2), vasia))
-            ),
-
-            new ScanLogRepresentation(
-                  LocalDateTime.now().minusDays(2),
-                  petia,
-                  newArrayList(new KeyRepresentation(206, LocalDateTime.now().minusHours(2), petia))
-            )
-      );
-
-      list.stream()
-            .map(scanLog -> new ScanLogCell(scanLog, (cardCode, keyNumber) -> System.out.println(cardCode + " " + keyNumber)))
-            .forEach(logQueue::add);
 
       ListView<ScanLogCell> listView = new ListView<>(logQueue);
       listView.setFocusTraversable(false);
@@ -77,7 +35,7 @@ public class ScanLogTab extends Tab {
          newValue.activate();
       });
 
-      Image image = new Image("http://pensamientolateral.org/wp-content/uploads/2014/04/yo.jpg", 250, 250, true, false, true);
+      Image image = new Image("http://pensamientolateral.org/wp-content/uploads/2014/04/yo.jpg", 200, 200, true, false, true);
       ImageView imageView = new ImageView(image);
 
       ListView<String> stringListView = new ListView<>(FXCollections.observableArrayList("Key 1", "Key 2", "Key 3"));
@@ -92,15 +50,23 @@ public class ScanLogTab extends Tab {
             null,
             null
       );
+      rightColumn.setPrefWidth(200);
       parent.setPadding(new Insets(15));
       setContent(parent);
    }
 
    public void addElement(ScanLogRepresentation representation) {
-      if (logQueue.size() > QUEUE_LENGTH_LIMIT) {
-         logQueue.remove(0);
-      }
-
-      logQueue.add(new ScanLogCell(representation, (cardCode, keyNumber) -> System.out.println("hehe")));
+      Platform.runLater(() -> {
+         if (logQueue.size() > QUEUE_LENGTH) {
+            logQueue.remove(logQueue.size() - 1);
+         }
+         logQueue.add(
+               POSITION_FIRST,
+               new ScanLogCell(
+                     representation,
+                     (cardCode, keyNumber) -> System.out.println("TODO: assign key to user")
+               )
+         );
+      });
    }
 }
