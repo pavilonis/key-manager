@@ -6,3 +6,4 @@ out
 pom.xml.releaseBackup
 release.properties
 app.properties
+app.log

@@ -1,10 +1,7 @@
 package lt.pavilonis.cmmscan.client.dao;
 
-import jssc.SerialPort;
-import jssc.SerialPortEvent;
-import jssc.SerialPortEventListener;
-import jssc.SerialPortException;
-import jssc.SerialPortList;
+import jssc.*;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +12,7 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.function.Consumer;
 
 import static java.util.Arrays.asList;
 
@@ -52,10 +50,10 @@ public class SerialPortObservableReader extends Observable implements SerialPort
          serialPort.setRTS(false);
          serialPort.setDTR(false);
          serialPort.setParams(
-               SerialPort.BAUDRATE_9600,
-               SerialPort.DATABITS_8,
-               SerialPort.STOPBITS_1,
-               SerialPort.PARITY_NONE
+             SerialPort.BAUDRATE_9600,
+             SerialPort.DATABITS_8,
+             SerialPort.STOPBITS_1,
+             SerialPort.PARITY_NONE
          );
 
          serialPort.addEventListener(this);
@@ -68,19 +66,23 @@ public class SerialPortObservableReader extends Observable implements SerialPort
 
    @Override
    public void serialEvent(SerialPortEvent event) {
-      process(event, () -> {
-         String result = read().replace("\r", "").replace("\n", "");
-         LOG.info("Read result: " + result);
-         setChanged();
-         notifyObservers(result);
+      process(event, string -> {
+         if (StringUtils.isNotBlank(string)) {
+            String result = string.replace("\r", "").replace("\n", "");
+            LOG.info("Read result: {}", result);
+            setChanged();
+            notifyObservers(result);
+         } else {
+            LOG.warn("Empty read result");
+         }
       });
    }
 
-   private void process(SerialPortEvent event, Runnable dataReadEvent) {
+   private void process(SerialPortEvent event, Consumer<String> readStringConsumer) {
       int bytesNum = event.getEventValue();
       if (event.isRXCHAR()) {//If data is available
 
-         dataReadEvent.run();
+         readStringConsumer.accept(read());
 
       } else if (event.isCTS()) {//If CTS line has changed state
          if (bytesNum == 1) {//If line is ON
