@@ -1,10 +1,14 @@
 package lt.pavilonis.cmmscan.client;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import lt.pavilonis.cmmscan.client.ui.KeyTab;
 import lt.pavilonis.cmmscan.client.ui.ScanLogTab;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -21,7 +25,11 @@ public class App extends Application {
    public void start(Stage primaryStage) throws Exception {
       AbstractApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
 
-      TabPane tabPane = new TabPane(context.getBean(ScanLogTab.class));
+      TabPane tabPane = new TabPane(
+            context.getBean(ScanLogTab.class),
+            context.getBean(KeyTab.class)
+      );
+
       rootPane.getChildren().add(tabPane);
 
       primaryStage.setScene(new Scene(rootPane));

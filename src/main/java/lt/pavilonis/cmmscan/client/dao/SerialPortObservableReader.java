@@ -8,9 +8,11 @@ import jssc.SerialPortList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -26,13 +28,23 @@ public class SerialPortObservableReader extends Observable implements SerialPort
    @Autowired
    private Observer readObserver;
 
+   @Value(("${scanner.port.name}"))
+   private String portName;
+
    @PostConstruct
    public void init() {
 
       addObserver(readObserver);
 
-      LOG.info("Ports found: " + asList(SerialPortList.getPortNames()));
-      serialPort = new SerialPort("/dev/ttyUSB0");
+      List<String> availablePorts = asList(SerialPortList.getPortNames());
+      LOG.info("Ports found: {}", availablePorts);
+
+      if (!availablePorts.contains(portName)) {
+         LOG.warn("Port {} not found in list of available ports - may not work", portName);
+      }
+
+      LOG.info("Trying to use port: {}", portName);
+      serialPort = new SerialPort(portName);
 
       try {
          serialPort.openPort();

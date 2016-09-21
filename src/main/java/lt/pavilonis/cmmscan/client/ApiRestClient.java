@@ -1,5 +1,6 @@
 package lt.pavilonis.cmmscan.client;
 
+import lt.pavilonis.cmmscan.client.representation.KeyRepresentation;
 import lt.pavilonis.cmmscan.client.representation.ScanLogRepresentation;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,9 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -58,5 +62,9 @@ public class ApiRestClient {
 
    public Optional<String> getLastErrorMessage() {
       return Optional.ofNullable(lastErrorMessage);
+   }
+
+   public List<KeyRepresentation> keysTaken() {
+      return Collections.emptyList();
    }
 }
