@@ -1,12 +1,8 @@
-package lt.pavilonis.cmmscan.client.ui;
+package lt.pavilonis.cmmscan.client.ui.scanlog;
 
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Tab;
@@ -15,8 +11,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import lt.pavilonis.cmmscan.client.ApiRestClient;
+import lt.pavilonis.cmmscan.client.representation.KeyRepresentation;
 import lt.pavilonis.cmmscan.client.representation.ScanLogRepresentation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class ScanLogTab extends Tab {
@@ -25,8 +26,14 @@ public class ScanLogTab extends Tab {
    private static final int QUEUE_LENGTH = 99;
    private final ObservableList<ScanLogCell> logQueue = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
 
-   public ScanLogTab() {
+   private final ApiRestClient wsClient;
+   private final KeyListView keyListView;
+
+   @Autowired
+   public ScanLogTab(ApiRestClient wsClient, KeyListView keyListView) {
       super("Scan Log");
+      this.wsClient = wsClient;
+      this.keyListView = keyListView;
       setClosable(false);
 
       ListView<ScanLogCell> listView = new ListView<>(logQueue);
@@ -37,15 +44,18 @@ public class ScanLogTab extends Tab {
             oldValue.deactivate();
          }
          newValue.activate();
+         Platform.runLater(() -> {
+            List<KeyRepresentation> keys = wsClient.userKeys(newValue.getCardCode());
+            keyListView.reload(keys);
+         });
       });
 
-      Image image = new Image("http://pensamientolateral.org/wp-content/uploads/2014/04/yo.jpg", 200, 200, true, false, true);
+      Image image = new Image("http://kaifolog.ru/uploads/posts/2013-04/1366274074_011.jpeg", 200, 200, true, false, true);
       ImageView imageView = new ImageView(image);
 
-      ListView<String> stringListView = new ListView<>(FXCollections.observableArrayList("Key 1", "Key 2", "Key 3"));
-      VBox rightColumn = new VBox(stringListView, imageView);
-      VBox.setVgrow(stringListView, Priority.ALWAYS);
-      VBox.setMargin(stringListView, new Insets(0, 0, 0, 15));
+      VBox rightColumn = new VBox(keyListView, imageView);
+      VBox.setVgrow(keyListView, Priority.ALWAYS);
+      VBox.setMargin(keyListView, new Insets(0, 0, 0, 15));
       VBox.setMargin(imageView, new Insets(15, 0, 0, 15));
       BorderPane parent = new BorderPane(
             listView,
@@ -66,10 +76,10 @@ public class ScanLogTab extends Tab {
          }
          logQueue.add(
                POSITION_FIRST,
-               new ScanLogCell(
-                     representation,
-                     (cardCode, keyNumber) -> System.out.println("TODO: assign key to user")
-               )
+               new ScanLogCell(representation, (cardCode, keyNumber) -> {
+                  KeyRepresentation response = wsClient.assignKey(cardCode, keyNumber);
+                  keyListView.append(response);
+               })
          );
       });
    }

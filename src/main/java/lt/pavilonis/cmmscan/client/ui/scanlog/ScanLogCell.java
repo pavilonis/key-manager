@@ -1,10 +1,9 @@
-package lt.pavilonis.cmmscan.client.ui;
+package lt.pavilonis.cmmscan.client.ui.scanlog;
 
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
@@ -25,8 +24,10 @@ public class ScanLogCell extends HBox {
 
    private final TextField keyNumberField = new TextField();
    private final Button addKeyButton = new Button(" + ");
+   private final String cardCode;
 
    public ScanLogCell(ScanLogRepresentation representation, BiConsumer<String, Integer> buttonClickConsumer) {
+      this.cardCode = representation.user.cardCode;
       setSpacing(10);
       setAlignment(Pos.CENTER_LEFT);
       keyNumberField.setPrefWidth(50);
@@ -79,5 +80,9 @@ public class ScanLogCell extends HBox {
    private void controlsVisible(boolean bool) {
       addKeyButton.setVisible(bool);
       keyNumberField.setVisible(bool);
+   }
+
+   public String getCardCode() {
+      return cardCode;
    }
 }

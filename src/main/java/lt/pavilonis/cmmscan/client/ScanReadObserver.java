@@ -7,7 +7,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import lt.pavilonis.cmmscan.client.representation.ScanLogRepresentation;
-import lt.pavilonis.cmmscan.client.ui.ScanLogTab;
+import lt.pavilonis.cmmscan.client.ui.scanlog.ScanLogTab;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +22,6 @@ import java.util.Optional;
 public class ScanReadObserver implements Observer {
    private static final Logger LOG = LoggerFactory.getLogger(ScanReadObserver.class);
 
-   @Value(("${scanner.id}"))
-   private int scannerId;
-
    @Autowired
    private ApiRestClient wsClient;
 
@@ -35,11 +32,11 @@ public class ScanReadObserver implements Observer {
 
    @Override
    public void update(Observable o, Object arg) {
-      LOG.debug("Sending scan request [scannerId={}, cardCode={}]", scannerId, String.valueOf(arg));
+      LOG.info("Sending scan request [cardCode={}]", String.valueOf(arg));
 
-      Optional<ScanLogRepresentation> response = wsClient.scan(scannerId, arg.toString());
+      Optional<ScanLogRepresentation> response = wsClient.scan(arg.toString());
       if (response.isPresent()) {
-         LOG.debug("Response [user={}]", response.get().user.firstName + " " + response.get().user.lastName);
+         LOG.info("Response [user={}]", response.get().user.firstName + " " + response.get().user.lastName);
          scanLogTab.addElement(response.get());
          clearWarningIfExists();
 
