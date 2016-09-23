@@ -16,7 +16,9 @@ import lt.pavilonis.cmmscan.client.representation.KeyRepresentation;
 import lt.pavilonis.cmmscan.client.representation.ScanLogRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 
+import javax.xml.ws.http.HTTPException;
 import java.util.List;
 
 @Component
@@ -45,7 +47,7 @@ public class ScanLogTab extends Tab {
          }
          newValue.activate();
          Platform.runLater(() -> {
-            List<KeyRepresentation> keys = wsClient.userKeys(newValue.getCardCode());
+            List<KeyRepresentation> keys = this.wsClient.userKeys(newValue.getCardCode());
             keyListView.reload(keys);
          });
       });
@@ -77,8 +79,13 @@ public class ScanLogTab extends Tab {
          logQueue.add(
                POSITION_FIRST,
                new ScanLogCell(representation, (cardCode, keyNumber) -> {
-                  KeyRepresentation response = wsClient.assignKey(cardCode, keyNumber);
-                  keyListView.append(response);
+                  try {
+                     KeyRepresentation response = wsClient.assignKey(cardCode, keyNumber);
+                     keyListView.append(response);
+                  } catch (HttpClientErrorException e) {
+                     e.getStatusCode();
+                        //TODO display warning...
+                  }
                })
          );
       });

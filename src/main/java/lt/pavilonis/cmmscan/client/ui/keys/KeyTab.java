@@ -1,4 +1,4 @@
-package lt.pavilonis.cmmscan.client.ui;
+package lt.pavilonis.cmmscan.client.ui.keys;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -6,11 +6,13 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.util.Callback;
 import lt.pavilonis.cmmscan.client.ApiRestClient;
 import lt.pavilonis.cmmscan.client.representation.KeyRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +38,9 @@ public class KeyTab extends Tab {
       super("Keys");
       setClosable(false);
 
-      TableColumn<KeyRepresentation, Integer> keyNumber = new TableColumn<>("Key Number");
-      keyNumber.setMinWidth(120);
-      keyNumber.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().keyNumber));
+      TableColumn<KeyRepresentation, Integer> keyNumberColumn = new TableColumn<>("Key Number");
+      keyNumberColumn.setMinWidth(120);
+      keyNumberColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().keyNumber));
 
       TableColumn<KeyRepresentation, LocalDateTime> dateTime = new TableColumn<>("Time");
       dateTime.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().dateTime));
@@ -55,9 +57,7 @@ public class KeyTab extends Tab {
       description.setMinWidth(250);
 
       TableView<KeyRepresentation> keyTable = new TableView<>(tableDataSource);
-      keyTable.getColumns().addAll(asList(keyNumber, dateTime, user, description));
-
-      // TODO add delete button column
+      keyTable.getColumns().addAll(asList(keyNumberColumn, dateTime, user, description));
 
       HBox filterPanel = new HBox(new TextField(), new Button("Search"));
       filterPanel.setSpacing(15);
