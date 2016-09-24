@@ -12,7 +12,10 @@ import org.springframework.context.support.AbstractApplicationContext;
 
 public class App extends Application {
 
-   static final StackPane rootPane = new StackPane();
+   private static final StackPane ROOT_PANE = new StackPane();
+   private static final WarningBox WARNING_BOX = new WarningBox(ROOT_PANE);
+   private static AbstractApplicationContext context;
+   private static WsRestClient wsClient;
 
    public static void main(String[] args) {
       launch(args);
@@ -20,16 +23,17 @@ public class App extends Application {
 
    @Override
    public void start(Stage primaryStage) throws Exception {
-      AbstractApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+      context = new AnnotationConfigApplicationContext(AppConfig.class);
+      wsClient = context.getBean(WsRestClient.class);
 
       TabPane tabPane = new TabPane(
-          context.getBean(ScanLogTab.class),
-          context.getBean(KeyTab.class)
+            context.getBean(ScanLogTab.class),
+            context.getBean(KeyTab.class)
       );
 
-      rootPane.getChildren().add(tabPane);
+      ROOT_PANE.getChildren().add(tabPane);
 
-      primaryStage.setScene(new Scene(rootPane));
+      primaryStage.setScene(new Scene(ROOT_PANE));
       primaryStage.setMaximized(true);
       primaryStage.setMinHeight(700);
       primaryStage.setMinWidth(1010);
@@ -39,5 +43,18 @@ public class App extends Application {
    @Override
    public void stop() throws Exception {
       System.exit(0);
+   }
+
+   public static void displayWarning(String text) {
+      if (wsClient.getLastErrorMessage().isPresent()) {
+         text += "\n" + wsClient.getLastErrorMessage().get();
+      }
+      WARNING_BOX.warning(text);
+   }
+
+   public static void clearWarning() {
+      if (ROOT_PANE.getChildren().contains(WARNING_BOX)) {
+         WARNING_BOX.hide();
+      }
    }
 }

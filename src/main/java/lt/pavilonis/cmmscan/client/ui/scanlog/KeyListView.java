@@ -3,7 +3,7 @@ package lt.pavilonis.cmmscan.client.ui.scanlog;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListView;
-import lt.pavilonis.cmmscan.client.ApiRestClient;
+import lt.pavilonis.cmmscan.client.WsRestClient;
 import lt.pavilonis.cmmscan.client.representation.KeyRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -18,11 +18,11 @@ public class KeyListView extends ListView<KeyCell> {
    private final ObservableList<KeyCell> container =
          FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
 
-   private final ApiRestClient wsClient;
+   private final WsRestClient wsClient;
 
 
    @Autowired
-   public KeyListView(ApiRestClient wsClient) {
+   public KeyListView(WsRestClient wsClient) {
       this.wsClient = wsClient;
       setItems(container);
    }

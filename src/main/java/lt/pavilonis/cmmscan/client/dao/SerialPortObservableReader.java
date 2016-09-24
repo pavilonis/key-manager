@@ -19,7 +19,7 @@ import static java.util.Arrays.asList;
 @Component
 public class SerialPortObservableReader extends Observable implements SerialPortEventListener {
 
-   private static final Logger LOG = LoggerFactory.getLogger(SerialPortObservableReader.class);
+   private static final Logger LOG = LoggerFactory.getLogger(SerialPortObservableReader.class.getSimpleName());
 
    private SerialPort serialPort;
 

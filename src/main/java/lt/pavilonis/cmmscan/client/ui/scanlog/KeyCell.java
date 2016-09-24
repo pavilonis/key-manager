@@ -15,7 +15,6 @@ public class KeyCell extends HBox {
 
    public KeyCell(int keyNumber) {
       this.setSpacing(10);
-//      setAlignment(Pos.CENTER_LEFT);
       this.removeKeyButton.setPrefWidth(50);
       this.keyNumber = keyNumber;
       this.getChildren().addAll(

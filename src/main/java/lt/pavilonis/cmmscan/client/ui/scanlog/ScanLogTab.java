@@ -11,15 +11,15 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import lt.pavilonis.cmmscan.client.ApiRestClient;
+import lt.pavilonis.cmmscan.client.App;
+import lt.pavilonis.cmmscan.client.WsRestClient;
 import lt.pavilonis.cmmscan.client.representation.KeyRepresentation;
 import lt.pavilonis.cmmscan.client.representation.ScanLogRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
 
-import javax.xml.ws.http.HTTPException;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class ScanLogTab extends Tab {
@@ -28,11 +28,11 @@ public class ScanLogTab extends Tab {
    private static final int QUEUE_LENGTH = 99;
    private final ObservableList<ScanLogCell> logQueue = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
 
-   private final ApiRestClient wsClient;
+   private final WsRestClient wsClient;
    private final KeyListView keyListView;
 
    @Autowired
-   public ScanLogTab(ApiRestClient wsClient, KeyListView keyListView) {
+   public ScanLogTab(WsRestClient wsClient, KeyListView keyListView) {
       super("Scan Log");
       this.wsClient = wsClient;
       this.keyListView = keyListView;
@@ -47,8 +47,12 @@ public class ScanLogTab extends Tab {
          }
          newValue.activate();
          Platform.runLater(() -> {
-            List<KeyRepresentation> keys = this.wsClient.userKeys(newValue.getCardCode());
-            keyListView.reload(keys);
+            Optional<List<KeyRepresentation>> keys = this.wsClient.userKeysAssigned(newValue.getCardCode());
+            if (keys.isPresent()) {
+               keyListView.reload(keys.get());
+            } else {
+               App.displayWarning("Can not load user assigned keys!");
+            }
          });
       });
 
@@ -79,12 +83,11 @@ public class ScanLogTab extends Tab {
          logQueue.add(
                POSITION_FIRST,
                new ScanLogCell(representation, (cardCode, keyNumber) -> {
-                  try {
-                     KeyRepresentation response = wsClient.assignKey(cardCode, keyNumber);
-                     keyListView.append(response);
-                  } catch (HttpClientErrorException e) {
-                     e.getStatusCode();
-                        //TODO display warning...
+                  Optional<KeyRepresentation> response = wsClient.assignKey(cardCode, keyNumber);
+                  if (response.isPresent()) {
+                     keyListView.append(response.get());
+                  } else {
+                     App.displayWarning("Can not assign key!");
                   }
                })
          );
