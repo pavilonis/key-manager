@@ -13,23 +13,24 @@ import java.util.List;
 import static java.util.stream.Collectors.toList;
 
 @Component
-public class KeyListView extends ListView<KeyCell> {
+public class ScanLogKeyList extends ListView<ScanLogKeyListCell> {
 
-   private final ObservableList<KeyCell> container =
+   private final ObservableList<ScanLogKeyListCell> container =
          FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
 
    private final WsRestClient wsClient;
 
 
    @Autowired
-   public KeyListView(WsRestClient wsClient) {
+   public ScanLogKeyList(WsRestClient wsClient) {
       this.wsClient = wsClient;
       setItems(container);
+      setFocusTraversable(false);
    }
 
    public void reload(List<KeyRepresentation> keys) {
       container.clear();
-      List<KeyCell> cells = keys.stream()
+      List<ScanLogKeyListCell> cells = keys.stream()
             .map(key -> composeCell(key.user.cardCode, key.keyNumber))
             .collect(toList());
 
@@ -40,8 +41,8 @@ public class KeyListView extends ListView<KeyCell> {
       container.add(composeCell(representation.user.cardCode, representation.keyNumber));
    }
 
-   private KeyCell composeCell(String cardCode, int keyNumber) {
-      KeyCell cell = new KeyCell(keyNumber);
+   private ScanLogKeyListCell composeCell(String cardCode, int keyNumber) {
+      ScanLogKeyListCell cell = new ScanLogKeyListCell(keyNumber);
       cell.addRemoveKeyButtonListener(key -> {
          boolean success = wsClient.returnKey(cardCode, key);
          if (success) {

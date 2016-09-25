@@ -1,7 +1,7 @@
 package lt.pavilonis.cmmscan.client;
 
 import lt.pavilonis.cmmscan.client.representation.ScanLogRepresentation;
-import lt.pavilonis.cmmscan.client.ui.scanlog.ScanLogTab;
+import lt.pavilonis.cmmscan.client.ui.scanlog.ScanLogList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ public class ScanReadObserver implements Observer {
    private WsRestClient wsClient;
 
    @Autowired
-   private ScanLogTab scanLogTab;
+   private ScanLogList scanLogList;
 
    @Override
    public void update(Observable o, Object arg) {
@@ -28,7 +28,7 @@ public class ScanReadObserver implements Observer {
       Optional<ScanLogRepresentation> response = wsClient.writeScanLog(arg.toString());
       if (response.isPresent()) {
          LOG.info("Response [user={}]", response.get().user.firstName + " " + response.get().user.lastName);
-         scanLogTab.addElement(response.get());
+         scanLogList.addElement(response.get());
       } else {
          App.displayWarning("Can not write scan log");
       }

@@ -20,7 +20,7 @@ public class WarningBox extends HBox {
    }
 
    public void warning(String text) {
-      Text textNode = new Text("Error: " + text);
+      Text textNode = new Text(text);
       textNode.setFont(Font.font(null, FontWeight.BOLD, 50));
 
       Platform.runLater(() -> {
