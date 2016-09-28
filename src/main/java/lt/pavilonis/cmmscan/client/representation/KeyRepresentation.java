@@ -9,16 +9,17 @@ public class KeyRepresentation {
    public final int keyNumber;
    public final LocalDateTime dateTime;
    public final UserRepresentation user;
+   public final KeyAction keyAction;
 
    public KeyRepresentation(@JsonProperty("keyNumber") int keyNumber,
-
                             @JsonSerialize(using = IsoLocalDateTimeSerializer.class)
                             @JsonProperty("dateTime") LocalDateTime dateTime,
-
-                            @JsonProperty("user") UserRepresentation user) {
+                            @JsonProperty("user") UserRepresentation user,
+                            @JsonProperty("keyAction") KeyAction keyAction) {
 
       this.keyNumber = keyNumber;
       this.dateTime = dateTime;
       this.user = user;
+      this.keyAction = keyAction;
    }
 }

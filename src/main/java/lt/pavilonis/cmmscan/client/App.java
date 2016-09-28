@@ -5,7 +5,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import lt.pavilonis.cmmscan.client.ui.keys.KeyTab;
+import lt.pavilonis.cmmscan.client.ui.keylog.KeyLogTab;
+import lt.pavilonis.cmmscan.client.ui.keyassignment.KeyTab;
 import lt.pavilonis.cmmscan.client.ui.scanlog.ScanLogTab;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -28,7 +29,8 @@ public class App extends Application {
 
       TabPane tabPane = new TabPane(
             context.getBean(ScanLogTab.class),
-            context.getBean(KeyTab.class)
+            context.getBean(KeyTab.class),
+            context.getBean(KeyLogTab.class)
       );
 
       ROOT_PANE.getChildren().add(tabPane);

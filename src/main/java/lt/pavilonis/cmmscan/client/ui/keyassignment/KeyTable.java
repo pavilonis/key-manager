@@ -1,4 +1,4 @@
-package lt.pavilonis.cmmscan.client.ui.keys;
+package lt.pavilonis.cmmscan.client.ui.keyassignment;
 
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -11,9 +11,11 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.util.Callback;
+import lt.pavilonis.cmmscan.client.WsRestClient;
 import lt.pavilonis.cmmscan.client.representation.KeyRepresentation;
 import lt.pavilonis.cmmscan.client.representation.UserRepresentation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -21,10 +23,14 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 
-final class KeyTable extends TableView<KeyRepresentation> {
+@Component
+public class KeyTable extends TableView<KeyRepresentation> {
 
-   private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
+   private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd  hh:mm:ss");
    private final ObservableList<KeyRepresentation> container = FXCollections.observableArrayList();
+
+   @Autowired
+   private WsRestClient wsClient;
 
    public KeyTable() {
       this.setItems(container);
@@ -38,25 +44,17 @@ final class KeyTable extends TableView<KeyRepresentation> {
       dateTimeColumn.setMinWidth(190);
       dateTimeColumn.setMaxWidth(190);
       dateTimeColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().dateTime));
-      dateTimeColumn.setCellFactory(new Callback<TableColumn<KeyRepresentation, LocalDateTime>, TableCell<KeyRepresentation, LocalDateTime>>() {
+      dateTimeColumn.setCellFactory(column -> new TableCell<KeyRepresentation, LocalDateTime>() {
          @Override
-         public TableCell<KeyRepresentation, LocalDateTime> call(TableColumn<KeyRepresentation, LocalDateTime> param) {
-            return new TableCell<KeyRepresentation, LocalDateTime>() {
-               @Override
-               protected void updateItem(LocalDateTime item, boolean empty) {
-                  super.updateItem(item, empty);
-                  if (item == null || empty) {
-                     setText(null);
-                     setGraphic(null);
-                     setStyle("");
-                  } else {
-                     setStyle("-fx-text-alignment: center");
-                     setText(DATE_TIME_FORMAT.format(item));
-//                     setTextFill(Color.CHOCOLATE);
-//                     setStyle("-fx-background-color: yellow");
-                  }
-               }
-            };
+         protected void updateItem(LocalDateTime item, boolean empty) {
+            super.updateItem(item, empty);
+            if (item == null || empty) {
+               setText(null);
+               setGraphic(null);
+               setStyle("");
+            } else {
+               setText(DATE_TIME_FORMAT.format(item));
+            }
          }
       });
       dateTimeColumn.setSortType(TableColumn.SortType.DESCENDING);
@@ -66,22 +64,35 @@ final class KeyTable extends TableView<KeyRepresentation> {
          UserRepresentation user = param.getValue().user;
          return new ReadOnlyObjectWrapper<>(user.firstName + " " + user.lastName);
       });
-//      userColumn.setMinWidth(250);
-//      userColumn.setMaxWidth(250);
 
-      TableColumn<KeyRepresentation, String> descriptionColumn = new TableColumn<>("Description");
-      descriptionColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().user.description));
-//      description.setMinWidth(250);
+      TableColumn<KeyRepresentation, KeyRepresentation> descriptionColumn = new TableColumn<>("Description");
+      descriptionColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
+      descriptionColumn.setCellFactory(column -> new TableCell<KeyRepresentation, KeyRepresentation>() {
+         @Override
+         protected void updateItem(KeyRepresentation item, boolean empty) {
+            super.updateItem(item, empty);
+            if (item == null || empty) {
+               setText(null);
+               setGraphic(null);
+               setStyle("");
+            } else {
+               setText(item.user.description);
+               if (item.user.isStudent) {
+                  setStyle("-fx-background-color: rgba(0, 255, 45, 0.33)");
+               }
+            }
+         }
+      });
 
-      TableColumn<KeyRepresentation, String> actionColumn = new TableColumn<>("Action");
+      TableColumn<KeyRepresentation, KeyRepresentation> actionColumn = new TableColumn<>("Action");
+      actionColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
       actionColumn.setCellFactory(param -> {
          Button returnKeyButton = new Button(null, new ImageView(new Image("images/delete-icon-16.png")));
          returnKeyButton.setPrefWidth(50);
-         returnKeyButton.setOnAction(click -> System.out.println("hehe"));
-         return new TableCell<KeyRepresentation, String>() {
+         return new TableCell<KeyRepresentation, KeyRepresentation>() {
 
             @Override
-            protected void updateItem(String item, boolean empty) {
+            protected void updateItem(KeyRepresentation item, boolean empty) {
                super.updateItem(item, empty);
                if (empty) {
                   setText(null);
@@ -89,6 +100,10 @@ final class KeyTable extends TableView<KeyRepresentation> {
                } else {
                   setAlignment(Pos.CENTER);
                   setGraphic(returnKeyButton);
+                  returnKeyButton.setOnAction(click -> {
+                     wsClient.returnKey(item.user.cardCode, item.keyNumber);
+                     container.remove(item);
+                  });
                }
             }
          };

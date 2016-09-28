@@ -1,4 +1,4 @@
-package lt.pavilonis.cmmscan.client.ui.keys;
+package lt.pavilonis.cmmscan.client.ui.keyassignment;
 
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -21,17 +21,18 @@ import java.util.function.Predicate;
 @Component
 public class KeyTab extends Tab {
 
-   private final KeyTable keyTable = new KeyTable();
+   private final KeyTable keyTable;
    private final WsRestClient wsClient;
 
    @Autowired
-   public KeyTab(WsRestClient wsClient) {
+   public KeyTab(WsRestClient wsClient, KeyTable keyTable) {
       super("Keys Assigned");
+      this.keyTable = keyTable;
       this.wsClient = wsClient;
 
       setClosable(false);
 
-      FilterPanel filterPanel = new FilterPanel(searchString ->
+      StringFilterPanel stringFilterPanel = new StringFilterPanel(searchString ->
             loadData(response -> {
                if (response.isPresent()) {
                   List<KeyRepresentation> keys = response.get();
@@ -44,21 +45,16 @@ public class KeyTab extends Tab {
                }
             }));
 
-      BorderPane.setMargin(filterPanel, new Insets(0, 0, 15, 0));
+      BorderPane.setMargin(stringFilterPanel, new Insets(0, 0, 15, 0));
 
       setOnSelectionChanged(event -> {
          if (isSelected()) {
-            loadData(keys -> {
-               if (keys.isPresent()) {
-                  keyTable.update(keys.get());
-               } else {
-                  App.displayWarning("Can not load keys!");
-               }
-            });
+            stringFilterPanel.reset();
+            stringFilterPanel.action();
          } else {
             keyTable.clear();
          }
-         BorderPane mainTabLayout = new BorderPane(keyTable, filterPanel, null, null, null);
+         BorderPane mainTabLayout = new BorderPane(keyTable, stringFilterPanel, null, null, null);
          mainTabLayout.setPadding(new Insets(15));
          setContent(mainTabLayout);
       });

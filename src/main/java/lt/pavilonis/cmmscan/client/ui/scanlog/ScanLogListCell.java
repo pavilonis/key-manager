@@ -61,6 +61,9 @@ public class ScanLogListCell extends HBox {
       setHgrow(description, Priority.ALWAYS);
       setHgrow(controls, Priority.ALWAYS);
       controls.setVisible(false);
+      if (representation.user.isStudent) {
+         setStyle("-fx-background-color: rgba(0, 255, 45, 0.33)");
+      }
    }
 
    private void assignKey(ScanLogRepresentation representation, BiConsumer<String, Integer> buttonClickConsumer) {

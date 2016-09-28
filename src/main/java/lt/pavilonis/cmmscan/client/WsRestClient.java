@@ -14,6 +14,8 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,7 +26,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class WsRestClient {
    private static final Logger LOG = getLogger(WsRestClient.class.getSimpleName());
    private static final String SEGMENT_KEYS = "keys";
-   private static final String SEGMENT_LOGS = "logs";
+   private static final String SEGMENT_SCANLOG = "scanlog";
+   private static final String SEGMENT_KEYLOG = "keylog";
 
    @Value(("${api.uri.base}"))
    private String baseUri;
@@ -39,7 +42,7 @@ public class WsRestClient {
 
    public Optional<ScanLogRepresentation> writeScanLog(String cardCode) {
 
-      URI uri = uri(SEGMENT_LOGS, scannerId, cardCode);
+      URI uri = uri(SEGMENT_SCANLOG, scannerId, cardCode);
 
       LOG.info("Sending scanLog POST request [scannerId={}, cardCode={}]", scannerId, cardCode);
 
@@ -49,12 +52,13 @@ public class WsRestClient {
    public Optional<List<KeyRepresentation>> allKeysAssigned() {
       URI uri = uri(SEGMENT_KEYS, scannerId);
       Optional<KeyRepresentation[]> response = request(uri, HttpMethod.GET, KeyRepresentation[].class);
+
       if (response.isPresent()) {
-         LOG.info("Got keys response [keysNum={}]", response.get().length);
+         LOG.info("Loaded all assigned keys [number={}]", response.get().length);
          return Optional.of(newArrayList(response.get()));
-      } else {
-         return Optional.empty();
       }
+
+      return Optional.empty();
    }
 
    public Optional<List<KeyRepresentation>> userKeysAssigned(String cardCode) {
@@ -62,11 +66,11 @@ public class WsRestClient {
       Optional<KeyRepresentation[]> response = request(uri, HttpMethod.GET, KeyRepresentation[].class);
 
       if (response.isPresent()) {
-         LOG.info("Got keys response [cardCode={}, keysNum={}]", cardCode, response.get().length);
+         LOG.info("Loaded user assigned keys [cardCode={}, keysNum={}]", cardCode, response.get().length);
          return Optional.of(newArrayList(response.get()));
-      } else {
-         return Optional.empty();
       }
+
+      return Optional.empty();
    }
 
    public Optional<KeyRepresentation> assignKey(String cardCode, int keyNumber) {
@@ -92,6 +96,23 @@ public class WsRestClient {
          LOG.error("Erroneous state - could not return key [keyNumber={}]", keyNumber);
          return false;
       }
+   }
+
+   public Optional<List<KeyRepresentation>> keyLog(LocalDate periodStart, LocalDate periodEnd) {
+      URI uri = uri(
+            SEGMENT_KEYLOG,
+            scannerId,
+            DateTimeFormatter.ISO_LOCAL_DATE.format(periodStart),
+            DateTimeFormatter.ISO_LOCAL_DATE.format(periodEnd)
+      );
+      Optional<KeyRepresentation[]> response = request(uri, HttpMethod.GET, KeyRepresentation[].class);
+
+      if (response.isPresent()) {
+         LOG.info("Loaded keyLog [entries={}]", response.get().length);
+         return Optional.of(newArrayList(response.get()));
+      }
+
+      return Optional.empty();
    }
 
    public Optional<String> getLastErrorMessage() {
