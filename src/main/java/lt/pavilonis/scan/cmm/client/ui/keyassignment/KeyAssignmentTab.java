@@ -1,13 +1,13 @@
-package lt.pavilonis.cmmscan.client.ui.keyassignment;
+package lt.pavilonis.scan.cmm.client.ui.keyassignment;
 
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.BorderPane;
-import lt.pavilonis.cmmscan.client.App;
-import lt.pavilonis.cmmscan.client.WsRestClient;
-import lt.pavilonis.cmmscan.client.representation.KeyRepresentation;
+import lt.pavilonis.scan.cmm.client.App;
+import lt.pavilonis.scan.cmm.client.service.WsRestClient;
+import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

@@ -1,4 +1,4 @@
-package lt.pavilonis.cmmscan.client.ui.keyassignment;
+package lt.pavilonis.scan.cmm.client.ui.keyassignment;
 
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -11,10 +11,10 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import lt.pavilonis.cmmscan.client.AppConfig;
-import lt.pavilonis.cmmscan.client.WsRestClient;
-import lt.pavilonis.cmmscan.client.representation.KeyRepresentation;
-import lt.pavilonis.cmmscan.client.representation.UserRepresentation;
+import lt.pavilonis.scan.cmm.client.AppConfig;
+import lt.pavilonis.scan.cmm.client.service.WsRestClient;
+import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
+import lt.pavilonis.scan.cmm.client.representation.UserRepresentation;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

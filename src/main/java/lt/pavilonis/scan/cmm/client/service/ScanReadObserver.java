@@ -1,18 +1,18 @@
-package lt.pavilonis.cmmscan.client;
+package lt.pavilonis.scan.cmm.client.service;
 
-import lt.pavilonis.cmmscan.client.representation.ScanLogRepresentation;
-import lt.pavilonis.cmmscan.client.ui.scanlog.ScanLogList;
+import lt.pavilonis.scan.cmm.client.App;
+import lt.pavilonis.scan.cmm.client.representation.ScanLogRepresentation;
+import lt.pavilonis.scan.cmm.client.ui.scanlog.ScanLogList;
+import lt.pavilonis.scan.service.ScannerReadEventObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Observable;
-import java.util.Observer;
 import java.util.Optional;
 
 @Component
-public class ScanReadObserver implements Observer {
+public class ScanReadObserver extends ScannerReadEventObserver {
    private static final Logger LOG = LoggerFactory.getLogger(ScanReadObserver.class.getSimpleName());
 
    @Autowired
@@ -22,10 +22,10 @@ public class ScanReadObserver implements Observer {
    private ScanLogList scanLogList;
 
    @Override
-   public void update(Observable o, Object arg) {
-      LOG.info("Sending scan request [cardCode={}]", String.valueOf(arg));
+   protected void consumeScannerInput(String string) {
+      LOG.info("Sending scan request [cardCode={}]", string);
 
-      Optional<ScanLogRepresentation> response = wsClient.writeScanLog(arg.toString());
+      Optional<ScanLogRepresentation> response = wsClient.writeScanLog(string);
       if (response.isPresent()) {
          LOG.info("Response [user={}]", response.get().user.firstName + " " + response.get().user.lastName);
          scanLogList.addElement(response.get());

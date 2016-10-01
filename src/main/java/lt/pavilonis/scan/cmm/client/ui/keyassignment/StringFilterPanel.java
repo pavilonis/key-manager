@@ -1,4 +1,4 @@
-package lt.pavilonis.cmmscan.client.ui.keyassignment;
+package lt.pavilonis.scan.cmm.client.ui.keyassignment;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;

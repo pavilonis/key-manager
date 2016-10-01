@@ -1,4 +1,4 @@
-package lt.pavilonis.cmmscan.client.ui.scanlog;
+package lt.pavilonis.scan.cmm.client.ui.scanlog;
 
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -13,9 +13,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import lt.pavilonis.cmmscan.client.AppConfig;
-import lt.pavilonis.cmmscan.client.representation.ScanLogRepresentation;
-import lt.pavilonis.cmmscan.client.representation.UserRepresentation;
+import lt.pavilonis.scan.cmm.client.AppConfig;
+import lt.pavilonis.scan.cmm.client.representation.ScanLogRepresentation;
+import lt.pavilonis.scan.cmm.client.representation.UserRepresentation;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 

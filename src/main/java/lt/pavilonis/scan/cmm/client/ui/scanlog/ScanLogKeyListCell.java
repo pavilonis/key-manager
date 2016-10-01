@@ -1,4 +1,4 @@
-package lt.pavilonis.cmmscan.client.ui.scanlog;
+package lt.pavilonis.scan.cmm.client.ui.scanlog;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;

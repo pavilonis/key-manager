@@ -1,13 +1,13 @@
-package lt.pavilonis.cmmscan.client.ui.scanlog;
+package lt.pavilonis.scan.cmm.client.ui.scanlog;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListView;
-import lt.pavilonis.cmmscan.client.App;
-import lt.pavilonis.cmmscan.client.WsRestClient;
-import lt.pavilonis.cmmscan.client.representation.KeyRepresentation;
-import lt.pavilonis.cmmscan.client.representation.ScanLogRepresentation;
+import lt.pavilonis.scan.cmm.client.App;
+import lt.pavilonis.scan.cmm.client.service.WsRestClient;
+import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
+import lt.pavilonis.scan.cmm.client.representation.ScanLogRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

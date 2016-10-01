@@ -1,4 +1,4 @@
-package lt.pavilonis.cmmscan.client;
+package lt.pavilonis.scan.cmm.client;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +17,7 @@ import static java.util.Collections.singletonList;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Configuration
-@ComponentScan({"lt.pavilonis.cmmscan.client", "resources"})
+@ComponentScan({"lt.pavilonis.scan", "resources"})
 @PropertySource({"file:${properties}"})
 public class AppConfig {
 

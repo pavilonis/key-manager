@@ -1,4 +1,4 @@
-package lt.pavilonis.cmmscan.client.representation;
+package lt.pavilonis.scan.cmm.client.representation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;

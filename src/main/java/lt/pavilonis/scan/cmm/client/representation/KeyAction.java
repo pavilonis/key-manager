@@ -1,4 +1,4 @@
-package lt.pavilonis.cmmscan.client.representation;
+package lt.pavilonis.scan.cmm.client.representation;
 
 public enum KeyAction {
    ASSIGNED, UNASSIGNED, ALL

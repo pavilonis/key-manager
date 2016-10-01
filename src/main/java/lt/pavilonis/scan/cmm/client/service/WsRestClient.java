@@ -1,7 +1,8 @@
-package lt.pavilonis.cmmscan.client;
+package lt.pavilonis.scan.cmm.client.service;
 
-import lt.pavilonis.cmmscan.client.representation.KeyRepresentation;
-import lt.pavilonis.cmmscan.client.representation.ScanLogRepresentation;
+import lt.pavilonis.scan.cmm.client.App;
+import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
+import lt.pavilonis.scan.cmm.client.representation.ScanLogRepresentation;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

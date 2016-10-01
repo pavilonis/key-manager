@@ -1,4 +1,4 @@
-package lt.pavilonis.cmmscan.client;
+package lt.pavilonis.scan.cmm.client.ui;
 
 import javafx.application.Platform;
 import javafx.geometry.Pos;

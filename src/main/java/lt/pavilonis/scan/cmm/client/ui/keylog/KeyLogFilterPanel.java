@@ -1,4 +1,4 @@
-package lt.pavilonis.cmmscan.client.ui.keylog;
+package lt.pavilonis.scan.cmm.client.ui.keylog;
 
 import javafx.collections.FXCollections;
 import javafx.event.Event;
@@ -13,9 +13,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
-import javafx.scene.text.Font;
 import javafx.util.StringConverter;
-import lt.pavilonis.cmmscan.client.representation.KeyAction;
+import lt.pavilonis.scan.cmm.client.representation.KeyAction;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.time.LocalDate;

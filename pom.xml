@@ -9,17 +9,15 @@
    <properties>
       <maven.compiler.source>1.8</maven.compiler.source>
       <maven.compiler.target>1.8</maven.compiler.target>
-      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <spring.version>4.3.2.RELEASE</spring.version>
-      <jackson.version>2.8.1</jackson.version>
+      <jackson.version>2.8.2</jackson.version>
    </properties>
    <dependencies>
 
-      <!-- SPRING -->
+      <!-- COM PORT READER -->
       <dependency>
-         <groupId>org.springframework</groupId>
-         <artifactId>spring-webmvc</artifactId>
-         <version>${spring.version}</version>
+         <groupId>lt.pavilonis.scan.reader</groupId>
+         <artifactId>com-port-reader</artifactId>
+         <version>1.0</version>
       </dependency>
 
       <!--SERIALIZATION -->
@@ -42,25 +40,6 @@
          <groupId>com.fasterxml.jackson.datatype</groupId>
          <artifactId>jackson-datatype-jsr310</artifactId>
          <version>${jackson.version}</version>
-      </dependency>
-
-      <!-- LOGGING -->
-      <dependency>
-         <groupId>org.slf4j</groupId>
-         <artifactId>slf4j-api</artifactId>
-         <version>1.7.21</version>
-      </dependency>
-      <dependency>
-         <groupId>org.slf4j</groupId>
-         <artifactId>slf4j-log4j12</artifactId>
-         <version>1.7.21</version>
-      </dependency>
-
-      <!-- JAVA SIMPLE SERIAL CONNECTOR -->
-      <dependency>
-         <groupId>org.scream3r</groupId>
-         <artifactId>jssc</artifactId>
-         <version>2.8.0</version>
       </dependency>
 
       <!-- UTILS -->
@@ -96,27 +75,52 @@
                <archive>
                   <manifest>
                      <addClasspath>true</addClasspath>
-                     <mainClass>lt.pavilonis.cmmscan.client.App</mainClass>
+                     <mainClass>lt.pavilonis.scan.cmm.client.App</mainClass>
                   </manifest>
                </archive>
             </configuration>
          </plugin>
+
+         <plugin>
+            <groupId>external.atlassian.jgitflow</groupId>
+            <artifactId>jgitflow-maven-plugin</artifactId>
+            <version>1.0-m5.1</version>
+            <configuration>
+               <flowInitContext>
+                  <masterBranchName>master</masterBranchName>
+                  <developBranchName>develop</developBranchName>
+                  <featureBranchPrefix>feature-</featureBranchPrefix>
+                  <releaseBranchPrefix>release-</releaseBranchPrefix>
+                  <hotfixBranchPrefix>hotfix-</hotfixBranchPrefix>
+               </flowInitContext>
+            </configuration>
+         </plugin>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <version>2.8.2</version>
+            <configuration>
+               <skip>true</skip>
+            </configuration>
+         </plugin>
+         <plugin>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.5</version>
+            <configuration>
+               <source>${maven.compiler.source}</source>
+               <target>${maven.compiler.target}</target>
+               <encoding>UTF-8</encoding>
+            </configuration>
+            <executions>
+               <execution>
+                  <goals>
+                     <goal>compile</goal>
+                     <goal>testCompile</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
       </plugins>
    </build>
-
-   <scm>
-      <connection>scm:git:ssh://git@bitbucket.org:snipok/monpikas-client.git</connection>
-      <developerConnection>scm:git:ssh://git@bitbucket.org:snipok/monpikas-client.git</developerConnection>
-      <url>https://bitbucket.org/snipok/monpikas-client.git</url>
-      <tag>HEAD</tag>
-   </scm>
-
-   <distributionManagement>
-      <repository>
-         <id>internal.repo</id>
-         <name>Temporary Staging Repository</name>
-         <url>file://${project.build.directory}/mvn-repo</url>
-      </repository>
-   </distributionManagement>
 
 </project>
