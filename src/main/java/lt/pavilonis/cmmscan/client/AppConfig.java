@@ -21,6 +21,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @PropertySource({"file:${properties}"})
 public class AppConfig {
 
+   public final static String STYLE_STUDENT = "-fx-background-color: rgba(255, 164, 0, 0.15)";
+
    @Value(("${api.auth.username}"))
    private String apiUsername;
 

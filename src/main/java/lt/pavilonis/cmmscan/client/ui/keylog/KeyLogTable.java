@@ -4,11 +4,17 @@ import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Pos;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import lt.pavilonis.cmmscan.client.AppConfig;
+import lt.pavilonis.cmmscan.client.representation.KeyAction;
 import lt.pavilonis.cmmscan.client.representation.KeyRepresentation;
 import lt.pavilonis.cmmscan.client.representation.UserRepresentation;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -17,6 +23,8 @@ import static java.util.Arrays.asList;
 
 final class KeyLogTable extends TableView<KeyRepresentation> {
 
+   private static final String ICON_ASSINGED = "images/flat-arrow-up-24.png";
+   private static final String ICON_UNASSIGNED = "images/flat-arrow-down-24.png";
    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd  hh:mm:ss");
    private final ObservableList<KeyRepresentation> container = FXCollections.observableArrayList();
 
@@ -43,6 +51,7 @@ final class KeyLogTable extends TableView<KeyRepresentation> {
             }
          }
       });
+      dateTimeColumn.setComparator((key1, key2) -> key1.dateTime.compareTo(key2.dateTime));
       dateTimeColumn.setSortType(TableColumn.SortType.DESCENDING);
       dateTimeColumn.setMinWidth(190);
       dateTimeColumn.setMaxWidth(190);
@@ -66,14 +75,39 @@ final class KeyLogTable extends TableView<KeyRepresentation> {
             } else {
                setText(item.description);
                if (item.isStudent) {
-                  setStyle("-fx-background-color: rgba(0, 255, 45, 0.33)");
+                  setStyle(AppConfig.STYLE_STUDENT);
                }
             }
          }
       });
+      descriptionColumn.setComparator((user1, user2) -> ObjectUtils.compare(user1.description, (user2.description)));
 
-      TableColumn<KeyRepresentation, String> actionColumn = new TableColumn<>("Action");
-      actionColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().keyAction.name()));
+      TableColumn<KeyRepresentation, KeyAction> actionColumn = new TableColumn<>("Action");
+      actionColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().keyAction));
+      actionColumn.setCellFactory(param -> new TableCell<KeyRepresentation, KeyAction>() {
+         @Override
+         protected void updateItem(KeyAction value, boolean empty) {
+            super.updateItem(value, empty);
+            if (value == null || empty) {
+               setText(null);
+               setGraphic(null);
+               setStyle("");
+            } else {
+               if (value == KeyAction.ASSIGNED) {
+                  setIcon(ICON_ASSINGED);
+               } else if (value == KeyAction.UNASSIGNED) {
+                  setIcon(ICON_UNASSIGNED);
+               } else {
+                  throw new IllegalStateException("Not expected KeyAction value (should not happen)");
+               }
+               setAlignment(Pos.CENTER);
+            }
+         }
+
+         private void setIcon(String path) {
+            this.setGraphic(new ImageView(new Image(path)));
+         }
+      });
       actionColumn.setMinWidth(100);
       actionColumn.setMaxWidth(100);
 
@@ -88,6 +122,7 @@ final class KeyLogTable extends TableView<KeyRepresentation> {
       Platform.runLater(() -> {
          container.clear();
          container.addAll(keys);
+         sort();
       });
    }
 

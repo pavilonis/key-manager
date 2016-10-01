@@ -11,9 +11,11 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import lt.pavilonis.cmmscan.client.AppConfig;
 import lt.pavilonis.cmmscan.client.WsRestClient;
 import lt.pavilonis.cmmscan.client.representation.KeyRepresentation;
 import lt.pavilonis.cmmscan.client.representation.UserRepresentation;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +26,7 @@ import java.util.List;
 import static java.util.Arrays.asList;
 
 @Component
-public class KeyTable extends TableView<KeyRepresentation> {
+public class KeyAssignmentTable extends TableView<KeyRepresentation> {
 
    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd  hh:mm:ss");
    private final ObservableList<KeyRepresentation> container = FXCollections.observableArrayList();
@@ -32,7 +34,7 @@ public class KeyTable extends TableView<KeyRepresentation> {
    @Autowired
    private WsRestClient wsClient;
 
-   public KeyTable() {
+   public KeyAssignmentTable() {
       this.setItems(container);
 
       TableColumn<KeyRepresentation, Integer> keyNumberColumn = new TableColumn<>("Key Number");
@@ -78,16 +80,17 @@ public class KeyTable extends TableView<KeyRepresentation> {
             } else {
                setText(item.user.description);
                if (item.user.isStudent) {
-                  setStyle("-fx-background-color: rgba(0, 255, 45, 0.33)");
+                  setStyle(AppConfig.STYLE_STUDENT);
                }
             }
          }
       });
+      descriptionColumn.setComparator((key1, key2) -> ObjectUtils.compare(key1.user.description, key2.user.description));
 
       TableColumn<KeyRepresentation, KeyRepresentation> actionColumn = new TableColumn<>("Action");
       actionColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
       actionColumn.setCellFactory(param -> {
-         Button returnKeyButton = new Button(null, new ImageView(new Image("images/delete-icon-16.png")));
+         Button returnKeyButton = new Button(null, new ImageView(new Image("images/flat-arrow-down-24.png")));
          returnKeyButton.setPrefWidth(50);
          return new TableCell<KeyRepresentation, KeyRepresentation>() {
 
@@ -108,9 +111,10 @@ public class KeyTable extends TableView<KeyRepresentation> {
             }
          };
       });
-
+      actionColumn.setSortable(false);
       actionColumn.setMinWidth(100);
       actionColumn.setMaxWidth(100);
+
       getColumns().addAll(asList(keyNumberColumn, dateTimeColumn, userColumn, descriptionColumn, actionColumn));
       getSortOrder().add(dateTimeColumn);
       setStyle("-fx-font-size:15; -fx-font-weight: 600; -fx-alignment: center");
@@ -122,6 +126,7 @@ public class KeyTable extends TableView<KeyRepresentation> {
       Platform.runLater(() -> {
          container.clear();
          container.addAll(keys);
+         sort();
       });
    }
 

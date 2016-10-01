@@ -19,15 +19,13 @@ import java.util.function.Predicate;
 
 
 @Component
-public class KeyTab extends Tab {
+public class KeyAssignmentTab extends Tab {
 
-   private final KeyTable keyTable;
    private final WsRestClient wsClient;
 
    @Autowired
-   public KeyTab(WsRestClient wsClient, KeyTable keyTable) {
+   public KeyAssignmentTab(WsRestClient wsClient, KeyAssignmentTable keyAssignmentTable) {
       super("Keys Assigned");
-      this.keyTable = keyTable;
       this.wsClient = wsClient;
 
       setClosable(false);
@@ -39,7 +37,7 @@ public class KeyTab extends Tab {
                   if (StringUtils.isNoneBlank(searchString)) {
                      keys.removeIf(doesNotMatch(searchString));
                   }
-                  keyTable.update(keys);
+                  keyAssignmentTable.update(keys);
                } else {
                   App.displayWarning("Can not load keys!");
                }
@@ -52,9 +50,9 @@ public class KeyTab extends Tab {
             stringFilterPanel.reset();
             stringFilterPanel.action();
          } else {
-            keyTable.clear();
+            keyAssignmentTable.clear();
          }
-         BorderPane mainTabLayout = new BorderPane(keyTable, stringFilterPanel, null, null, null);
+         BorderPane mainTabLayout = new BorderPane(keyAssignmentTable, stringFilterPanel, null, null, null);
          mainTabLayout.setPadding(new Insets(15));
          setContent(mainTabLayout);
       });

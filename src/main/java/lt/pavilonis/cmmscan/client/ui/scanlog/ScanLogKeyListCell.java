@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 
 public class ScanLogKeyListCell extends HBox {
 
-   private final Button removeKeyButton = new Button(null, new ImageView(new Image("images/delete-icon-16.png")));
+   private final Button removeKeyButton = new Button(null, new ImageView(new Image("images/flat-arrow-down-24.png")));
    private final int keyNumber;
 
    public ScanLogKeyListCell(int keyNumber) {
@@ -23,7 +23,7 @@ public class ScanLogKeyListCell extends HBox {
       this.keyNumber = keyNumber;
 
       Label keyLabel = new Label(String.valueOf(keyNumber));
-      keyLabel.setFont(Font.font(null, FontWeight.SEMI_BOLD, 15));
+      keyLabel.setFont(Font.font(null, FontWeight.BOLD, 15));
       keyLabel.setPrefWidth(80);
 
       this.getChildren().addAll(keyLabel, removeKeyButton);

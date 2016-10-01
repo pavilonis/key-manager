@@ -7,10 +7,10 @@ import javafx.scene.control.Tab;
 import javafx.scene.layout.BorderPane;
 import lt.pavilonis.cmmscan.client.App;
 import lt.pavilonis.cmmscan.client.WsRestClient;
+import lt.pavilonis.cmmscan.client.representation.KeyAction;
 import lt.pavilonis.cmmscan.client.representation.KeyRepresentation;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 
-@Component
+@Controller
 public class KeyLogTab extends Tab {
 
    private final KeyLogTable keyLogTable = new KeyLogTable();
@@ -32,40 +32,45 @@ public class KeyLogTab extends Tab {
 
       setClosable(false);
 
-      StringDatePeriodFilterPanel filterPanel =
-            new StringDatePeriodFilterPanel((searchString, periodStart, periodEnd) ->
-                  loadData(periodStart, periodEnd, response -> {
-                     if (response.isPresent()) {
-                        List<KeyRepresentation> keys = response.get();
-                        if (StringUtils.isNoneBlank(searchString)) {
-                           keys.removeIf(doesNotMatch(searchString));
-                        }
-                        keyLogTable.update(keys);
-                     } else {
-                        App.displayWarning("Can not load keys!");
-                     }
-                  })
-            );
+      KeyLogFilterPanel filter = new KeyLogFilterPanel();
+      filter.addSearchListener(event -> updateTable(filter));
 
-      BorderPane.setMargin(filterPanel, new Insets(0, 0, 15, 0));
+      BorderPane.setMargin(filter, new Insets(0, 0, 15, 0));
 
       setOnSelectionChanged(event -> {
          if (isSelected()) {
-            filterPanel.reset();
-            filterPanel.action();
+            filter.reset();
+            updateTable(filter);
          } else {
             keyLogTable.clear();
          }
-         BorderPane mainTabLayout = new BorderPane(keyLogTable, filterPanel, null, null, null);
+         BorderPane mainTabLayout = new BorderPane(keyLogTable, filter, null, null, null);
          mainTabLayout.setPadding(new Insets(15));
          setContent(mainTabLayout);
       });
    }
 
-   private Predicate<KeyRepresentation> doesNotMatch(String searchString) {
+   private void updateTable(KeyLogFilterPanel filter) {
+      loadData(filter.getPeriodStart(), filter.getPeriodEnd(), response -> {
+         if (response.isPresent()) {
+            List<KeyRepresentation> keys = response.get();
+            keys.removeIf(noActionMatch(filter.getAction()));
+            keys.removeIf(noTextMatch(filter.getText()));
+            keyLogTable.update(keys);
+         } else {
+            App.displayWarning("Can not load keys!");
+         }
+      });
+   }
+
+   private Predicate<KeyRepresentation> noActionMatch(KeyAction filter) {
+      return key -> filter != KeyAction.ALL && filter != key.keyAction;
+   }
+
+   private Predicate<KeyRepresentation> noTextMatch(String filter) {
       return key -> {
-         String content = key.user.firstName + key.user.lastName + key.keyNumber + key.dateTime;
-         return !content.toLowerCase().contains(searchString.toLowerCase());
+         String content = key.user.firstName + key.user.lastName + key.user.description + key.keyNumber + key.dateTime;
+         return !content.toLowerCase().contains(filter.toLowerCase());
       };
    }
 
@@ -86,6 +91,5 @@ public class KeyLogTab extends Tab {
             };
          }
       }.start();
-
    }
 }

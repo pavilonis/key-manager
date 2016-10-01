@@ -150,6 +150,10 @@ public class WsRestClient {
       } catch (ResourceAccessException e) {
          lastErrorMessage = e.getCause() == null ? e.getMessage() : e.getCause().getMessage();
          LOG.error(lastErrorMessage);
+      } catch (Exception e) {
+         e.printStackTrace();
+         lastErrorMessage = e.getMessage();
+         LOG.error(lastErrorMessage);
       }
       return Optional.empty();
    }
