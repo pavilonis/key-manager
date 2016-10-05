@@ -1,7 +1,6 @@
 package lt.pavilonis.scan.cmm.client.ui.scanlog;
 
 import javafx.application.Platform;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -13,7 +12,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import lt.pavilonis.scan.cmm.client.AppConfig;
 import lt.pavilonis.scan.cmm.client.representation.ScanLogRepresentation;
 import lt.pavilonis.scan.cmm.client.representation.UserRepresentation;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -52,24 +50,22 @@ final class ScanLogListElement extends HBox {
          }
       });
 
-      Label name = text(user.firstName + " " + user.lastName, 250);
-      Label description = text(user.description, 250);
-      getChildren().addAll(
-            text(TIME_FORMAT.format(representation.dateTime), 80),
-            name,
-            description,
-            controls
-      );
+      Label name = text(user.firstName + " " + user.lastName, (user.isStudent ? 208 : 250));
+      Label description = text(user.description, 240);
+
+      getChildren().add(text(TIME_FORMAT.format(representation.dateTime), 80));
+      if (user.isStudent) {
+         ImageView studentIcon = new ImageView(new Image("images/favorite-star-24.png"));
+         studentIcon.setFitWidth(24);
+         studentIcon.setFitHeight(24);
+         getChildren().add(studentIcon);
+      }
+      getChildren().addAll(name, description, controls);
 
       setHgrow(name, Priority.ALWAYS);
       setHgrow(description, Priority.ALWAYS);
       setHgrow(controls, Priority.ALWAYS);
       controls.setVisible(false);
-      if (user.isStudent) {
-         description.setStyle(AppConfig.STYLE_STUDENT);
-         description.setPadding(new Insets(0));
-         description.setPrefHeight(26);
-      }
    }
 
    private void assignKey(ScanLogRepresentation representation, BiConsumer<String, Integer> buttonClickConsumer) {
