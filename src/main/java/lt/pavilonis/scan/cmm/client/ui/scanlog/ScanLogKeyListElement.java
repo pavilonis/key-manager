@@ -12,12 +12,12 @@ import javafx.scene.text.FontWeight;
 
 import java.util.function.Consumer;
 
-public class ScanLogKeyListCell extends HBox {
+final class ScanLogKeyListElement extends HBox {
 
    private final Button removeKeyButton = new Button(null, new ImageView(new Image("images/flat-arrow-down-24.png")));
    private final int keyNumber;
 
-   public ScanLogKeyListCell(int keyNumber) {
+   ScanLogKeyListElement(int keyNumber) {
       this.setSpacing(10);
       this.removeKeyButton.setPrefWidth(50);
       this.keyNumber = keyNumber;

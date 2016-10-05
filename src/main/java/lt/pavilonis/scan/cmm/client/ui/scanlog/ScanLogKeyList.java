@@ -13,13 +13,12 @@ import java.util.List;
 import static java.util.stream.Collectors.toList;
 
 @Component
-public class ScanLogKeyList extends ListView<ScanLogKeyListCell> {
+public class ScanLogKeyList extends ListView<ScanLogKeyListElement> {
 
-   private final ObservableList<ScanLogKeyListCell> container =
+   private final ObservableList<ScanLogKeyListElement> container =
          FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
 
    private final WsRestClient wsClient;
-
 
    @Autowired
    public ScanLogKeyList(WsRestClient wsClient) {
@@ -28,21 +27,21 @@ public class ScanLogKeyList extends ListView<ScanLogKeyListCell> {
       setFocusTraversable(false);
    }
 
-   public void reload(List<KeyRepresentation> keys) {
+   void reload(List<KeyRepresentation> keys) {
       container.clear();
-      List<ScanLogKeyListCell> cells = keys.stream()
+      List<ScanLogKeyListElement> cells = keys.stream()
             .map(key -> composeCell(key.user.cardCode, key.keyNumber))
             .collect(toList());
 
       container.addAll(cells);
    }
 
-   public void append(KeyRepresentation representation) {
+   void append(KeyRepresentation representation) {
       container.add(composeCell(representation.user.cardCode, representation.keyNumber));
    }
 
-   private ScanLogKeyListCell composeCell(String cardCode, int keyNumber) {
-      ScanLogKeyListCell cell = new ScanLogKeyListCell(keyNumber);
+   private ScanLogKeyListElement composeCell(String cardCode, int keyNumber) {
+      ScanLogKeyListElement cell = new ScanLogKeyListElement(keyNumber);
       cell.addRemoveKeyButtonListener(key -> {
          boolean success = wsClient.returnKey(cardCode, key);
          if (success) {

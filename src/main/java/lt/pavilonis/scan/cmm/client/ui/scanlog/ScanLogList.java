@@ -5,9 +5,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListView;
 import lt.pavilonis.scan.cmm.client.App;
-import lt.pavilonis.scan.cmm.client.service.WsRestClient;
 import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
 import lt.pavilonis.scan.cmm.client.representation.ScanLogRepresentation;
+import lt.pavilonis.scan.cmm.client.service.WsRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,11 +15,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-public class ScanLogList extends ListView<ScanLogListCell> {
+public class ScanLogList extends ListView<ScanLogListElement> {
 
    private static final int POSITION_FIRST = 0;
    private static final int QUEUE_LENGTH = 99;
-   private final ObservableList<ScanLogListCell> container = FXCollections.observableArrayList();
+   private final ObservableList<ScanLogListElement> container = FXCollections.observableArrayList();
 
    @Autowired
    private WsRestClient wsClient;
@@ -27,17 +27,23 @@ public class ScanLogList extends ListView<ScanLogListCell> {
    @Autowired
    private ScanLogKeyList keyListView;
 
+   @Autowired
+   private PhotoView photoView;
+
    public ScanLogList() {
       setItems(container);
       setFocusTraversable(false);
 
-      getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+      getSelectionModel().selectedItemProperty().addListener((observable, oldElement, newElement) -> {
          Platform.runLater(() -> {
-            if (oldValue != null) {
-               oldValue.deactivate();
+            photoView.update(newElement.getUser().photoUrl);
+
+            if (oldElement != null) {
+               oldElement.deactivate();
             }
-            newValue.activate();
-            Optional<List<KeyRepresentation>> keys = wsClient.userKeysAssigned(newValue.getCardCode());
+            newElement.activate();
+
+            Optional<List<KeyRepresentation>> keys = wsClient.userKeysAssigned(newElement.getUser().cardCode);
             if (keys.isPresent()) {
                keyListView.reload(keys.get());
             } else {
@@ -45,7 +51,6 @@ public class ScanLogList extends ListView<ScanLogListCell> {
             }
          });
       });
-//      setStyle("-fx-font-size:15; -fx-font-weight: 600; -fx-alignment: center");
    }
 
    public void addElement(ScanLogRepresentation representation) {
@@ -53,17 +58,14 @@ public class ScanLogList extends ListView<ScanLogListCell> {
          if (container.size() > QUEUE_LENGTH) {
             container.remove(container.size() - 1);
          }
-         container.add(POSITION_FIRST, new ScanLogListCell(
-               representation,
-               (cardCode, keyNumber) -> {
-                  Optional<KeyRepresentation> response = wsClient.assignKey(cardCode, keyNumber);
-                  if (response.isPresent()) {
-                     keyListView.append(response.get());
-                  } else {
-                     App.displayWarning("Can not assign key!");
-                  }
-               })
-         );
+         container.add(POSITION_FIRST, new ScanLogListElement(representation, (cardCode, keyNumber) -> {
+            Optional<KeyRepresentation> response = wsClient.assignKey(cardCode, keyNumber);
+            if (response.isPresent()) {
+               keyListView.append(response.get());
+            } else {
+               App.displayWarning("Can not assign key!");
+            }
+         }));
       });
    }
 }

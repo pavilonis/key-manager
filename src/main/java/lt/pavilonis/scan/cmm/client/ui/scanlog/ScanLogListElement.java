@@ -24,18 +24,18 @@ import java.util.function.BiConsumer;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class ScanLogListCell extends HBox {
-   private static final Logger LOG = getLogger(ScanLogListCell.class.getSimpleName());
+final class ScanLogListElement extends HBox {
+   private static final Logger LOG = getLogger(ScanLogListElement.class.getSimpleName());
    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm:ss");
 
    private final TextField keyNumberField = new TextField();
    private final Button addKeyButton = new Button(null, new ImageView(new Image("images/flat-arrow-up-24.png")));
    private final HBox controls = new HBox(keyNumberField, addKeyButton);
-   private final String cardCode;
+   private final UserRepresentation user;
 
-   public ScanLogListCell(ScanLogRepresentation representation, BiConsumer<String, Integer> buttonClickConsumer) {
+   ScanLogListElement(ScanLogRepresentation representation, BiConsumer<String, Integer> buttonClickConsumer) {
       UserRepresentation user = representation.user;
-      this.cardCode = user.cardCode;
+      this.user = user;
       setSpacing(10);
       setAlignment(Pos.CENTER_LEFT);
       keyNumberField.setPrefWidth(70);
@@ -101,7 +101,7 @@ public class ScanLogListCell extends HBox {
       keyNumberField.clear();
    }
 
-   public String getCardCode() {
-      return cardCode;
+   UserRepresentation getUser() {
+      return this.user;
    }
 }
