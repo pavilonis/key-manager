@@ -36,7 +36,7 @@ public class ScanLogList extends ListView<ScanLogListElement> {
 
       getSelectionModel().selectedItemProperty().addListener((observable, oldElement, newElement) -> {
          Platform.runLater(() -> {
-            photoView.update(newElement.getUser().photoUrl);
+            photoView.update(newElement.getUser().base16photo);
 
             if (oldElement != null) {
                oldElement.deactivate();

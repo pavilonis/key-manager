@@ -12,10 +12,11 @@ import javafx.scene.control.TableView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import lt.pavilonis.scan.cmm.client.AppConfig;
-import lt.pavilonis.scan.cmm.client.service.WsRestClient;
 import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
 import lt.pavilonis.scan.cmm.client.representation.UserRepresentation;
+import lt.pavilonis.scan.cmm.client.service.WsRestClient;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -67,7 +68,7 @@ public class KeyAssignmentTable extends TableView<KeyRepresentation> {
          return new ReadOnlyObjectWrapper<>(user.firstName + " " + user.lastName);
       });
 
-      TableColumn<KeyRepresentation, KeyRepresentation> descriptionColumn = new TableColumn<>("Description");
+      TableColumn<KeyRepresentation, KeyRepresentation> descriptionColumn = new TableColumn<>("Group");
       descriptionColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
       descriptionColumn.setCellFactory(column -> new TableCell<KeyRepresentation, KeyRepresentation>() {
          @Override
@@ -78,14 +79,15 @@ public class KeyAssignmentTable extends TableView<KeyRepresentation> {
                setGraphic(null);
                setStyle("");
             } else {
-               setText(item.user.description);
-               if (item.user.isStudent) {
+               setText(item.user.group);
+               if (StringUtils.isNotBlank(item.user.role)
+                     && StringUtils.containsIgnoreCase(item.user.role, "mokinys")) {
                   setStyle(AppConfig.STYLE_STUDENT);
                }
             }
          }
       });
-      descriptionColumn.setComparator((key1, key2) -> ObjectUtils.compare(key1.user.description, key2.user.description));
+      descriptionColumn.setComparator((key1, key2) -> ObjectUtils.compare(key1.user.group, key2.user.group));
 
       TableColumn<KeyRepresentation, KeyRepresentation> actionColumn = new TableColumn<>("Action");
       actionColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));

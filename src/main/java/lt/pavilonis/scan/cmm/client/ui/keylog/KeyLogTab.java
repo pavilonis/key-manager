@@ -6,9 +6,9 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.BorderPane;
 import lt.pavilonis.scan.cmm.client.App;
-import lt.pavilonis.scan.cmm.client.service.WsRestClient;
 import lt.pavilonis.scan.cmm.client.representation.KeyAction;
 import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
+import lt.pavilonis.scan.cmm.client.service.WsRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-
 
 @Controller
 public class KeyLogTab extends Tab {
@@ -69,7 +68,7 @@ public class KeyLogTab extends Tab {
 
    private Predicate<KeyRepresentation> noTextMatch(String filter) {
       return key -> {
-         String content = key.user.firstName + key.user.lastName + key.user.description + key.keyNumber + key.dateTime;
+         String content = key.user.firstName + key.user.lastName + key.user.group + key.user.role + key.keyNumber + key.dateTime;
          return !content.toLowerCase().contains(filter.toLowerCase());
       };
    }

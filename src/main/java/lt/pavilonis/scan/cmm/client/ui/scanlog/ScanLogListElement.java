@@ -14,6 +14,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import lt.pavilonis.scan.cmm.client.representation.ScanLogRepresentation;
 import lt.pavilonis.scan.cmm.client.representation.UserRepresentation;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 
@@ -50,11 +51,12 @@ final class ScanLogListElement extends HBox {
          }
       });
 
-      Label name = text(user.firstName + " " + user.lastName, (user.isStudent ? 208 : 250));
-      Label description = text(user.description, 240);
+      boolean pupil = StringUtils.isNotBlank(user.role) && StringUtils.containsIgnoreCase(user.role, "mokinys");
+      Label name = text(user.firstName + " " + user.lastName, (pupil ? 208 : 250));
+      Label description = text(user.group, 240);
 
       getChildren().add(text(TIME_FORMAT.format(representation.dateTime), 80));
-      if (user.isStudent) {
+      if (pupil) {
          ImageView studentIcon = new ImageView(new Image("images/favorite-star-24.png"));
          studentIcon.setFitWidth(24);
          studentIcon.setFitHeight(24);

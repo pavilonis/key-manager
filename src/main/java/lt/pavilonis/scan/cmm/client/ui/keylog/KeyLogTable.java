@@ -15,6 +15,7 @@ import lt.pavilonis.scan.cmm.client.representation.KeyAction;
 import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
 import lt.pavilonis.scan.cmm.client.representation.UserRepresentation;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -62,9 +63,9 @@ final class KeyLogTable extends TableView<KeyRepresentation> {
          return new ReadOnlyObjectWrapper<>(user.firstName + " " + user.lastName);
       });
 
-      TableColumn<KeyRepresentation, UserRepresentation> descriptionColumn = new TableColumn<>("Description");
-      descriptionColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().user));
-      descriptionColumn.setCellFactory(column -> new TableCell<KeyRepresentation, UserRepresentation>() {
+      TableColumn<KeyRepresentation, UserRepresentation> groupColumn = new TableColumn<>("Group");
+      groupColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().user));
+      groupColumn.setCellFactory(column -> new TableCell<KeyRepresentation, UserRepresentation>() {
          @Override
          protected void updateItem(UserRepresentation item, boolean empty) {
             super.updateItem(item, empty);
@@ -73,14 +74,15 @@ final class KeyLogTable extends TableView<KeyRepresentation> {
                setGraphic(null);
                setStyle("");
             } else {
-               setText(item.description);
-               if (item.isStudent) {
+               setText(item.group);
+               if (StringUtils.isNoneBlank(item.role)
+                     && StringUtils.containsIgnoreCase(item.role, "mokinys")) {
                   setStyle(AppConfig.STYLE_STUDENT);
                }
             }
          }
       });
-      descriptionColumn.setComparator((user1, user2) -> ObjectUtils.compare(user1.description, (user2.description)));
+      groupColumn.setComparator((user1, user2) -> ObjectUtils.compare(user1.group, (user2.group)));
 
       TableColumn<KeyRepresentation, KeyAction> actionColumn = new TableColumn<>("Action");
       actionColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().keyAction));
@@ -111,7 +113,7 @@ final class KeyLogTable extends TableView<KeyRepresentation> {
       actionColumn.setMinWidth(100);
       actionColumn.setMaxWidth(100);
 
-      getColumns().addAll(asList(keyNumberColumn, dateTimeColumn, userColumn, descriptionColumn, actionColumn));
+      getColumns().addAll(asList(keyNumberColumn, dateTimeColumn, userColumn, groupColumn, actionColumn));
       getSortOrder().add(dateTimeColumn);
       setStyle("-fx-font-size:15; -fx-font-weight: 600; -fx-alignment: center");
       setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);

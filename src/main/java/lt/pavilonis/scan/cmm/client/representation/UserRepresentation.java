@@ -1,34 +1,32 @@
 package lt.pavilonis.scan.cmm.client.representation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
-import java.time.LocalDate;
 
 public class UserRepresentation {
-   public final String cardCode;
-   public final String firstName;
-   public final String lastName;
-   public final String description;
-   public final boolean isStudent;
-   public final LocalDate birthDate;
-   public final String photoUrl;
+
+   public String cardCode;
+   public String firstName;
+   public String lastName;
+   public String group;
+   public String role;
+   public String birthDate;
+   public String base16photo;
 
    public UserRepresentation(@JsonProperty("cardCode") String cardCode,
                              @JsonProperty("firstName") String firstName,
                              @JsonProperty("lastName") String lastName,
-                             @JsonProperty("description") String description,
-                             @JsonProperty("isStudent") boolean isStudent,
-                             @JsonProperty("photoUrl") String photoUrl,
-                             @JsonProperty("birthDate")
-                             @JsonSerialize(using = IsoLocalDateSerializer.class) LocalDate birthDate) {
+                             @JsonProperty("group") String group,
+                             @JsonProperty("role") String role,
+                             @JsonProperty("base16photo") String base16photo,
+                             @JsonProperty("birthDate") String birthDate) {
 
       this.cardCode = cardCode;
       this.firstName = firstName;
       this.lastName = lastName;
-      this.description = description;
-      this.isStudent = isStudent;
-      this.photoUrl = photoUrl;
+      this.group = group;
+      this.role = role;
+      this.base16photo = base16photo;
       this.birthDate = birthDate;
    }
 }
+

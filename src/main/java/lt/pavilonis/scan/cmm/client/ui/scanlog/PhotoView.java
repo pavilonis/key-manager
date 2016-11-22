@@ -1,12 +1,18 @@
 package lt.pavilonis.scan.cmm.client.ui.scanlog;
 
+import com.google.common.io.BaseEncoding;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
-import java.net.HttpURLConnection;
-import java.net.URL;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -20,25 +26,23 @@ public class PhotoView extends ImageView {
       setFitHeight(200);
    }
 
-   void update(String imageUrl) {
-      Image image = imageAvailable(imageUrl)
-            ? new Image(imageUrl, 200, 200, true, true, true)
-            : new Image("images/contacts-200.png");
-      this.setImage(image);
-   }
+   void update(String base16image) {
 
-   private boolean imageAvailable(String url) {
-      try {
-         URL u = new URL(url);
-         HttpURLConnection http = (HttpURLConnection) u.openConnection();
-         http.setInstanceFollowRedirects(false);
-         http.setRequestMethod("HEAD");
-         http.connect();
-         return http.getResponseCode() == HttpURLConnection.HTTP_OK;
-      } catch (Exception e) {
-         LOG.error("Photo loading error: {}", e.getMessage());
-         e.printStackTrace();
-         return false;
+      if (StringUtils.isNoneBlank(base16image) && BaseEncoding.base16().canDecode(base16image)) {
+
+         byte[] imageBytes = BaseEncoding.base16().decode(base16image);
+
+         try (ByteArrayInputStream input = new ByteArrayInputStream(imageBytes)) {
+            BufferedImage image = ImageIO.read(input);
+            WritableImage fxImage = SwingFXUtils.toFXImage(image, null);
+            this.setImage(fxImage);
+         } catch (IOException e) {
+            e.printStackTrace();
+         }
+
+      } else {
+
+         this.setImage(new Image("images/contacts-200.png"));
       }
    }
 }
