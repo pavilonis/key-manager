@@ -106,7 +106,7 @@ public class KeyAssignmentTable extends TableView<KeyRepresentation> {
                   setAlignment(Pos.CENTER);
                   setGraphic(returnKeyButton);
                   returnKeyButton.setOnAction(click -> {
-                     wsClient.returnKey(item.user.cardCode, item.keyNumber);
+                     wsClient.returnKey(item.keyNumber);
                      container.remove(item);
                   });
                }

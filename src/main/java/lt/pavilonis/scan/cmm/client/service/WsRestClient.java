@@ -84,9 +84,9 @@ public class WsRestClient {
       return response;
    }
 
-   public boolean returnKey(String cardCode, int keyNumber) {
+   public boolean returnKey(int keyNumber) {
 
-      URI uri = uri(SEGMENT_KEYS, scannerId, cardCode, String.valueOf(keyNumber));
+      URI uri = uri(SEGMENT_KEYS, scannerId, String.valueOf(keyNumber));
       Optional<KeyRepresentation> response = request(uri, HttpMethod.DELETE, KeyRepresentation.class);
 
       if (response.isPresent()) {

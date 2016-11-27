@@ -3,8 +3,8 @@ package lt.pavilonis.scan.cmm.client.ui.scanlog;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListView;
-import lt.pavilonis.scan.cmm.client.service.WsRestClient;
 import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
+import lt.pavilonis.scan.cmm.client.service.WsRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,20 +30,20 @@ public class ScanLogKeyList extends ListView<ScanLogKeyListElement> {
    void reload(List<KeyRepresentation> keys) {
       container.clear();
       List<ScanLogKeyListElement> cells = keys.stream()
-            .map(key -> composeCell(key.user.cardCode, key.keyNumber))
+            .map(key -> composeCell(key.keyNumber))
             .collect(toList());
 
       container.addAll(cells);
    }
 
    void append(KeyRepresentation representation) {
-      container.add(composeCell(representation.user.cardCode, representation.keyNumber));
+      container.add(composeCell(representation.keyNumber));
    }
 
-   private ScanLogKeyListElement composeCell(String cardCode, int keyNumber) {
+   private ScanLogKeyListElement composeCell(int keyNumber) {
       ScanLogKeyListElement cell = new ScanLogKeyListElement(keyNumber);
       cell.addRemoveKeyButtonListener(key -> {
-         boolean success = wsClient.returnKey(cardCode, key);
+         boolean success = wsClient.returnKey(key);
          if (success) {
             container.remove(cell);
          }
