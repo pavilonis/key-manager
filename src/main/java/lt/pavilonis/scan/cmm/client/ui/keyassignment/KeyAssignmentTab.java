@@ -7,10 +7,10 @@ import javafx.scene.control.Tab;
 import javafx.scene.layout.BorderPane;
 import lt.pavilonis.scan.cmm.client.App;
 import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
+import lt.pavilonis.scan.cmm.client.service.MessageSourceAdapter;
 import lt.pavilonis.scan.cmm.client.service.WsRestClient;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -22,20 +22,19 @@ import java.util.function.Predicate;
 @Component
 public class KeyAssignmentTab extends Tab {
 
-   private static final String CLASS_NAME = KeyAssignmentTab.class.getSimpleName();
    private final WsRestClient wsClient;
 
    @Autowired
    public KeyAssignmentTab(WsRestClient wsClient,
                            KeyAssignmentTable keyAssignmentTable,
-                           MessageSource messageSource) {
+                           MessageSourceAdapter messages) {
 
-      this.setText(messageSource.getMessage(CLASS_NAME + ".title", null, null));
+      this.setText(messages.get(this, "title"));
       this.wsClient = wsClient;
 
       setClosable(false);
 
-      KeyAssignmentFilterPanel stringFilterPanel = new KeyAssignmentFilterPanel(messageSource, searchString ->
+      KeyAssignmentFilterPanel stringFilterPanel = new KeyAssignmentFilterPanel(messages, searchString ->
             loadData(response -> {
                if (response.isPresent()) {
                   List<KeyRepresentation> keys = response.get();
@@ -44,7 +43,7 @@ public class KeyAssignmentTab extends Tab {
                   }
                   keyAssignmentTable.update(keys);
                } else {
-                  App.displayWarning(messageSource.getMessage(CLASS_NAME + ".canNotLoadKeys", null, null));
+                  App.displayWarning(messages.get(this, "canNotLoadKeys"));
                }
             }));
 

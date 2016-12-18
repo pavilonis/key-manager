@@ -8,9 +8,9 @@ import javafx.scene.layout.BorderPane;
 import lt.pavilonis.scan.cmm.client.App;
 import lt.pavilonis.scan.cmm.client.representation.KeyAction;
 import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
+import lt.pavilonis.scan.cmm.client.service.MessageSourceAdapter;
 import lt.pavilonis.scan.cmm.client.service.WsRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDate;
@@ -22,22 +22,21 @@ import java.util.function.Predicate;
 @Controller
 public class KeyLogTab extends Tab {
 
-   private static final String CLASS_NAME = KeyLogTab.class.getSimpleName();
    private final KeyLogTable keyLogTable;
    private final WsRestClient wsClient;
-   private MessageSource messageSource;
+   private MessageSourceAdapter messages;
 
    @Autowired
-   public KeyLogTab(WsRestClient wsClient, MessageSource messageSource) {
-      setText(messageSource.getMessage(CLASS_NAME + ".title", null, null));
+   public KeyLogTab(WsRestClient wsClient, MessageSourceAdapter messages) {
+      setText(messages.get(this, "title"));
 
-      this.messageSource = messageSource;
+      this.messages = messages;
       this.wsClient = wsClient;
-      this.keyLogTable = new KeyLogTable(messageSource);
+      this.keyLogTable = new KeyLogTable(messages);
 
       setClosable(false);
 
-      KeyLogFilterPanel filter = new KeyLogFilterPanel(messageSource);
+      KeyLogFilterPanel filter = new KeyLogFilterPanel(messages);
       filter.addSearchListener(event -> updateTable(filter));
 
       BorderPane.setMargin(filter, new Insets(0, 0, 15, 0));
@@ -63,7 +62,7 @@ public class KeyLogTab extends Tab {
             keys.removeIf(noTextMatch(filter.getText()));
             keyLogTable.update(keys);
          } else {
-            App.displayWarning(messageSource.getMessage(CLASS_NAME + ".canNotLoadKeys", null, null));
+            App.displayWarning(messages.get(this, "canNotLoadKeys"));
          }
       });
    }

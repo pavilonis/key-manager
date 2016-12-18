@@ -15,8 +15,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.util.StringConverter;
 import lt.pavilonis.scan.cmm.client.representation.KeyAction;
+import lt.pavilonis.scan.cmm.client.service.MessageSourceAdapter;
 import org.apache.commons.lang3.NotImplementedException;
-import org.springframework.context.MessageSource;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -43,15 +43,15 @@ public final class KeyLogFilterPanel extends HBox {
    private final ComboBox<KeyAction> actionComboBox = new ComboBox<>(FXCollections.observableArrayList(KeyAction.values()));
    private final Button searchButton;
 
-   public KeyLogFilterPanel(MessageSource messageSource) {
+   public KeyLogFilterPanel(MessageSourceAdapter messages) {
       searchButton = new Button(
-            messageSource.getMessage(this.getClass().getSimpleName() + ".search", null, null),
+            messages.get(this, "filter"),
             new ImageView(new Image("images/flat-find-16.png"))
       );
       actionComboBox.setConverter(new StringConverter<KeyAction>() {
          @Override
          public String toString(KeyAction object) {
-            return messageSource.getMessage(KeyAction.class.getSimpleName() + "." + object.name(), null, null);
+            return messages.get(object, object.name());
          }
 
          @Override

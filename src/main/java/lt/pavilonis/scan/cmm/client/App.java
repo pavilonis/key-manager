@@ -23,7 +23,6 @@ public class App extends Application {
    private static WsRestClient wsClient;
 
    public static void main(String[] args) {
-      Locale.setDefault(new Locale("lt", "LT"));
       launch(args);
    }
 

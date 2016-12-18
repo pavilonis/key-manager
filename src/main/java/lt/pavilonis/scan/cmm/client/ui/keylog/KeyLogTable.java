@@ -14,9 +14,9 @@ import lt.pavilonis.scan.cmm.client.AppConfig;
 import lt.pavilonis.scan.cmm.client.representation.KeyAction;
 import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
 import lt.pavilonis.scan.cmm.client.representation.UserRepresentation;
+import lt.pavilonis.scan.cmm.client.service.MessageSourceAdapter;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.MessageSource;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -25,23 +25,22 @@ import static java.util.Arrays.asList;
 
 final class KeyLogTable extends TableView<KeyRepresentation> {
 
-   private static final String CLASS_NAME = KeyLogTable.class.getSimpleName();
    private static final String ICON_ASSINGED = "images/flat-arrow-up-24.png";
    private static final String ICON_UNASSIGNED = "images/flat-arrow-down-24.png";
    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd  hh:mm:ss");
    private final ObservableList<KeyRepresentation> container = FXCollections.observableArrayList();
 
-   public KeyLogTable(MessageSource messageSource) {
+   public KeyLogTable(MessageSourceAdapter messages) {
       this.setItems(container);
 
       TableColumn<KeyRepresentation, Integer> keyNumberColumn =
-            new TableColumn<>(messageSource.getMessage(CLASS_NAME + ".keyNumber", null, null));
+            new TableColumn<>(messages.get(this, ("keyNumber")));
       keyNumberColumn.setMinWidth(120);
       keyNumberColumn.setMaxWidth(120);
       keyNumberColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().keyNumber));
 
       TableColumn<KeyRepresentation, KeyRepresentation> dateTimeColumn =
-            new TableColumn<>(messageSource.getMessage(CLASS_NAME + ".dateTime", null, null));
+            new TableColumn<>(messages.get(this, ("dateTime")));
       dateTimeColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
       dateTimeColumn.setCellFactory(column -> new TableCell<KeyRepresentation, KeyRepresentation>() {
          @Override
@@ -62,14 +61,14 @@ final class KeyLogTable extends TableView<KeyRepresentation> {
       dateTimeColumn.setMaxWidth(190);
 
       TableColumn<KeyRepresentation, String> userColumn =
-            new TableColumn<>(messageSource.getMessage(CLASS_NAME+".user", null, null));
+            new TableColumn<>(messages.get(this, "user"));
       userColumn.setCellValueFactory(param -> {
          UserRepresentation user = param.getValue().user;
          return new ReadOnlyObjectWrapper<>(user.firstName + " " + user.lastName);
       });
 
       TableColumn<KeyRepresentation, UserRepresentation> groupColumn =
-            new TableColumn<>(messageSource.getMessage(CLASS_NAME+".group", null, null));
+            new TableColumn<>(messages.get(this, "group"));
       groupColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().user));
       groupColumn.setCellFactory(column -> new TableCell<KeyRepresentation, UserRepresentation>() {
          @Override
@@ -91,7 +90,7 @@ final class KeyLogTable extends TableView<KeyRepresentation> {
       groupColumn.setComparator((user1, user2) -> ObjectUtils.compare(user1.group, (user2.group)));
 
       TableColumn<KeyRepresentation, KeyAction> actionColumn =
-            new TableColumn<>(messageSource.getMessage(CLASS_NAME+".action", null, null));
+            new TableColumn<>(messages.get(this, "action"));
 
       actionColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().keyAction));
       actionColumn.setCellFactory(param -> new TableCell<KeyRepresentation, KeyAction>() {

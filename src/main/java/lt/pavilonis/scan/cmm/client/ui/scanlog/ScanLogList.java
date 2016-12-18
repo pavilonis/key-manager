@@ -7,9 +7,9 @@ import javafx.scene.control.ListView;
 import lt.pavilonis.scan.cmm.client.App;
 import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
 import lt.pavilonis.scan.cmm.client.representation.ScanLogRepresentation;
+import lt.pavilonis.scan.cmm.client.service.MessageSourceAdapter;
 import lt.pavilonis.scan.cmm.client.service.WsRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -33,7 +33,7 @@ public class ScanLogList extends ListView<ScanLogListElement> {
    private PhotoView photoView;
 
    @Autowired
-   private MessageSource messageSource;
+   private MessageSourceAdapter messages;
 
    public ScanLogList() {
       setItems(container);
@@ -52,7 +52,7 @@ public class ScanLogList extends ListView<ScanLogListElement> {
             if (keys.isPresent()) {
                keyListView.reload(keys.get());
             } else {
-               App.displayWarning(messageSource.getMessage(CLASS_NAME + ".canNotLoadUserAssignedKeys", null, null));
+               App.displayWarning(messages.get(this, "canNotLoadUserAssignedKeys"));
             }
          });
       });
@@ -68,7 +68,7 @@ public class ScanLogList extends ListView<ScanLogListElement> {
             if (response.isPresent()) {
                keyListView.append(response.get());
             } else {
-               App.displayWarning(messageSource.getMessage(CLASS_NAME + ".canNotAssignKey", null, null));
+               App.displayWarning(messages.get(this, "canNotAssignKey"));
             }
          }));
       });

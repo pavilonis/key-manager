@@ -12,6 +12,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Base64;
+import java.util.Locale;
 
 import static java.util.Collections.singletonList;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -37,13 +38,6 @@ public class AppConfig {
       return rest;
    }
 
-   //   @Bean
-//   public static PropertySourcesPlaceholderConfigurer getPropertySourcesPlaceholderConfigurer() {
-//      PropertySourcesPlaceholderConfigurer conf = new PropertySourcesPlaceholderConfigurer();
-//      conf.setFileEncoding("UTF-8");
-//      return conf;
-//   }
-
    @Bean
    public ReloadableResourceBundleMessageSource messageSource() {
       ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
@@ -51,6 +45,7 @@ public class AppConfig {
       messageSource.setBasename("classpath:lang/messages");
       messageSource.setCacheSeconds(0);
       messageSource.setDefaultEncoding("UTF-8");
+      Locale.setDefault(new Locale("lt", "LT"));
       return messageSource;
    }
 

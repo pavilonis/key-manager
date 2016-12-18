@@ -5,8 +5,8 @@ import javafx.scene.control.Tab;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import lt.pavilonis.scan.cmm.client.service.MessageSourceAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -14,9 +14,8 @@ public class ScanLogTab extends Tab {
 
    @Autowired
    public ScanLogTab(ScanLogKeyList keyListView, ScanLogList scanLogList,
-                     PhotoView photoView, MessageSource messageSource) {
-      String title = messageSource.getMessage(this.getClass().getSimpleName() + ".title", null, null);
-      setText(title);
+                     PhotoView photoView, MessageSourceAdapter messages) {
+      setText(messages.get(this, "title"));
       setClosable(false);
 
       VBox rightColumn = new VBox(keyListView, photoView);
