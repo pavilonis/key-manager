@@ -23,6 +23,7 @@ public class ScanReadObserver extends ScannerReadEventObserver {
 
    @Override
    protected void consumeScannerInput(String string) {
+      string = string + "000000";
       LOG.info("Sending scan request [cardCode={}]", string);
 
       Optional<ScanLogRepresentation> response = wsClient.writeScanLog(string);
