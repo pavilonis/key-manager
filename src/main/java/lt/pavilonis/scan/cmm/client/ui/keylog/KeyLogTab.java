@@ -1,7 +1,5 @@
 package lt.pavilonis.scan.cmm.client.ui.keylog;
 
-import javafx.concurrent.Service;
-import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.BorderPane;
@@ -10,18 +8,21 @@ import lt.pavilonis.scan.cmm.client.representation.KeyAction;
 import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
 import lt.pavilonis.scan.cmm.client.service.MessageSourceAdapter;
 import lt.pavilonis.scan.cmm.client.service.WsRestClient;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static org.slf4j.LoggerFactory.getLogger;
 
 @Controller
 public class KeyLogTab extends Tab {
 
+   private static final Logger LOG = getLogger(KeyLogTab.class.getSimpleName());
    private final KeyLogTable keyLogTable;
    private final WsRestClient wsClient;
    private MessageSourceAdapter messages;
@@ -55,16 +56,21 @@ public class KeyLogTab extends Tab {
    }
 
    private void updateTable(KeyLogFilterPanel filter) {
-      loadData(filter.getPeriodStart(), filter.getPeriodEnd(), response -> {
-         if (response.isPresent()) {
-            List<KeyRepresentation> keys = response.get();
-            keys.removeIf(noActionMatch(filter.getAction()));
-            keys.removeIf(noTextMatch(filter.getText()));
-            keyLogTable.update(keys);
-         } else {
-            App.displayWarning(messages.get(this, "canNotLoadKeys"));
-         }
-      });
+      wsClient.keyLog(
+            filter.getPeriodStart(),
+            filter.getPeriodEnd(),
+            response -> {
+               if (response.isPresent()) {
+                  LOG.info("Loaded keyLog [entries={}]", response.get().length);
+                  List<KeyRepresentation> keys = newArrayList(response.get());
+                  keys.removeIf(noActionMatch(filter.getAction()));
+                  keys.removeIf(noTextMatch(filter.getText()));
+                  keyLogTable.update(keys);
+               } else {
+                  App.displayWarning(messages.get(this, "canNotLoadKeys"));
+               }
+            }
+      );
    }
 
    private Predicate<KeyRepresentation> noActionMatch(KeyAction filter) {
@@ -78,22 +84,21 @@ public class KeyLogTab extends Tab {
       };
    }
 
-   private void loadData(LocalDate periodStart,
-                         LocalDate periodEnd,
-                         Consumer<Optional<List<KeyRepresentation>>> responseConsumer) {
-
-      new Service<Void>() {
-         @Override
-         protected Task<Void> createTask() {
-            return new Task<Void>() {
-               @Override
-               protected Void call() throws Exception {
-                  Optional<List<KeyRepresentation>> response = wsClient.keyLog(periodStart, periodEnd);
-                  responseConsumer.accept(response);
-                  return null;
-               }
-            };
-         }
-      }.start();
-   }
+//   private void loadData(LocalDate periodStart,
+//                         LocalDate periodEnd,
+//                         Consumer<Optional<List<KeyRepresentation>>> responseConsumer) {
+//
+//      new Service<Void>() {
+//         @Override
+//         protected Task<Void> createTask() {
+//            return new Task<Void>() {
+//               @Override
+//               protected Void call() throws Exception {
+//
+//                  return null;
+//               }
+//            };
+//         }
+//      }.start();
+//   }
 }

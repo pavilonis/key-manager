@@ -7,18 +7,19 @@ import javafx.scene.control.ListView;
 import lt.pavilonis.scan.cmm.client.App;
 import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
 import lt.pavilonis.scan.cmm.client.representation.ScanLogRepresentation;
+import lt.pavilonis.scan.cmm.client.representation.UserRepresentation;
 import lt.pavilonis.scan.cmm.client.service.MessageSourceAdapter;
 import lt.pavilonis.scan.cmm.client.service.WsRestClient;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Optional;
+import static com.google.common.collect.Lists.newArrayList;
+import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 public class ScanLogList extends ListView<ScanLogListElement> {
-
-   private static final String CLASS_NAME = ScanLogList.class.getSimpleName();
+   private static final Logger LOG = getLogger(ScanLogList.class.getSimpleName());
    private static final int POSITION_FIRST = 0;
    private static final int QUEUE_LENGTH = 99;
    private final ObservableList<ScanLogListElement> container = FXCollections.observableArrayList();
@@ -41,19 +42,25 @@ public class ScanLogList extends ListView<ScanLogListElement> {
 
       getSelectionModel().selectedItemProperty().addListener((observable, oldElement, newElement) -> {
          Platform.runLater(() -> {
-            photoView.update(newElement.getUser().base16photo);
+            UserRepresentation user = newElement.getUser();
+            photoView.update(user.base16photo);
 
             if (oldElement != null) {
                oldElement.deactivate();
             }
             newElement.activate();
 
-            Optional<List<KeyRepresentation>> keys = wsClient.userKeysAssigned(newElement.getUser().cardCode);
-            if (keys.isPresent()) {
-               keyListView.reload(keys.get());
-            } else {
-               App.displayWarning(messages.get(this, "canNotLoadUserAssignedKeys"));
-            }
+
+            wsClient.userKeysAssigned(user.cardCode, response -> {
+               if (response.isPresent()) {
+                  LOG.info("Loaded user assigned keys [cardCode={}, keysNum={}]",
+                        user.cardCode, response.get().length);
+
+                  keyListView.reload(newArrayList(response.get()));
+               } else {
+                  App.displayWarning(messages.get(this, "canNotLoadUserAssignedKeys"));
+               }
+            });
          });
       });
    }
@@ -63,14 +70,16 @@ public class ScanLogList extends ListView<ScanLogListElement> {
          if (container.size() > QUEUE_LENGTH) {
             container.remove(container.size() - 1);
          }
-         container.add(POSITION_FIRST, new ScanLogListElement(representation, (cardCode, keyNumber) -> {
-            Optional<KeyRepresentation> response = wsClient.assignKey(cardCode, keyNumber);
-            if (response.isPresent()) {
-               keyListView.append(response.get());
-            } else {
-               App.displayWarning(messages.get(this, "canNotAssignKey"));
-            }
-         }));
+         container.add(POSITION_FIRST, new ScanLogListElement(representation, (cardCode, keyNumber) ->
+               wsClient.assignKey(cardCode, keyNumber, response -> {
+                  if (response.isPresent()) {
+                     KeyRepresentation key = response.get();
+                     keyListView.append(key);
+                     LOG.info("Key {} assigned to cardCode {}", key.keyNumber, key.user.cardCode);
+                  } else {
+                     App.displayWarning(messages.get(this, "canNotAssignKey"));
+                  }
+               })));
       });
    }
 }

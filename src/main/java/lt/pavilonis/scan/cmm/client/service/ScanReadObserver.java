@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 
 @Component
 public class ScanReadObserver extends ScannerReadEventObserver {
@@ -23,15 +24,15 @@ public class ScanReadObserver extends ScannerReadEventObserver {
 
    @Override
    protected void consumeScannerInput(String string) {
-      string = string + "000000";
-      LOG.info("Sending scan request [cardCode={}]", string);
+      Consumer<Optional<ScanLogRepresentation>> consumer = response -> {
+         if (response.isPresent()) {
+            LOG.info("Response [user={}]", response.get().user.firstName + " " + response.get().user.lastName);
+            scanLogList.addElement(response.get());
+         } else {
+            App.displayWarning("Can not write scan log");
+         }
+      };
 
-      Optional<ScanLogRepresentation> response = wsClient.writeScanLog(string);
-      if (response.isPresent()) {
-         LOG.info("Response [user={}]", response.get().user.firstName + " " + response.get().user.lastName);
-         scanLogList.addElement(response.get());
-      } else {
-         App.displayWarning("Can not write scan log");
-      }
+      wsClient.writeScanLog(string + "000000", consumer);
    }
 }

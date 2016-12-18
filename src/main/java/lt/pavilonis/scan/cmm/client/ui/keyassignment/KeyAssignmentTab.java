@@ -1,7 +1,5 @@
 package lt.pavilonis.scan.cmm.client.ui.keyassignment;
 
-import javafx.concurrent.Service;
-import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.BorderPane;
@@ -10,18 +8,20 @@ import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
 import lt.pavilonis.scan.cmm.client.service.MessageSourceAdapter;
 import lt.pavilonis.scan.cmm.client.service.WsRestClient;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 public class KeyAssignmentTab extends Tab {
 
+   private static final Logger LOG = getLogger(KeyAssignmentTab.class.getSimpleName());
    private final WsRestClient wsClient;
 
    @Autowired
@@ -34,10 +34,12 @@ public class KeyAssignmentTab extends Tab {
 
       setClosable(false);
 
-      KeyAssignmentFilterPanel stringFilterPanel = new KeyAssignmentFilterPanel(messages, searchString ->
-            loadData(response -> {
+      KeyAssignmentFilterPanel stringFilterPanel = new KeyAssignmentFilterPanel(
+            messages,
+            searchString -> wsClient.allKeysAssigned(response -> {
                if (response.isPresent()) {
-                  List<KeyRepresentation> keys = response.get();
+                  LOG.info("Loaded all assigned keys [number={}]", response.get().length);
+                  List<KeyRepresentation> keys = newArrayList(response.get());
                   if (StringUtils.isNoneBlank(searchString)) {
                      keys.removeIf(doesNotMatch(searchString));
                   }
@@ -45,7 +47,8 @@ public class KeyAssignmentTab extends Tab {
                } else {
                   App.displayWarning(messages.get(this, "canNotLoadKeys"));
                }
-            }));
+            })
+      );
 
       BorderPane.setMargin(stringFilterPanel, new Insets(0, 0, 15, 0));
 
@@ -69,19 +72,19 @@ public class KeyAssignmentTab extends Tab {
       };
    }
 
-   private void loadData(Consumer<Optional<List<KeyRepresentation>>> responseConsumer) {
-      new Service<Void>() {
-         @Override
-         protected Task<Void> createTask() {
-            return new Task<Void>() {
-               @Override
-               protected Void call() throws Exception {
-                  Optional<List<KeyRepresentation>> response = wsClient.allKeysAssigned();
-                  responseConsumer.accept(response);
-                  return null;
-               }
-            };
-         }
-      }.start();
-   }
+//   private void loadData(Consumer<Optional<List<KeyRepresentation>>> responseConsumer) {
+//      new Service<Void>() {
+//         @Override
+//         protected Task<Void> createTask() {
+//            return new Task<Void>() {
+//               @Override
+//               protected Void call() throws Exception {
+//                  Optional<List<KeyRepresentation>> response = wsClient.allKeysAssigned();
+//                  responseConsumer.accept(response);
+//                  return null;
+//               }
+//            };
+//         }
+//      }.start();
+//   }
 }

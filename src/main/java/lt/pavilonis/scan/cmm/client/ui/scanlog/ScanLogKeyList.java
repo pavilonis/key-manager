@@ -42,12 +42,12 @@ public class ScanLogKeyList extends ListView<ScanLogKeyListElement> {
 
    private ScanLogKeyListElement composeCell(int keyNumber) {
       ScanLogKeyListElement cell = new ScanLogKeyListElement(keyNumber);
-      cell.addRemoveKeyButtonListener(key -> {
-         boolean success = wsClient.returnKey(key);
-         if (success) {
-            container.remove(cell);
-         }
-      });
+      cell.addRemoveKeyButtonListener(key ->
+            wsClient.returnKey(key, response -> {
+               if (response.isPresent()) {
+                  container.remove(cell);
+               }
+            }));
       return cell;
    }
 }

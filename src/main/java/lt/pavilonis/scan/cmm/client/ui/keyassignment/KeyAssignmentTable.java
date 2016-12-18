@@ -18,6 +18,7 @@ import lt.pavilonis.scan.cmm.client.service.MessageSourceAdapter;
 import lt.pavilonis.scan.cmm.client.service.WsRestClient;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,10 +27,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 public class KeyAssignmentTable extends TableView<KeyRepresentation> {
 
+   private static final Logger LOG = getLogger(KeyAssignmentTable.class.getSimpleName());
    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd  hh:mm:ss");
    private final ObservableList<KeyRepresentation> container = FXCollections.observableArrayList();
 
@@ -107,10 +110,14 @@ public class KeyAssignmentTable extends TableView<KeyRepresentation> {
                } else {
                   setAlignment(Pos.CENTER);
                   setGraphic(returnKeyButton);
-                  returnKeyButton.setOnAction(click -> {
-                     wsClient.returnKey(item.keyNumber);
-                     container.remove(item);
-                  });
+                  returnKeyButton.setOnAction(click -> wsClient.returnKey(item.keyNumber, response -> {
+                     if (response.isPresent()) {
+                        LOG.info("Returned key [keyNumber={}]", response.get().keyNumber);
+                        container.remove(item);
+                     } else {
+                        LOG.error("Erroneous state - could not return key [keyNumber={}]", item.keyNumber);
+                     }
+                  }));
                }
             }
          };
