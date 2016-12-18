@@ -9,6 +9,7 @@ import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
 import lt.pavilonis.scan.cmm.client.representation.ScanLogRepresentation;
 import lt.pavilonis.scan.cmm.client.service.WsRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.Optional;
 @Component
 public class ScanLogList extends ListView<ScanLogListElement> {
 
+   private static final String CLASS_NAME = ScanLogList.class.getSimpleName();
    private static final int POSITION_FIRST = 0;
    private static final int QUEUE_LENGTH = 99;
    private final ObservableList<ScanLogListElement> container = FXCollections.observableArrayList();
@@ -29,6 +31,9 @@ public class ScanLogList extends ListView<ScanLogListElement> {
 
    @Autowired
    private PhotoView photoView;
+
+   @Autowired
+   private MessageSource messageSource;
 
    public ScanLogList() {
       setItems(container);
@@ -47,7 +52,7 @@ public class ScanLogList extends ListView<ScanLogListElement> {
             if (keys.isPresent()) {
                keyListView.reload(keys.get());
             } else {
-               App.displayWarning("Can not load user assigned keys!");
+               App.displayWarning(messageSource.getMessage(CLASS_NAME + ".canNotLoadUserAssignedKeys", null, null));
             }
          });
       });
@@ -63,7 +68,7 @@ public class ScanLogList extends ListView<ScanLogListElement> {
             if (response.isPresent()) {
                keyListView.append(response.get());
             } else {
-               App.displayWarning("Can not assign key!");
+               App.displayWarning(messageSource.getMessage(CLASS_NAME + ".canNotAssignKey", null, null));
             }
          }));
       });

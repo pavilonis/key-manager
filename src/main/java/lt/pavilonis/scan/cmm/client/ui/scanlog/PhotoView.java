@@ -19,8 +19,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 @Component
 public class PhotoView extends ImageView {
 
-   private static final Logger LOG = getLogger(PhotoView.class.getSimpleName());
-
    public PhotoView() {
       setFitWidth(200);
       setFitHeight(200);

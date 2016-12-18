@@ -10,6 +10,7 @@ import lt.pavilonis.scan.cmm.client.representation.KeyAction;
 import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
 import lt.pavilonis.scan.cmm.client.service.WsRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDate;
@@ -21,17 +22,22 @@ import java.util.function.Predicate;
 @Controller
 public class KeyLogTab extends Tab {
 
-   private final KeyLogTable keyLogTable = new KeyLogTable();
+   private static final String CLASS_NAME = KeyLogTab.class.getSimpleName();
+   private final KeyLogTable keyLogTable;
    private final WsRestClient wsClient;
+   private MessageSource messageSource;
 
    @Autowired
-   public KeyLogTab(WsRestClient wsClient) {
-      super("Key Log");
+   public KeyLogTab(WsRestClient wsClient, MessageSource messageSource) {
+      setText(messageSource.getMessage(CLASS_NAME + ".title", null, null));
+
+      this.messageSource = messageSource;
       this.wsClient = wsClient;
+      this.keyLogTable = new KeyLogTable(messageSource);
 
       setClosable(false);
 
-      KeyLogFilterPanel filter = new KeyLogFilterPanel();
+      KeyLogFilterPanel filter = new KeyLogFilterPanel(messageSource);
       filter.addSearchListener(event -> updateTable(filter));
 
       BorderPane.setMargin(filter, new Insets(0, 0, 15, 0));
@@ -57,7 +63,7 @@ public class KeyLogTab extends Tab {
             keys.removeIf(noTextMatch(filter.getText()));
             keyLogTable.update(keys);
          } else {
-            App.displayWarning("Can not load keys!");
+            App.displayWarning(messageSource.getMessage(CLASS_NAME + ".canNotLoadKeys", null, null));
          }
       });
    }

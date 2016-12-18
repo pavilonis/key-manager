@@ -38,7 +38,7 @@ final class ScanLogListElement extends HBox {
       setSpacing(10);
       setAlignment(Pos.CENTER_LEFT);
       keyNumberField.setPrefWidth(70);
-      addKeyButton.setPrefWidth(50);
+      addKeyButton.setPrefWidth(70);
       controls.setSpacing(5);
       controls.setPrefWidth(125);
       controls.setAlignment(Pos.CENTER_RIGHT);

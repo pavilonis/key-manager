@@ -6,14 +6,17 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ScanLogTab extends Tab {
 
    @Autowired
-   public ScanLogTab(ScanLogKeyList keyListView, ScanLogList scanLogList, PhotoView photoView) {
-      super("Scan Log");
+   public ScanLogTab(ScanLogKeyList keyListView, ScanLogList scanLogList,
+                     PhotoView photoView, MessageSource messageSource) {
+      String title = messageSource.getMessage(this.getClass().getSimpleName() + ".title", null, null);
+      setText(title);
       setClosable(false);
 
       VBox rightColumn = new VBox(keyListView, photoView);

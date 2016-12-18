@@ -6,18 +6,22 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
+import org.springframework.context.MessageSource;
 
 import java.util.function.Consumer;
 
-public final class StringFilterPanel extends HBox {
+public final class KeyAssignmentFilterPanel extends HBox {
 
+   private static final String CLASS_NAME = KeyAssignmentFilterPanel.class.getSimpleName();
    private final Consumer<String> searchStringConsumer;
    private final TextField textField = new TextField();
 
-   public StringFilterPanel(Consumer<String> searchStringConsumer) {
+   public KeyAssignmentFilterPanel(MessageSource messageSource, Consumer<String> searchStringConsumer) {
       this.searchStringConsumer = searchStringConsumer;
 
-      Button searchButton = new Button("Search", new ImageView(new Image("images/flat-find-16.png")));
+      Button searchButton = new Button(
+            messageSource.getMessage(CLASS_NAME + ".search", null, null),
+            new ImageView(new Image("images/flat-find-16.png")));
       searchButton.setOnAction(event -> action());
 
       textField.requestFocus();

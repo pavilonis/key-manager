@@ -13,6 +13,8 @@ import lt.pavilonis.scan.cmm.client.ui.scanlog.ScanLogTab;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 
+import java.util.Locale;
+
 public class App extends Application {
 
    private static final StackPane ROOT_PANE = new StackPane();
@@ -21,6 +23,7 @@ public class App extends Application {
    private static WsRestClient wsClient;
 
    public static void main(String[] args) {
+      Locale.setDefault(new Locale("lt", "LT"));
       launch(args);
    }
 

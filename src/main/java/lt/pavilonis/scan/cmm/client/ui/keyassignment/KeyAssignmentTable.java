@@ -18,6 +18,7 @@ import lt.pavilonis.scan.cmm.client.service.WsRestClient;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -29,21 +30,22 @@ import static java.util.Arrays.asList;
 @Component
 public class KeyAssignmentTable extends TableView<KeyRepresentation> {
 
+   private static final String CLASS_NAME = KeyAssignmentTable.class.getSimpleName();
    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd  hh:mm:ss");
    private final ObservableList<KeyRepresentation> container = FXCollections.observableArrayList();
 
    @Autowired
-   private WsRestClient wsClient;
-
-   public KeyAssignmentTable() {
+   public KeyAssignmentTable(WsRestClient wsClient, MessageSource messageSource) {
       this.setItems(container);
 
-      TableColumn<KeyRepresentation, Integer> keyNumberColumn = new TableColumn<>("Key Number");
+      TableColumn<KeyRepresentation, Integer> keyNumberColumn =
+            new TableColumn<>(messageSource.getMessage(CLASS_NAME + ".keyNumber", null, null));
       keyNumberColumn.setMinWidth(120);
       keyNumberColumn.setMaxWidth(120);
       keyNumberColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().keyNumber));
 
-      TableColumn<KeyRepresentation, LocalDateTime> dateTimeColumn = new TableColumn<>("Assignment time");
+      TableColumn<KeyRepresentation, LocalDateTime> dateTimeColumn =
+            new TableColumn<>(messageSource.getMessage(CLASS_NAME + ".assignmentTime", null, null));
       dateTimeColumn.setMinWidth(190);
       dateTimeColumn.setMaxWidth(190);
       dateTimeColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().dateTime));
@@ -62,13 +64,15 @@ public class KeyAssignmentTable extends TableView<KeyRepresentation> {
       });
       dateTimeColumn.setSortType(TableColumn.SortType.DESCENDING);
 
-      TableColumn<KeyRepresentation, String> userColumn = new TableColumn<>("User");
+      TableColumn<KeyRepresentation, String> userColumn =
+            new TableColumn<>(messageSource.getMessage(CLASS_NAME + ".user", null, null));
       userColumn.setCellValueFactory(param -> {
          UserRepresentation user = param.getValue().user;
          return new ReadOnlyObjectWrapper<>(user.firstName + " " + user.lastName);
       });
 
-      TableColumn<KeyRepresentation, KeyRepresentation> descriptionColumn = new TableColumn<>("Group");
+      TableColumn<KeyRepresentation, KeyRepresentation> descriptionColumn =
+            new TableColumn<>(messageSource.getMessage(CLASS_NAME + ".group", null, null));
       descriptionColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
       descriptionColumn.setCellFactory(column -> new TableCell<KeyRepresentation, KeyRepresentation>() {
          @Override
@@ -89,11 +93,12 @@ public class KeyAssignmentTable extends TableView<KeyRepresentation> {
       });
       descriptionColumn.setComparator((key1, key2) -> ObjectUtils.compare(key1.user.group, key2.user.group));
 
-      TableColumn<KeyRepresentation, KeyRepresentation> actionColumn = new TableColumn<>("Action");
-      actionColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
-      actionColumn.setCellFactory(param -> {
+      TableColumn<KeyRepresentation, KeyRepresentation> unassignmentColumn =
+            new TableColumn<>(messageSource.getMessage(CLASS_NAME + ".unassignment", null, null));
+      unassignmentColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
+      unassignmentColumn.setCellFactory(param -> {
          Button returnKeyButton = new Button(null, new ImageView(new Image("images/flat-arrow-down-24.png")));
-         returnKeyButton.setPrefWidth(50);
+         returnKeyButton.setPrefWidth(70);
          return new TableCell<KeyRepresentation, KeyRepresentation>() {
 
             @Override
@@ -113,11 +118,11 @@ public class KeyAssignmentTable extends TableView<KeyRepresentation> {
             }
          };
       });
-      actionColumn.setSortable(false);
-      actionColumn.setMinWidth(100);
-      actionColumn.setMaxWidth(100);
+      unassignmentColumn.setSortable(false);
+      unassignmentColumn.setMinWidth(110);
+      unassignmentColumn.setMaxWidth(110);
 
-      getColumns().addAll(asList(keyNumberColumn, dateTimeColumn, userColumn, descriptionColumn, actionColumn));
+      getColumns().addAll(asList(keyNumberColumn, dateTimeColumn, userColumn, descriptionColumn, unassignmentColumn));
       getSortOrder().add(dateTimeColumn);
       setStyle("-fx-font-size:15; -fx-font-weight: 600; -fx-alignment: center");
       setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);

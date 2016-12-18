@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -37,11 +37,21 @@ public class AppConfig {
       return rest;
    }
 
+   //   @Bean
+//   public static PropertySourcesPlaceholderConfigurer getPropertySourcesPlaceholderConfigurer() {
+//      PropertySourcesPlaceholderConfigurer conf = new PropertySourcesPlaceholderConfigurer();
+//      conf.setFileEncoding("UTF-8");
+//      return conf;
+//   }
+
    @Bean
-   public static PropertySourcesPlaceholderConfigurer getPropertySourcesPlaceholderConfigurer() {
-      PropertySourcesPlaceholderConfigurer conf = new PropertySourcesPlaceholderConfigurer();
-      conf.setFileEncoding("UTF-8");
-      return conf;
+   public ReloadableResourceBundleMessageSource messageSource() {
+      ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
+      messageSource.setUseCodeAsDefaultMessage(true);
+      messageSource.setBasename("classpath:lang/messages");
+      messageSource.setCacheSeconds(0);
+      messageSource.setDefaultEncoding("UTF-8");
+      return messageSource;
    }
 
    private ClientHttpRequestInterceptor authenticatingInterceptor() {

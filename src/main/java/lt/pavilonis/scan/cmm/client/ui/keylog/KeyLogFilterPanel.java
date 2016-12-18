@@ -16,6 +16,7 @@ import javafx.scene.layout.Region;
 import javafx.util.StringConverter;
 import lt.pavilonis.scan.cmm.client.representation.KeyAction;
 import org.apache.commons.lang3.NotImplementedException;
+import org.springframework.context.MessageSource;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -40,9 +41,24 @@ public final class KeyLogFilterPanel extends HBox {
    private final DatePicker periodEnd = new DatePicker();
    private final TextField textField = new TextField();
    private final ComboBox<KeyAction> actionComboBox = new ComboBox<>(FXCollections.observableArrayList(KeyAction.values()));
-   private final Button searchButton = new Button("Search", new ImageView(new Image("images/flat-find-16.png")));
+   private final Button searchButton;
 
-   public KeyLogFilterPanel() {
+   public KeyLogFilterPanel(MessageSource messageSource) {
+      searchButton = new Button(
+            messageSource.getMessage(this.getClass().getSimpleName() + ".search", null, null),
+            new ImageView(new Image("images/flat-find-16.png"))
+      );
+      actionComboBox.setConverter(new StringConverter<KeyAction>() {
+         @Override
+         public String toString(KeyAction object) {
+            return messageSource.getMessage(KeyAction.class.getSimpleName() + "." + object.name(), null, null);
+         }
+
+         @Override
+         public KeyAction fromString(String string) {
+            throw new NotImplementedException("Not needed yet");
+         }
+      });
       periodStart.setConverter(LOCAL_DATE_CONVERTER);
       periodEnd.setConverter(LOCAL_DATE_CONVERTER);
       List<Region> fields = Arrays.asList(periodStart, periodEnd, actionComboBox, textField);

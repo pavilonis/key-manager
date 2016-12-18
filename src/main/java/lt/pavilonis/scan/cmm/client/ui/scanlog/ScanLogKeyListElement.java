@@ -19,7 +19,7 @@ final class ScanLogKeyListElement extends HBox {
 
    ScanLogKeyListElement(int keyNumber) {
       this.setSpacing(10);
-      this.removeKeyButton.setPrefWidth(50);
+      this.removeKeyButton.setPrefWidth(70);
       this.keyNumber = keyNumber;
 
       Label keyLabel = new Label(String.valueOf(keyNumber));
