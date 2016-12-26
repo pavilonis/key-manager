@@ -71,4 +71,8 @@ public class ScanLogKeyList extends ListView<ScanLogKeyListElement> {
          }
       });
    }
+
+   public void clear() {
+      Platform.runLater(container::clear);
+   }
 }
