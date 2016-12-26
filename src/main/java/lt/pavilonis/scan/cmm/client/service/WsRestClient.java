@@ -44,6 +44,9 @@ public class WsRestClient {
    @Autowired
    private RestTemplate restTemplate;
 
+   @Autowired
+   private MessageSourceAdapter messages;
+
    private String lastErrorMessage;
 
    public void writeScanLog(String cardCode, Consumer<Optional<ScanLogRepresentation>> consumer) {
@@ -110,35 +113,40 @@ public class WsRestClient {
    }
 
    public <T> void request(URI uri, HttpMethod requestMethod, Class<T> responseType, Consumer<Optional<T>> consumer) {
-      try {
-         new BackgroundTask<>(() -> {
-            ResponseEntity<T> exchange = restTemplate.exchange(uri, requestMethod, null, responseType);
-            lastErrorMessage = null;
-            App.clearWarning();
-            Platform.runLater(() -> consumer.accept(Optional.of(exchange.getBody())));
-         });
+      new BackgroundTask<>(() -> {
+         ResponseEntity<T> exchange = tryRequest(uri, requestMethod, responseType);
+         App.clearWarning();
+         Platform.runLater(() -> consumer.accept(Optional.ofNullable(exchange == null ? null : exchange.getBody())));
+      });
+   }
 
+   private <T> ResponseEntity<T> tryRequest(URI uri, HttpMethod requestMethod, Class<T> responseType) {
+      try {
+         ResponseEntity<T> response = restTemplate.exchange(uri, requestMethod, null, responseType);
+         this.lastErrorMessage = null;
+         return response;
       } catch (HttpClientErrorException httpErr) {
 
          switch (httpErr.getStatusCode()) {
             case NOT_FOUND:
-               lastErrorMessage = "Resource not found";
+               this.lastErrorMessage = messages.get(this, "resourceNotFound");
                break;
             case CONFLICT:
-               lastErrorMessage = "Request conflict";
+               this.lastErrorMessage = messages.get(this, "requestConflict");
                break;
             default:
-               lastErrorMessage = httpErr.getMessage();
+               this.lastErrorMessage = httpErr.getMessage();
          }
-         LOG.error(lastErrorMessage);
+         LOG.error(this.lastErrorMessage);
 
       } catch (ResourceAccessException e) {
-         lastErrorMessage = e.getCause() == null ? e.getMessage() : e.getCause().getMessage();
-         LOG.error(lastErrorMessage);
+         this.lastErrorMessage = e.getCause() == null ? e.getMessage() : e.getCause().getMessage();
+         LOG.error(this.lastErrorMessage);
       } catch (Exception e) {
          e.printStackTrace();
-         lastErrorMessage = e.getMessage();
-         LOG.error(lastErrorMessage);
+         this.lastErrorMessage = e.getMessage();
+         LOG.error(this.lastErrorMessage);
       }
+      return null;
    }
 }

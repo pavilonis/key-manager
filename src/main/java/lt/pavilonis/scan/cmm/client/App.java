@@ -7,18 +7,16 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import lt.pavilonis.scan.cmm.client.service.WsRestClient;
 import lt.pavilonis.scan.cmm.client.ui.WarningBox;
-import lt.pavilonis.scan.cmm.client.ui.keylog.KeyLogTab;
 import lt.pavilonis.scan.cmm.client.ui.keyassignment.KeyAssignmentTab;
+import lt.pavilonis.scan.cmm.client.ui.keylog.KeyLogTab;
 import lt.pavilonis.scan.cmm.client.ui.scanlog.ScanLogTab;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 
-import java.util.Locale;
-
 public class App extends Application {
 
    private static final StackPane ROOT_PANE = new StackPane();
-   private static final WarningBox WARNING_BOX = new WarningBox(ROOT_PANE);
+   private static final WarningBox WARNING_BOX = new WarningBox(ROOT_PANE.getChildren());
    private static AbstractApplicationContext context;
    private static WsRestClient wsClient;
 

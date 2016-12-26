@@ -22,6 +22,9 @@ public class ScanReadObserver extends ScannerReadEventObserver {
    @Autowired
    private ScanLogList scanLogList;
 
+   @Autowired
+   private MessageSourceAdapter messages;
+
    @Override
    protected void consumeScannerInput(String string) {
       Consumer<Optional<ScanLogRepresentation>> consumer = response -> {
@@ -29,7 +32,7 @@ public class ScanReadObserver extends ScannerReadEventObserver {
             LOG.info("Response [user={}]", response.get().user.firstName + " " + response.get().user.lastName);
             scanLogList.addElement(response.get());
          } else {
-            App.displayWarning("Can not write scan log");
+            App.displayWarning(messages.get(this, "canNotWriteScanLog"));
          }
       };
 
