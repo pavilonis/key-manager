@@ -13,14 +13,14 @@ import org.springframework.stereotype.Component;
 public class ScanLogTab extends Tab {
 
    @Autowired
-   public ScanLogTab(ScanLogKeyList keyListView, ScanLogList scanLogList,
+   public ScanLogTab(ScanLogKeyList scanLogKeyList, ScanLogList scanLogList,
                      PhotoView photoView, MessageSourceAdapter messages) {
       setText(messages.get(this, "title"));
       setClosable(false);
 
-      VBox rightColumn = new VBox(keyListView, photoView);
-      VBox.setVgrow(keyListView, Priority.ALWAYS);
-      VBox.setMargin(keyListView, new Insets(0, 0, 0, 15));
+      VBox rightColumn = new VBox(scanLogKeyList, photoView);
+      VBox.setVgrow(scanLogKeyList, Priority.ALWAYS);
+      VBox.setMargin(scanLogKeyList, new Insets(0, 0, 0, 15));
       VBox.setMargin(photoView, new Insets(15, 0, 0, 15));
 
       BorderPane parent = new BorderPane(scanLogList, null, rightColumn, null, null);
@@ -28,5 +28,14 @@ public class ScanLogTab extends Tab {
       rightColumn.setPrefWidth(200);
       parent.setPadding(new Insets(15));
       setContent(parent);
+
+      setOnSelectionChanged(event -> {
+         if (isSelected()) {
+            ScanLogListElement selected = scanLogList.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+               scanLogKeyList.updateContainer(selected.getUser().cardCode);
+            }
+         }
+      });
    }
 }

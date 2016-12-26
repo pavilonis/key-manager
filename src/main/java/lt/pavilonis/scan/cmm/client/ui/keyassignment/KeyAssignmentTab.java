@@ -3,6 +3,7 @@ package lt.pavilonis.scan.cmm.client.ui.keyassignment;
 import javafx.geometry.Insets;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.BorderPane;
+import lt.pavilonis.TimeUtils;
 import lt.pavilonis.scan.cmm.client.App;
 import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
 import lt.pavilonis.scan.cmm.client.service.MessageSourceAdapter;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -22,7 +24,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class KeyAssignmentTab extends Tab {
 
    private static final Logger LOG = getLogger(KeyAssignmentTab.class.getSimpleName());
-   private final WsRestClient wsClient;
 
    @Autowired
    public KeyAssignmentTab(WsRestClient wsClient,
@@ -30,24 +31,30 @@ public class KeyAssignmentTab extends Tab {
                            MessageSourceAdapter messages) {
 
       this.setText(messages.get(this, "title"));
-      this.wsClient = wsClient;
-
       setClosable(false);
 
       KeyAssignmentFilterPanel stringFilterPanel = new KeyAssignmentFilterPanel(
             messages,
-            searchString -> wsClient.allKeysAssigned(response -> {
-               if (response.isPresent()) {
-                  LOG.info("Loaded all assigned keys [number={}]", response.get().length);
-                  List<KeyRepresentation> keys = newArrayList(response.get());
-                  if (StringUtils.isNoneBlank(searchString)) {
-                     keys.removeIf(doesNotMatch(searchString));
+            searchString -> {
+               LocalDateTime opStart = LocalDateTime.now();
+               wsClient.allActiveKeys(response -> {
+                  if (response.isPresent()) {
+                     List<KeyRepresentation> keys = newArrayList(response.get());
+                     LOG.info("Loaded active keys [number={}, duration={}]",
+                           keys.size(), TimeUtils.duration(opStart));
+
+                     LocalDateTime innerOpStart = LocalDateTime.now();
+                     if (StringUtils.isNoneBlank(searchString)) {
+                        keys.removeIf(doesNotMatch(searchString));
+                     }
+                     keyAssignmentTable.update(keys);
+                     LOG.info("Filtered and updated table data [number={}, duration={}]",
+                           keys.size(), TimeUtils.duration(innerOpStart));
+                  } else {
+                     App.displayWarning(messages.get(this, "canNotLoadKeys"));
                   }
-                  keyAssignmentTable.update(keys);
-               } else {
-                  App.displayWarning(messages.get(this, "canNotLoadKeys"));
-               }
-            })
+               });
+            }
       );
 
       BorderPane.setMargin(stringFilterPanel, new Insets(0, 0, 15, 0));
@@ -67,24 +74,8 @@ public class KeyAssignmentTab extends Tab {
 
    private Predicate<KeyRepresentation> doesNotMatch(String searchString) {
       return key -> {
-         String content = key.user.firstName + key.user.lastName + key.keyNumber + key.dateTime;
+         String content = key.getUser().firstName + key.getUser().lastName + key.getKeyNumber() + key.getDateTime();
          return !content.toLowerCase().contains(searchString.toLowerCase());
       };
    }
-
-//   private void loadData(Consumer<Optional<List<KeyRepresentation>>> responseConsumer) {
-//      new Service<Void>() {
-//         @Override
-//         protected Task<Void> createTask() {
-//            return new Task<Void>() {
-//               @Override
-//               protected Void call() throws Exception {
-//                  Optional<List<KeyRepresentation>> response = wsClient.allKeysAssigned();
-//                  responseConsumer.accept(response);
-//                  return null;
-//               }
-//            };
-//         }
-//      }.start();
-//   }
 }

@@ -1,6 +1,5 @@
 package lt.pavilonis.scan.cmm.client.ui.keyassignment;
 
-import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -27,13 +26,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static java.util.Objects.isNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 public class KeyAssignmentTable extends TableView<KeyRepresentation> {
 
    private static final Logger LOG = getLogger(KeyAssignmentTable.class.getSimpleName());
-   private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd  hh:mm:ss");
+   private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd  HH:mm");
    private final ObservableList<KeyRepresentation> container = FXCollections.observableArrayList();
 
    @Autowired
@@ -43,13 +43,13 @@ public class KeyAssignmentTable extends TableView<KeyRepresentation> {
       TableColumn<KeyRepresentation, Integer> keyNumberColumn = new TableColumn<>(messages.get(this, "keyNumber"));
       keyNumberColumn.setMinWidth(120);
       keyNumberColumn.setMaxWidth(120);
-      keyNumberColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().keyNumber));
+      keyNumberColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getKeyNumber()));
 
       TableColumn<KeyRepresentation, LocalDateTime> dateTimeColumn =
             new TableColumn<>(messages.get(this, "assignmentTime"));
       dateTimeColumn.setMinWidth(190);
       dateTimeColumn.setMaxWidth(190);
-      dateTimeColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().dateTime));
+      dateTimeColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getDateTime()));
       dateTimeColumn.setCellFactory(column -> new TableCell<KeyRepresentation, LocalDateTime>() {
          @Override
          protected void updateItem(LocalDateTime item, boolean empty) {
@@ -67,8 +67,9 @@ public class KeyAssignmentTable extends TableView<KeyRepresentation> {
 
       TableColumn<KeyRepresentation, String> userColumn = new TableColumn<>(messages.get(this, "user"));
       userColumn.setCellValueFactory(param -> {
-         UserRepresentation user = param.getValue().user;
-         return new ReadOnlyObjectWrapper<>(user.firstName + " " + user.lastName);
+         UserRepresentation user = param.getValue().getUser();
+         String value = isNull(user) ? "" : user.firstName + " " + user.lastName;
+         return new ReadOnlyObjectWrapper<>(value);
       });
 
       TableColumn<KeyRepresentation, KeyRepresentation> descriptionColumn =
@@ -83,15 +84,16 @@ public class KeyAssignmentTable extends TableView<KeyRepresentation> {
                setGraphic(null);
                setStyle("");
             } else {
-               setText(item.user.group);
-               if (StringUtils.isNotBlank(item.user.role)
-                     && StringUtils.containsIgnoreCase(item.user.role, "mokinys")) {
+               UserRepresentation user = item.getUser();
+               setText(user == null ? null : user.group);
+               if (user != null && StringUtils.isNotBlank(user.role)
+                     && StringUtils.containsIgnoreCase(user.role, "mokinys")) {
                   setStyle(AppConfig.STYLE_STUDENT);
                }
             }
          }
       });
-      descriptionColumn.setComparator((key1, key2) -> ObjectUtils.compare(key1.user.group, key2.user.group));
+      descriptionColumn.setComparator((key1, key2) -> ObjectUtils.compare(key1.getUser().group, key2.getUser().group));
 
       TableColumn<KeyRepresentation, KeyRepresentation> unassignmentColumn =
             new TableColumn<>(messages.get(this, "unassignment"));
@@ -110,12 +112,12 @@ public class KeyAssignmentTable extends TableView<KeyRepresentation> {
                } else {
                   setAlignment(Pos.CENTER);
                   setGraphic(returnKeyButton);
-                  returnKeyButton.setOnAction(click -> wsClient.returnKey(item.keyNumber, response -> {
+                  returnKeyButton.setOnAction(click -> wsClient.returnKey(item.getKeyNumber(), response -> {
                      if (response.isPresent()) {
-                        LOG.info("Returned key [keyNumber={}]", response.get().keyNumber);
+                        LOG.info("Returned key [keyNumber={}]", response.get().getKeyNumber());
                         container.remove(item);
                      } else {
-                        LOG.error("Erroneous state - could not return key [keyNumber={}]", item.keyNumber);
+                        LOG.error("Erroneous state - could not return key [keyNumber={}]", item.getKeyNumber());
                      }
                   }));
                }
@@ -134,11 +136,11 @@ public class KeyAssignmentTable extends TableView<KeyRepresentation> {
    }
 
    public void update(List<KeyRepresentation> keys) {
-      Platform.runLater(() -> {
-         container.clear();
-         container.addAll(keys);
-         sort();
-      });
+//      Platform.runLater(() -> {
+      container.clear();
+      container.addAll(keys);
+      sort();
+//      });
    }
 
    public void clear() {

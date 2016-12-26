@@ -28,7 +28,7 @@ public class ScanLogList extends ListView<ScanLogListElement> {
    private WsRestClient wsClient;
 
    @Autowired
-   private ScanLogKeyList keyListView;
+   private ScanLogKeyList scanLogKeyList;
 
    @Autowired
    private PhotoView photoView;
@@ -49,18 +49,7 @@ public class ScanLogList extends ListView<ScanLogListElement> {
                oldElement.deactivate();
             }
             newElement.activate();
-
-
-            wsClient.userKeysAssigned(user.cardCode, response -> {
-               if (response.isPresent()) {
-                  LOG.info("Loaded user assigned keys [cardCode={}, keysNum={}]",
-                        user.cardCode, response.get().length);
-
-                  keyListView.reload(newArrayList(response.get()));
-               } else {
-                  App.displayWarning(messages.get(this, "canNotLoadUserAssignedKeys"));
-               }
-            });
+            scanLogKeyList.updateContainer(user.cardCode);
          });
       });
    }
@@ -74,8 +63,8 @@ public class ScanLogList extends ListView<ScanLogListElement> {
                wsClient.assignKey(cardCode, keyNumber, response -> {
                   if (response.isPresent()) {
                      KeyRepresentation key = response.get();
-                     keyListView.append(key);
-                     LOG.info("Key {} assigned to cardCode {}", key.keyNumber, key.user.cardCode);
+                     scanLogKeyList.append(key);
+                     LOG.info("Key {} assigned to cardCode {}", key.getKeyNumber(), key.getUser().cardCode);
                   } else {
                      App.displayWarning(messages.get(this, "canNotAssignKey"));
                   }

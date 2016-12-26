@@ -27,7 +27,7 @@ final class KeyLogTable extends TableView<KeyRepresentation> {
 
    private static final String ICON_ASSINGED = "images/flat-arrow-up-24.png";
    private static final String ICON_UNASSIGNED = "images/flat-arrow-down-24.png";
-   private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd  hh:mm:ss");
+   private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd  HH:mm");
    private final ObservableList<KeyRepresentation> container = FXCollections.observableArrayList();
 
    public KeyLogTable(MessageSourceAdapter messages) {
@@ -37,7 +37,7 @@ final class KeyLogTable extends TableView<KeyRepresentation> {
             new TableColumn<>(messages.get(this, ("keyNumber")));
       keyNumberColumn.setMinWidth(120);
       keyNumberColumn.setMaxWidth(120);
-      keyNumberColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().keyNumber));
+      keyNumberColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getKeyNumber()));
 
       TableColumn<KeyRepresentation, KeyRepresentation> dateTimeColumn =
             new TableColumn<>(messages.get(this, ("dateTime")));
@@ -51,11 +51,11 @@ final class KeyLogTable extends TableView<KeyRepresentation> {
                setGraphic(null);
                setStyle("");
             } else {
-               setText(DATE_TIME_FORMAT.format(item.dateTime));
+               setText(DATE_TIME_FORMAT.format(item.getDateTime()));
             }
          }
       });
-      dateTimeColumn.setComparator((key1, key2) -> key1.dateTime.compareTo(key2.dateTime));
+      dateTimeColumn.setComparator((key1, key2) -> key1.getDateTime().compareTo(key2.getDateTime()));
       dateTimeColumn.setSortType(TableColumn.SortType.DESCENDING);
       dateTimeColumn.setMinWidth(190);
       dateTimeColumn.setMaxWidth(190);
@@ -63,13 +63,13 @@ final class KeyLogTable extends TableView<KeyRepresentation> {
       TableColumn<KeyRepresentation, String> userColumn =
             new TableColumn<>(messages.get(this, "user"));
       userColumn.setCellValueFactory(param -> {
-         UserRepresentation user = param.getValue().user;
+         UserRepresentation user = param.getValue().getUser();
          return new ReadOnlyObjectWrapper<>(user.firstName + " " + user.lastName);
       });
 
       TableColumn<KeyRepresentation, UserRepresentation> groupColumn =
             new TableColumn<>(messages.get(this, "group"));
-      groupColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().user));
+      groupColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getUser()));
       groupColumn.setCellFactory(column -> new TableCell<KeyRepresentation, UserRepresentation>() {
          @Override
          protected void updateItem(UserRepresentation item, boolean empty) {
@@ -92,7 +92,7 @@ final class KeyLogTable extends TableView<KeyRepresentation> {
       TableColumn<KeyRepresentation, KeyAction> actionColumn =
             new TableColumn<>(messages.get(this, "action"));
 
-      actionColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().keyAction));
+      actionColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getKeyAction()));
       actionColumn.setCellFactory(param -> new TableCell<KeyRepresentation, KeyAction>() {
          @Override
          protected void updateItem(KeyAction value, boolean empty) {

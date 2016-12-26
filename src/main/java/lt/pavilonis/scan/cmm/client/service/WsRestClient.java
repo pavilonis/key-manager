@@ -1,5 +1,7 @@
 package lt.pavilonis.scan.cmm.client.service;
 
+import com.google.common.collect.ImmutableMap;
+import javafx.application.Platform;
 import lt.pavilonis.scan.cmm.client.App;
 import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
 import lt.pavilonis.scan.cmm.client.representation.ScanLogRepresentation;
@@ -8,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
@@ -18,9 +20,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -29,9 +32,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class WsRestClient {
    private static final Logger LOG = getLogger(WsRestClient.class.getSimpleName());
    private static final String SEGMENT_KEYS = "keys";
+   private static final String SEGMENT_LOG = "log";
    private static final String SEGMENT_SCANLOG = "scanlog";
-   private static final String SEGMENT_KEYLOG = "keylog";
-   private final ExecutorService pool = Executors.newFixedThreadPool(3);
 
    @Value(("${api.uri.base}"))
    private String baseUri;
@@ -53,9 +55,9 @@ public class WsRestClient {
       request(uri, HttpMethod.POST, ScanLogRepresentation.class, consumer);
    }
 
-   public void allKeysAssigned(Consumer<Optional<KeyRepresentation[]>> consumer) {
+   public void allActiveKeys(Consumer<Optional<KeyRepresentation[]>> consumer) {
       request(
-            uri(SEGMENT_KEYS, scannerId),
+            uri(SEGMENT_KEYS),
             HttpMethod.GET,
             KeyRepresentation[].class,
             consumer
@@ -63,12 +65,12 @@ public class WsRestClient {
    }
 
    public void userKeysAssigned(String cardCode, Consumer<Optional<KeyRepresentation[]>> consumer) {
-      URI uri = uri(SEGMENT_KEYS, scannerId, cardCode);
-      request(uri, HttpMethod.GET, KeyRepresentation[].class, consumer);
+      Map<String, String> params = ImmutableMap.of("scannerId", scannerId, "cardCode", cardCode);
+      request(uri(params, SEGMENT_KEYS), HttpMethod.GET, KeyRepresentation[].class, consumer);
    }
 
    public void assignKey(String cardCode, int keyNumber, Consumer<Optional<KeyRepresentation>> consumer) {
-      URI uri = uri(SEGMENT_KEYS, scannerId, cardCode, String.valueOf(keyNumber));
+      URI uri = uri(SEGMENT_KEYS, scannerId, String.valueOf(keyNumber), cardCode);
       request(uri, HttpMethod.POST, KeyRepresentation.class, consumer);
    }
 
@@ -79,12 +81,12 @@ public class WsRestClient {
 
    public void keyLog(LocalDate periodStart, LocalDate periodEnd,
                       Consumer<Optional<KeyRepresentation[]>> consumer) {
-      URI uri = uri(
-            SEGMENT_KEYLOG,
-            scannerId,
-            DateTimeFormatter.ISO_LOCAL_DATE.format(periodStart),
-            DateTimeFormatter.ISO_LOCAL_DATE.format(periodEnd)
-      );
+      Map<String, String> params = new HashMap<>(3);
+      params.put("scannerId", scannerId);
+      params.put("periodStart", DateTimeFormatter.ISO_LOCAL_DATE.format(periodStart));
+      params.put("periodEnd", DateTimeFormatter.ISO_LOCAL_DATE.format(periodEnd));
+
+      URI uri = uri(params, SEGMENT_KEYS, SEGMENT_LOG);
       request(uri, HttpMethod.GET, KeyRepresentation[].class, consumer);
    }
 
@@ -93,23 +95,27 @@ public class WsRestClient {
    }
 
    private URI uri(String... segments) {
+      return uri(Collections.emptyMap(), segments);
+   }
+
+   private URI uri(Map<String, String> params, String... segments) {
+      LinkedMultiValueMap<String, String> paramMultiMap = new LinkedMultiValueMap<>();
+      params.forEach(paramMultiMap::add);
+
       return UriComponentsBuilder.fromUriString(baseUri)
             .pathSegment(segments)
+            .queryParams(paramMultiMap)
             .build()
             .toUri();
    }
 
-   @Async
    public <T> void request(URI uri, HttpMethod requestMethod, Class<T> responseType, Consumer<Optional<T>> consumer) {
-
       try {
          new BackgroundTask<>(() -> {
             ResponseEntity<T> exchange = restTemplate.exchange(uri, requestMethod, null, responseType);
             lastErrorMessage = null;
             App.clearWarning();
-
-            consumer.accept(Optional.of(exchange.getBody()));
-            return null;
+            Platform.runLater(() -> consumer.accept(Optional.of(exchange.getBody())));
          });
 
       } catch (HttpClientErrorException httpErr) {

@@ -6,6 +6,7 @@ import javafx.scene.layout.BorderPane;
 import lt.pavilonis.scan.cmm.client.App;
 import lt.pavilonis.scan.cmm.client.representation.KeyAction;
 import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
+import lt.pavilonis.scan.cmm.client.representation.UserRepresentation;
 import lt.pavilonis.scan.cmm.client.service.MessageSourceAdapter;
 import lt.pavilonis.scan.cmm.client.service.WsRestClient;
 import org.slf4j.Logger;
@@ -13,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Predicate;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -74,31 +74,15 @@ public class KeyLogTab extends Tab {
    }
 
    private Predicate<KeyRepresentation> noActionMatch(KeyAction filter) {
-      return key -> filter != KeyAction.ALL && filter != key.keyAction;
+      return key -> filter != KeyAction.ALL && filter != key.getKeyAction();
    }
 
    private Predicate<KeyRepresentation> noTextMatch(String filter) {
       return key -> {
-         String content = key.user.firstName + key.user.lastName + key.user.group + key.user.role + key.keyNumber + key.dateTime;
+         UserRepresentation user = key.getUser();
+         String content = user.firstName + user.lastName + user.group +
+               user.role + key.getKeyNumber() + key.getDateTime();
          return !content.toLowerCase().contains(filter.toLowerCase());
       };
    }
-
-//   private void loadData(LocalDate periodStart,
-//                         LocalDate periodEnd,
-//                         Consumer<Optional<List<KeyRepresentation>>> responseConsumer) {
-//
-//      new Service<Void>() {
-//         @Override
-//         protected Task<Void> createTask() {
-//            return new Task<Void>() {
-//               @Override
-//               protected Void call() throws Exception {
-//
-//                  return null;
-//               }
-//            };
-//         }
-//      }.start();
-//   }
 }
