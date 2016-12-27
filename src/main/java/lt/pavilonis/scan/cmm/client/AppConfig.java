@@ -19,7 +19,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Configuration
 @ComponentScan({"lt.pavilonis.scan", "resources"})
-@PropertySource({"file:${properties}"})
+@PropertySource({"file:app.properties"})
 public class AppConfig {
 
    public final static String STYLE_STUDENT = "-fx-background-color: rgba(255, 164, 0, 0.15)";
