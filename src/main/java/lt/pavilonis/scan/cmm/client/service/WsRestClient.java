@@ -60,7 +60,10 @@ public class WsRestClient {
 
    public void allActiveKeys(Consumer<Optional<KeyRepresentation[]>> consumer) {
       request(
-            uri(SEGMENT_KEYS),
+            uri(
+                  Collections.singletonMap("scannerId", scannerId),
+                  SEGMENT_KEYS
+            ),
             HttpMethod.GET,
             KeyRepresentation[].class,
             consumer

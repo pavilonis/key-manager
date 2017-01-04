@@ -24,38 +24,23 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class KeyAssignmentTab extends Tab {
 
    private static final Logger LOG = getLogger(KeyAssignmentTab.class.getSimpleName());
+   private final MessageSourceAdapter messages;
+   private final WsRestClient wsClient;
+   private final KeyAssignmentTable keyAssignmentTable;
 
    @Autowired
-   public KeyAssignmentTab(WsRestClient wsClient,
-                           KeyAssignmentTable keyAssignmentTable,
-                           MessageSourceAdapter messages) {
+   public KeyAssignmentTab(MessageSourceAdapter messages,
+                           WsRestClient wsClient, KeyAssignmentTable keyAssignmentTable) {
 
-      this.setText(messages.get(this, "title"));
+      this.messages = messages;
+      this.wsClient = wsClient;
+      this.keyAssignmentTable = keyAssignmentTable;
+
+      setText(messages.get(this, "title"));
       setClosable(false);
 
-      KeyAssignmentFilterPanel stringFilterPanel = new KeyAssignmentFilterPanel(
-            messages,
-            searchString -> {
-               LocalDateTime opStart = LocalDateTime.now();
-               wsClient.allActiveKeys(response -> {
-                  if (response.isPresent()) {
-                     List<KeyRepresentation> keys = newArrayList(response.get());
-                     LOG.info("Loaded active keys [number={}, duration={}]",
-                           keys.size(), TimeUtils.duration(opStart));
-
-                     LocalDateTime innerOpStart = LocalDateTime.now();
-                     if (StringUtils.isNoneBlank(searchString)) {
-                        keys.removeIf(doesNotMatch(searchString));
-                     }
-                     keyAssignmentTable.update(keys);
-                     LOG.info("Filtered and updated table data [number={}, duration={}]",
-                           keys.size(), TimeUtils.duration(innerOpStart));
-                  } else {
-                     App.displayWarning(messages.get(this, "canNotLoadKeys"));
-                  }
-               });
-            }
-      );
+      KeyAssignmentFilterPanel stringFilterPanel =
+            new KeyAssignmentFilterPanel(messages, this::searchAction);
 
       BorderPane.setMargin(stringFilterPanel, new Insets(0, 0, 15, 0));
 
@@ -70,6 +55,30 @@ public class KeyAssignmentTab extends Tab {
          mainTabLayout.setPadding(new Insets(15));
          setContent(mainTabLayout);
       });
+   }
+
+   private void searchAction(String searchString) {
+      LocalDateTime opStart = LocalDateTime.now();
+      wsClient.allActiveKeys(response -> {
+         if (response.isPresent()) {
+            List<KeyRepresentation> keys = newArrayList(response.get());
+            LOG.info("Loaded active keys [number={}, duration={}]", keys.size(), TimeUtils.duration(opStart));
+
+            updateTable(searchString, keys);
+         } else {
+            App.displayWarning(messages.get(this, "canNotLoadKeys"));
+         }
+      });
+   }
+
+   private void updateTable(String searchString, List<KeyRepresentation> keys) {
+      LocalDateTime opStart = LocalDateTime.now();
+      if (StringUtils.isNoneBlank(searchString)) {
+         keys.removeIf(doesNotMatch(searchString));
+      }
+      keyAssignmentTable.update(keys);
+      LOG.info("Filtered and updated table data [number={}, duration={}]",
+            keys.size(), TimeUtils.duration(opStart));
    }
 
    private Predicate<KeyRepresentation> doesNotMatch(String searchString) {
