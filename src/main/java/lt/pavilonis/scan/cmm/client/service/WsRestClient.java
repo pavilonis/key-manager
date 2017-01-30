@@ -3,8 +3,11 @@ package lt.pavilonis.scan.cmm.client.service;
 import com.google.common.collect.ImmutableMap;
 import javafx.application.Platform;
 import lt.pavilonis.scan.cmm.client.App;
+import lt.pavilonis.scan.cmm.client.representation.KeyAction;
 import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
 import lt.pavilonis.scan.cmm.client.representation.ScanLogRepresentation;
+import lt.pavilonis.scan.cmm.client.ui.keylog.KeyLogFilter;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +21,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.HashMap;
@@ -58,16 +60,14 @@ public class WsRestClient {
       request(uri, HttpMethod.POST, ScanLogRepresentation.class, consumer);
    }
 
-   public void allActiveKeys(Consumer<Optional<KeyRepresentation[]>> consumer) {
-      request(
-            uri(
-                  Collections.singletonMap("scannerId", scannerId),
-                  SEGMENT_KEYS
-            ),
-            HttpMethod.GET,
-            KeyRepresentation[].class,
-            consumer
-      );
+   public void allActiveKeys(String keyNumber, Consumer<Optional<KeyRepresentation[]>> consumer) {
+      Map<String, String> args = new HashMap<>();
+      args.put("scannerId", scannerId);
+      if (StringUtils.isNotBlank(keyNumber)) {
+         args.put("keyNumber", keyNumber);
+      }
+
+      request(uri(args, SEGMENT_KEYS), HttpMethod.GET, KeyRepresentation[].class, consumer);
    }
 
    public void userKeysAssigned(String cardCode, Consumer<Optional<KeyRepresentation[]>> consumer) {
@@ -85,12 +85,22 @@ public class WsRestClient {
       request(uri, HttpMethod.DELETE, KeyRepresentation.class, consumer);
    }
 
-   public void keyLog(LocalDate periodStart, LocalDate periodEnd,
-                      Consumer<Optional<KeyRepresentation[]>> consumer) {
-      Map<String, String> params = new HashMap<>(3);
+   public void keyLog(KeyLogFilter filter, Consumer<Optional<KeyRepresentation[]>> consumer) {
+
+      Map<String, String> params = new HashMap<>();
       params.put("scannerId", scannerId);
-      params.put("periodStart", DateTimeFormatter.ISO_LOCAL_DATE.format(periodStart));
-      params.put("periodEnd", DateTimeFormatter.ISO_LOCAL_DATE.format(periodEnd));
+      params.put("periodStart", DateTimeFormatter.ISO_LOCAL_DATE.format(filter.getPeriodStart()));
+      params.put("periodEnd", DateTimeFormatter.ISO_LOCAL_DATE.format(filter.getPeriodEnd()));
+
+      if (StringUtils.isNotBlank(filter.getKeyNumber())) {
+         params.put("keyNumber", filter.getKeyNumber());
+      }
+      if (filter.getKeyAction() != KeyAction.ALL) {
+         params.put("keyAction", filter.getKeyAction().name());
+      }
+      if (StringUtils.isNotBlank(filter.getName())) {
+         params.put("nameLike", filter.getName());
+      }
 
       URI uri = uri(params, SEGMENT_KEYS, SEGMENT_LOG);
       request(uri, HttpMethod.GET, KeyRepresentation[].class, consumer);

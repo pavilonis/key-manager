@@ -1,22 +1,30 @@
 package lt.pavilonis.scan.cmm.client.ui.keyassignment;
 
+import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import lt.pavilonis.scan.cmm.client.service.MessageSourceAdapter;
 
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
-public final class KeyAssignmentFilterPanel extends HBox {
+final class KeyAssignmentFilterPanel extends HBox {
 
-   private final Consumer<String> searchStringConsumer;
-   private final TextField textField = new TextField();
+   private final Consumer<KeyAssignmentFilter> filterConsumer;
+   private final TextField keyNumberField = new TextField();
+   private final TextField nameField = new TextField();
 
-   public KeyAssignmentFilterPanel(MessageSourceAdapter messages, Consumer<String> searchStringConsumer) {
-      this.searchStringConsumer = searchStringConsumer;
+   KeyAssignmentFilterPanel(MessageSourceAdapter messages,
+                            Consumer<KeyAssignmentFilter> filterConsumer) {
+
+      this.filterConsumer = filterConsumer;
 
       Button searchButton = new Button(
             messages.get(this, "filter"),
@@ -24,22 +32,41 @@ public final class KeyAssignmentFilterPanel extends HBox {
       );
       searchButton.setOnAction(event -> action());
 
-      textField.requestFocus();
-      textField.setOnKeyReleased(event -> {
+      EventHandler<KeyEvent> eventHandler = event -> {
          if (event.getCode() == KeyCode.ENTER) {
             action();
          }
-      });
+      };
 
-      getChildren().addAll(textField, searchButton);
+      Stream.of(nameField, keyNumberField)
+            .forEach(field -> {
+               field.setOnKeyReleased(eventHandler);
+               field.setPrefWidth(138);
+            });
+
+      getChildren().addAll(
+            new Label(messages.get(this, "keyNumber")), keyNumberField,
+            new Label(messages.get(this, "name")), nameField,
+            searchButton
+      );
       setSpacing(15);
+      setAlignment(Pos.CENTER_LEFT);
+   }
+
+   KeyAssignmentFilter getFilter() {
+      return new KeyAssignmentFilter(keyNumberField.getText(), nameField.getText());
    }
 
    void reset() {
-      textField.clear();
+      keyNumberField.clear();
+      nameField.clear();
    }
 
    void action() {
-      searchStringConsumer.accept(textField.getText());
+      filterConsumer.accept(getFilter());
+   }
+
+   public void focus() {
+      keyNumberField.requestFocus();
    }
 }

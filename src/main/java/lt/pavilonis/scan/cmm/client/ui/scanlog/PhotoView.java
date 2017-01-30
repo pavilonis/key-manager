@@ -6,15 +6,12 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-
-import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 public class PhotoView extends ImageView {
@@ -26,7 +23,7 @@ public class PhotoView extends ImageView {
 
    void update(String base16image) {
 
-      if (StringUtils.isNoneBlank(base16image) && BaseEncoding.base16().canDecode(base16image)) {
+      if (StringUtils.isNotBlank(base16image) && BaseEncoding.base16().canDecode(base16image)) {
 
          byte[] imageBytes = BaseEncoding.base16().decode(base16image);
 

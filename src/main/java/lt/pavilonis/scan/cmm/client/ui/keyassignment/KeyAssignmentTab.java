@@ -3,11 +3,12 @@ package lt.pavilonis.scan.cmm.client.ui.keyassignment;
 import javafx.geometry.Insets;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.BorderPane;
-import lt.pavilonis.TimeUtils;
 import lt.pavilonis.scan.cmm.client.App;
 import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
 import lt.pavilonis.scan.cmm.client.service.MessageSourceAdapter;
 import lt.pavilonis.scan.cmm.client.service.WsRestClient;
+import lt.pavilonis.scan.cmm.client.ui.Footer;
+import lt.pavilonis.util.TimeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +30,8 @@ public class KeyAssignmentTab extends Tab {
    private final KeyAssignmentTable keyAssignmentTable;
 
    @Autowired
-   public KeyAssignmentTab(MessageSourceAdapter messages,
-                           WsRestClient wsClient, KeyAssignmentTable keyAssignmentTable) {
+   public KeyAssignmentTab(MessageSourceAdapter messages, WsRestClient wsClient,
+                           KeyAssignmentTable keyAssignmentTable, Footer footer) {
 
       this.messages = messages;
       this.wsClient = wsClient;
@@ -39,51 +40,48 @@ public class KeyAssignmentTab extends Tab {
       setText(messages.get(this, "title"));
       setClosable(false);
 
-      KeyAssignmentFilterPanel stringFilterPanel =
+      KeyAssignmentFilterPanel filterPanel =
             new KeyAssignmentFilterPanel(messages, this::searchAction);
 
-      BorderPane.setMargin(stringFilterPanel, new Insets(0, 0, 15, 0));
+      BorderPane.setMargin(filterPanel, new Insets(0, 0, 15, 0));
 
       setOnSelectionChanged(event -> {
+         //TODO move to abstract class?
          if (isSelected()) {
-            stringFilterPanel.reset();
-            stringFilterPanel.action();
+            filterPanel.reset();
+            filterPanel.action();
+            filterPanel.focus();
          } else {
             keyAssignmentTable.clear();
          }
-         BorderPane mainTabLayout = new BorderPane(keyAssignmentTable, stringFilterPanel, null, null, null);
-         mainTabLayout.setPadding(new Insets(15));
+         BorderPane mainTabLayout = new BorderPane(keyAssignmentTable, filterPanel, null, footer, null);
+         mainTabLayout.setPadding(new Insets(15, 15, 0, 15));
          setContent(mainTabLayout);
       });
    }
 
-   private void searchAction(String searchString) {
+   //TODO move to abstract class?
+   private void searchAction(KeyAssignmentFilter filter) {
       LocalDateTime opStart = LocalDateTime.now();
-      wsClient.allActiveKeys(response -> {
+      wsClient.allActiveKeys(filter.getKeyNumber(), response -> {
          if (response.isPresent()) {
             List<KeyRepresentation> keys = newArrayList(response.get());
             LOG.info("Loaded active keys [number={}, duration={}]", keys.size(), TimeUtils.duration(opStart));
 
-            updateTable(searchString, keys);
+            keys.removeIf(doesNotMatch(filter.getName()));
+            keyAssignmentTable.update(keys);
          } else {
             App.displayWarning(messages.get(this, "canNotLoadKeys"));
          }
       });
    }
 
-   private void updateTable(String searchString, List<KeyRepresentation> keys) {
-      LocalDateTime opStart = LocalDateTime.now();
-      if (StringUtils.isNoneBlank(searchString)) {
-         keys.removeIf(doesNotMatch(searchString));
-      }
-      keyAssignmentTable.update(keys);
-      LOG.info("Filtered and updated table data [number={}, duration={}]",
-            keys.size(), TimeUtils.duration(opStart));
-   }
-
    private Predicate<KeyRepresentation> doesNotMatch(String searchString) {
       return key -> {
-         String content = key.getUser().firstName + key.getUser().lastName + key.getKeyNumber() + key.getDateTime();
+         if (StringUtils.isBlank(searchString)) {
+            return false;
+         }
+         String content = key.getUser().firstName + key.getUser().lastName;
          return !content.toLowerCase().contains(searchString.toLowerCase());
       };
    }

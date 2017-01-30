@@ -3,16 +3,17 @@ package lt.pavilonis.scan.cmm.client.ui.keylog;
 import javafx.collections.FXCollections;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.util.StringConverter;
 import lt.pavilonis.scan.cmm.client.representation.KeyAction;
 import lt.pavilonis.scan.cmm.client.service.MessageSourceAdapter;
@@ -20,8 +21,7 @@ import org.apache.commons.lang3.NotImplementedException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
+import java.util.stream.Stream;
 
 public final class KeyLogFilterPanel extends HBox {
 
@@ -39,7 +39,8 @@ public final class KeyLogFilterPanel extends HBox {
 
    private final DatePicker periodStart = new DatePicker();
    private final DatePicker periodEnd = new DatePicker();
-   private final TextField textField = new TextField();
+   private final TextField keyNumberField = new TextField();
+   private final TextField nameField = new TextField();
    private final ComboBox<KeyAction> actionComboBox = new ComboBox<>(FXCollections.observableArrayList(KeyAction.values()));
    private final Button searchButton;
 
@@ -61,43 +62,54 @@ public final class KeyLogFilterPanel extends HBox {
       });
       periodStart.setConverter(LOCAL_DATE_CONVERTER);
       periodEnd.setConverter(LOCAL_DATE_CONVERTER);
-      List<Region> fields = Arrays.asList(periodStart, periodEnd, actionComboBox, textField);
-      fields.forEach(f -> f.setPrefWidth(190));
-      getChildren().addAll(fields);
-      getChildren().add(searchButton);
+      Stream.of(periodStart, periodEnd, actionComboBox, keyNumberField, nameField)
+            .forEach(f -> f.setPrefWidth(138));
+
+      getChildren().addAll(
+            new Label(messages.get(this, "keyNumber")), keyNumberField,
+            new Label(messages.get(this, "name")), nameField,
+            actionComboBox,
+            periodStart,
+            periodEnd,
+            searchButton
+      );
+      setAlignment(Pos.CENTER_LEFT);
       setSpacing(15);
-      textField.requestFocus();
    }
 
    public void reset() {
-      textField.clear();
+      keyNumberField.clear();
+      nameField.clear();
       periodStart.setValue(LocalDate.now().minusMonths(1));
       periodEnd.setValue(LocalDate.now());
       actionComboBox.setValue(KeyAction.ALL);
    }
 
    void addSearchListener(EventHandler<Event> handler) {
-      textField.setOnKeyReleased((KeyEvent event) -> {
+
+      EventHandler<KeyEvent> eventHandler = (KeyEvent event) -> {
          if (event.getCode() == KeyCode.ENTER) {
             handler.handle(event);
          }
-      });
+      };
+
+      Stream.of(periodStart, periodEnd, actionComboBox, keyNumberField, nameField)
+            .forEach(field -> field.setOnKeyReleased(eventHandler));
+
       searchButton.setOnAction(handler::handle);
    }
 
-   public LocalDate getPeriodStart() {
-      return periodStart.getValue();
+   public KeyLogFilter getFilter() {
+      return new KeyLogFilter(
+            periodStart.getValue(),
+            periodEnd.getValue(),
+            actionComboBox.getValue(),
+            keyNumberField.getText(),
+            nameField.getText()
+      );
    }
 
-   public LocalDate getPeriodEnd() {
-      return periodEnd.getValue();
-   }
-
-   public String getText() {
-      return textField.getText();
-   }
-
-   public KeyAction getAction() {
-      return actionComboBox.getValue();
+   public void focus() {
+      keyNumberField.requestFocus();
    }
 }
