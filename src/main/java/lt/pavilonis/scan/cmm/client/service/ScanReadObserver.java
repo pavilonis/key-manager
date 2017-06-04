@@ -1,5 +1,6 @@
 package lt.pavilonis.scan.cmm.client.service;
 
+import javafx.scene.input.KeyCode;
 import lt.pavilonis.scan.cmm.client.App;
 import lt.pavilonis.scan.cmm.client.representation.ScanLogRepresentation;
 import lt.pavilonis.scan.cmm.client.ui.scanlog.ScanLogList;
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -24,6 +26,15 @@ public class ScanReadObserver extends ScannerReadEventObserver {
 
    @Autowired
    private MessageSourceAdapter messages;
+
+   @PostConstruct
+   public void mockScanEvent() {
+      App.ROOT_PANE.setOnKeyReleased(event -> {
+         if (event.getCode() == KeyCode.F12) {
+            consumeScannerInput("BE2AF66B");
+         }
+      });
+   }
 
    @Override
    protected void consumeScannerInput(String string) {

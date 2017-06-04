@@ -31,7 +31,7 @@ public class KeyAssignmentTab extends Tab {
 
    @Autowired
    public KeyAssignmentTab(MessageSourceAdapter messages, WsRestClient wsClient,
-                           KeyAssignmentTable keyAssignmentTable, Footer footer) {
+                           KeyAssignmentTable keyAssignmentTable) {
 
       this.messages = messages;
       this.wsClient = wsClient;
@@ -54,7 +54,7 @@ public class KeyAssignmentTab extends Tab {
          } else {
             keyAssignmentTable.clear();
          }
-         BorderPane mainTabLayout = new BorderPane(keyAssignmentTable, filterPanel, null, footer, null);
+         BorderPane mainTabLayout = new BorderPane(keyAssignmentTable, filterPanel, null, new Footer(), null);
          mainTabLayout.setPadding(new Insets(15, 15, 0, 15));
          setContent(mainTabLayout);
       });

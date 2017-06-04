@@ -5,11 +5,11 @@
 
    <groupId>lt.pavilonis</groupId>
    <artifactId>cmm-scan-client</artifactId>
-   <version>1.0.1-SNAPSHOT</version>
+   <version>1.1-SNAPSHOT</version>
    <properties>
       <maven.compiler.source>1.8</maven.compiler.source>
       <maven.compiler.target>1.8</maven.compiler.target>
-      <jackson.version>2.8.3</jackson.version>
+      <jackson.version>2.8.8</jackson.version>
    </properties>
    <dependencies>
 
@@ -46,7 +46,7 @@
       <dependency>
          <groupId>lt.pavilonis</groupId>
          <artifactId>utils</artifactId>
-         <version>0.1</version>
+         <version>0.13</version>
       </dependency>
    </dependencies>
 
@@ -65,7 +65,8 @@
             </executions>
             <configuration>
                <descriptorRefs>
-                  <descriptorRef>{$project.name}-{$project.version}</descriptorRef>
+                  <!--<descriptorRef>${project.name}-${project.version}</descriptorRef>-->
+                  <descriptorRef>jar-with-dependencies</descriptorRef>
                </descriptorRefs>
                <archive>
                   <manifest>
@@ -119,6 +120,7 @@
       <resources>
          <resource>
             <directory>src/main/resources</directory>
+            <!-- Helps to get application version using project.version variable-->
             <filtering>true</filtering>
          </resource>
       </resources>

@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -24,10 +25,10 @@ public class AppConfig {
 
    public final static String STYLE_STUDENT = "-fx-background-color: rgba(255, 164, 0, 0.15)";
 
-   @Value(("${api.auth.username}"))
+   @Value("${api.auth.username}")
    private String apiUsername;
 
-   @Value(("${api.auth.password}"))
+   @Value("${api.auth.password}")
    private String apiPassword;
 
    @Bean
@@ -59,5 +60,14 @@ public class AppConfig {
          headers.setAccept(singletonList(APPLICATION_JSON));
          return execution.execute(request, body);
       };
+   }
+
+
+   /**
+    * Needed for Spring @Value annotations to work
+    */
+   @Bean
+   public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+      return new PropertySourcesPlaceholderConfigurer();
    }
 }
