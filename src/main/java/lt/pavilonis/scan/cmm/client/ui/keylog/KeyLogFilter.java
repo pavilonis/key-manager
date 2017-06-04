@@ -12,7 +12,8 @@ public class KeyLogFilter {
    private final String keyNumber;
    private final String name;
 
-   public KeyLogFilter(LocalDate periodStart, LocalDate periodEnd, KeyAction keyAction, String keyNumber, String name) {
+   public KeyLogFilter(LocalDate periodStart, LocalDate periodEnd,
+                       KeyAction keyAction, String keyNumber, String name) {
       this.periodStart = periodStart;
       this.periodEnd = periodEnd;
       this.keyAction = keyAction;
