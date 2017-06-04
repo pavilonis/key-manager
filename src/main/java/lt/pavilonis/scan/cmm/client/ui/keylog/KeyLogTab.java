@@ -26,7 +26,7 @@ public class KeyLogTab extends Tab {
    private MessageSourceAdapter messages;
 
    @Autowired
-   public KeyLogTab(WsRestClient wsClient, MessageSourceAdapter messages, Footer footer) {
+   public KeyLogTab(WsRestClient wsClient, MessageSourceAdapter messages) {
       setText(messages.get(this, "title"));
 
       this.messages = messages;
@@ -49,7 +49,7 @@ public class KeyLogTab extends Tab {
          } else {
             keyLogTable.clear();
          }
-         BorderPane mainTabLayout = new BorderPane(keyLogTable, filterPanel, null, footer, null);
+         BorderPane mainTabLayout = new BorderPane(keyLogTable, filterPanel, null, new Footer(), null);
          mainTabLayout.setPadding(new Insets(15, 15, 0, 15));
          setContent(mainTabLayout);
       });

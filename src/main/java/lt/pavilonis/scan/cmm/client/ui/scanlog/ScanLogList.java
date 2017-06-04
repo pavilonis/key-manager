@@ -49,6 +49,9 @@ public class ScanLogList extends ListView<ScanLogListElement> {
 
    private void processClick() {
       ScanLogListElement newSelection = getSelectionModel().getSelectedItem();
+      if (newSelection == null) {
+         return;
+      }
       if (lastSelection == newSelection) {
          lastSelection.deactivate();
          lastSelection = null;

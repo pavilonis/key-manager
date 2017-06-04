@@ -15,7 +15,7 @@ import org.springframework.context.support.AbstractApplicationContext;
 
 public class App extends Application {
 
-   private static final StackPane ROOT_PANE = new StackPane();
+   public static final StackPane ROOT_PANE = new StackPane();
    private static final WarningBox WARNING_BOX = new WarningBox(ROOT_PANE.getChildren());
    private static AbstractApplicationContext context;
    private static WsRestClient wsClient;

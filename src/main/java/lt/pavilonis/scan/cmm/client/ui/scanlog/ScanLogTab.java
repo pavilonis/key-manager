@@ -15,7 +15,7 @@ public class ScanLogTab extends Tab {
 
    @Autowired
    public ScanLogTab(ScanLogKeyList scanLogKeyList, ScanLogList scanLogList,
-                     PhotoView photoView, MessageSourceAdapter messages, Footer footer) {
+                     PhotoView photoView, MessageSourceAdapter messages) {
       setText(messages.get(this, "title"));
       setClosable(false);
 
@@ -26,7 +26,7 @@ public class ScanLogTab extends Tab {
       VBox.setMargin(scanLogKeyList, new Insets(0, 0, 0, 15));
       VBox.setMargin(photoView, new Insets(15, 0, 0, 15));
 
-      BorderPane parent = new BorderPane(scanLogList, null, rightColumn, footer, null);
+      BorderPane parent = new BorderPane(scanLogList, null, rightColumn, new Footer(), null);
       parent.setPadding(new Insets(15, 15, 0, 15));
       setContent(parent);
 
