@@ -41,7 +41,9 @@ public final class KeyLogFilterPanel extends HBox {
    private final DatePicker periodEnd = new DatePicker();
    private final TextField keyNumberField = new TextField();
    private final TextField nameField = new TextField();
-   private final ComboBox<KeyAction> actionComboBox = new ComboBox<>(FXCollections.observableArrayList(KeyAction.values()));
+   private final ComboBox<KeyAction> actionComboBox =
+         new ComboBox<>(FXCollections.observableArrayList(KeyAction.values()));
+
    private final Button searchButton;
 
    public KeyLogFilterPanel(MessageSourceAdapter messages) {
@@ -80,7 +82,7 @@ public final class KeyLogFilterPanel extends HBox {
    public void reset() {
       keyNumberField.clear();
       nameField.clear();
-      periodStart.setValue(LocalDate.now().minusMonths(1));
+      periodStart.setValue(LocalDate.now().minusWeeks(1));
       periodEnd.setValue(LocalDate.now());
       actionComboBox.setValue(KeyAction.ALL);
    }
