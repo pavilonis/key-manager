@@ -5,7 +5,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import lt.pavilonis.scan.cmm.client.service.MessageSourceAdapter;
+import lt.pavilonis.scan.cmm.client.MessageSourceAdapter;
 import lt.pavilonis.scan.cmm.client.ui.Footer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

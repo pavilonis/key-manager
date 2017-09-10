@@ -1,4 +1,4 @@
-package lt.pavilonis.scan.cmm.client.service;
+package lt.pavilonis.scan.cmm.client;
 
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;

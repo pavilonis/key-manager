@@ -5,9 +5,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListView;
 import lt.pavilonis.scan.cmm.client.App;
-import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
-import lt.pavilonis.scan.cmm.client.service.MessageSourceAdapter;
-import lt.pavilonis.scan.cmm.client.service.WsRestClient;
+import lt.pavilonis.scan.cmm.client.ui.keylog.Key;
+import lt.pavilonis.scan.cmm.client.MessageSourceAdapter;
+import lt.pavilonis.scan.cmm.client.WsRestClient;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -37,7 +37,7 @@ public class ScanLogKeyList extends ListView<ScanLogKeyListElement> {
       setFocusTraversable(false);
    }
 
-   void append(KeyRepresentation representation) {
+   void append(Key representation) {
       container.add(composeCell(representation.getKeyNumber()));
    }
 
@@ -57,12 +57,12 @@ public class ScanLogKeyList extends ListView<ScanLogKeyListElement> {
 
       wsClient.userKeysAssigned(cardCode, response -> {
          if (response.isPresent()) {
-            List<KeyRepresentation> keys = newArrayList(response.get());
+            List<Key> keys = newArrayList(response.get());
             LOG.info("Loaded user assigned keys [cardCode={}, keysNum={}]", cardCode, keys.size());
 
             container.addAll(
                   keys.stream()
-                        .map(KeyRepresentation::getKeyNumber)
+                        .map(Key::getKeyNumber)
                         .map(this::composeCell)
                         .collect(toList())
             );

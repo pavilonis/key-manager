@@ -1,12 +1,12 @@
-package lt.pavilonis.scan.cmm.client.service;
+package lt.pavilonis.scan.cmm.client;
 
 import com.google.common.collect.ImmutableMap;
 import javafx.application.Platform;
-import lt.pavilonis.scan.cmm.client.App;
-import lt.pavilonis.scan.cmm.client.representation.KeyAction;
-import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
-import lt.pavilonis.scan.cmm.client.representation.ScanLogRepresentation;
+import lt.pavilonis.scan.cmm.client.ui.classusage.ClassroomUsage;
+import lt.pavilonis.scan.cmm.client.ui.keylog.Key;
+import lt.pavilonis.scan.cmm.client.ui.keylog.KeyAction;
 import lt.pavilonis.scan.cmm.client.ui.keylog.KeyLogFilter;
+import lt.pavilonis.scan.cmm.client.ui.scanlog.ScanLog;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +35,8 @@ public class WsRestClient {
    private static final Logger LOG = getLogger(WsRestClient.class.getSimpleName());
    private static final String SEGMENT_KEYS = "keys";
    private static final String SEGMENT_LOG = "log";
+   private static final String SEGMENT_CLASSROOMS = "classrooms";
+   private static final String SEGMENT_ROLES = "sclass";
    private static final String SEGMENT_SCANLOG = "scanlog";
 
    @Value(("${api.uri.base}"))
@@ -51,41 +53,41 @@ public class WsRestClient {
 
    private String lastErrorMessage;
 
-   public void writeScanLog(String cardCode, Consumer<Optional<ScanLogRepresentation>> consumer) {
+   public void writeScanLog(String cardCode, Consumer<Optional<ScanLog>> consumer) {
 
       URI uri = uri(SEGMENT_SCANLOG, scannerId, cardCode);
 
       LOG.info("Sending scanLog POST request [scannerId={}, cardCode={}]", scannerId, cardCode);
 
-      request(uri, HttpMethod.POST, ScanLogRepresentation.class, consumer);
+      request(uri, HttpMethod.POST, ScanLog.class, consumer);
    }
 
-   public void allActiveKeys(String keyNumber, Consumer<Optional<KeyRepresentation[]>> consumer) {
+   public void allActiveKeys(String keyNumber, Consumer<Optional<Key[]>> consumer) {
       Map<String, String> args = new HashMap<>();
       args.put("scannerId", scannerId);
       if (StringUtils.isNotBlank(keyNumber)) {
          args.put("keyNumber", keyNumber);
       }
 
-      request(uri(args, SEGMENT_KEYS), HttpMethod.GET, KeyRepresentation[].class, consumer);
+      request(uri(args, SEGMENT_KEYS), HttpMethod.GET, Key[].class, consumer);
    }
 
-   public void userKeysAssigned(String cardCode, Consumer<Optional<KeyRepresentation[]>> consumer) {
+   public void userKeysAssigned(String cardCode, Consumer<Optional<Key[]>> consumer) {
       Map<String, String> params = ImmutableMap.of("scannerId", scannerId, "cardCode", cardCode);
-      request(uri(params, SEGMENT_KEYS), HttpMethod.GET, KeyRepresentation[].class, consumer);
+      request(uri(params, SEGMENT_KEYS), HttpMethod.GET, Key[].class, consumer);
    }
 
-   public void assignKey(String cardCode, int keyNumber, Consumer<Optional<KeyRepresentation>> consumer) {
+   public void assignKey(String cardCode, int keyNumber, Consumer<Optional<Key>> consumer) {
       URI uri = uri(SEGMENT_KEYS, scannerId, String.valueOf(keyNumber), cardCode);
-      request(uri, HttpMethod.POST, KeyRepresentation.class, consumer);
+      request(uri, HttpMethod.POST, Key.class, consumer);
    }
 
-   public void returnKey(int keyNumber, Consumer<Optional<KeyRepresentation>> consumer) {
+   public void returnKey(int keyNumber, Consumer<Optional<Key>> consumer) {
       URI uri = uri(SEGMENT_KEYS, scannerId, String.valueOf(keyNumber));
-      request(uri, HttpMethod.DELETE, KeyRepresentation.class, consumer);
+      request(uri, HttpMethod.DELETE, Key.class, consumer);
    }
 
-   public void keyLog(KeyLogFilter filter, Consumer<Optional<KeyRepresentation[]>> consumer) {
+   public void keyLog(KeyLogFilter filter, Consumer<Optional<Key[]>> consumer) {
 
       Map<String, String> params = new HashMap<>();
       params.put("scannerId", scannerId);
@@ -103,7 +105,22 @@ public class WsRestClient {
       }
 
       URI uri = uri(params, SEGMENT_KEYS, SEGMENT_LOG);
-      request(uri, HttpMethod.GET, KeyRepresentation[].class, consumer);
+      request(uri, HttpMethod.GET, Key[].class, consumer);
+   }
+
+   public void classroomUsage(String text, String role, Consumer<Optional<ClassroomUsage[]>> consumer) {
+      Map<String, String> params = new HashMap<>();
+      if (StringUtils.isNotBlank(text)) {
+         params.put("textLike", scannerId);
+      }
+      if (StringUtils.isNotBlank(role)) {
+         params.put("role", role);
+      }
+      request(uri(params, SEGMENT_CLASSROOMS), HttpMethod.GET, ClassroomUsage[].class, consumer);
+   }
+
+   public void loadRoles(Consumer<Optional<String[]>> rolesConsumer) {
+      request(uri(SEGMENT_ROLES), HttpMethod.GET, String[].class, rolesConsumer);
    }
 
    public Optional<String> getLastErrorMessage() {

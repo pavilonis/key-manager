@@ -10,7 +10,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
-import lt.pavilonis.scan.cmm.client.service.MessageSourceAdapter;
+import lt.pavilonis.scan.cmm.client.MessageSourceAdapter;
 
 import java.util.function.Consumer;
 import java.util.stream.Stream;

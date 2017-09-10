@@ -1,5 +1,6 @@
-package lt.pavilonis.scan.cmm.client.ui.keylog;
+package lt.pavilonis.scan.cmm.client.ui.classusage;
 
+import com.google.common.collect.Lists;
 import javafx.geometry.Insets;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.BorderPane;
@@ -11,30 +12,27 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Controller
-public class KeyLogTab extends Tab {
+public class ClassroomUsageTab extends Tab {
 
-   private static final Logger LOG = getLogger(KeyLogTab.class.getSimpleName());
-   private final KeyLogTable keyLogTable;
+   private static final Logger LOG = getLogger(ClassroomUsageTab.class.getSimpleName());
+   private final ClassroomUsageTable classUsageTable;
    private final WsRestClient wsClient;
    private MessageSourceAdapter messages;
 
    @Autowired
-   public KeyLogTab(WsRestClient wsClient, MessageSourceAdapter messages) {
+   public ClassroomUsageTab(WsRestClient wsClient, MessageSourceAdapter messages) {
       setText(messages.get(this, "title"));
 
       this.messages = messages;
       this.wsClient = wsClient;
-      this.keyLogTable = new KeyLogTable(messages);
+      this.classUsageTable = new ClassroomUsageTable(messages);
 
       setClosable(false);
 
-      KeyLogFilterPanel filterPanel = new KeyLogFilterPanel(messages);
+      ClassroomUsageFilterPanel filterPanel = new ClassroomUsageFilterPanel(messages, wsClient);
       filterPanel.addSearchListener(event -> updateTable(filterPanel.getFilter()));
 
       BorderPane.setMargin(filterPanel, new Insets(0, 0, 15, 0));
@@ -46,23 +44,22 @@ public class KeyLogTab extends Tab {
             updateTable(filterPanel.getFilter());
             filterPanel.focus();
          } else {
-            keyLogTable.clear();
+            classUsageTable.clear();
          }
-         BorderPane mainTabLayout = new BorderPane(keyLogTable, filterPanel, null, new Footer(), null);
+         BorderPane mainTabLayout = new BorderPane(classUsageTable, filterPanel, null, new Footer(), null);
          mainTabLayout.setPadding(new Insets(15, 15, 0, 15));
          setContent(mainTabLayout);
       });
    }
 
    //TODO move to abstract class?
-   private void updateTable(KeyLogFilter filter) {
-      wsClient.keyLog(filter, response -> {
+   private void updateTable(ClassroomUsageFilter filter) {
+      wsClient.classroomUsage(filter.getText(), filter.getRole(), response -> {
          if (response.isPresent()) {
             LOG.info("Loaded keyLog [entries={}]", response.get().length);
-            List<Key> keys = newArrayList(response.get());
-            keyLogTable.update(keys);
+            classUsageTable.update(Lists.newArrayList(response.get()));
          } else {
-            App.displayWarning(messages.get(this, "canNotLoadKeys"));
+            App.displayWarning(messages.get(this, "canNotLoadClassroomUsage"));
          }
       });
    }

@@ -1,6 +1,5 @@
 package lt.pavilonis.scan.cmm.client.ui.keylog;
 
-import lt.pavilonis.scan.cmm.client.representation.KeyAction;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;

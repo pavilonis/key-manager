@@ -1,4 +1,4 @@
-package lt.pavilonis.scan.cmm.client.ui.keylog;
+package lt.pavilonis.scan.cmm.client.ui.classusage;
 
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -11,38 +11,35 @@ import javafx.scene.control.TableView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import lt.pavilonis.scan.cmm.client.AppConfig;
-import lt.pavilonis.scan.cmm.client.User;
 import lt.pavilonis.scan.cmm.client.MessageSourceAdapter;
+import lt.pavilonis.scan.cmm.client.User;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 
-import static java.util.Arrays.asList;
+final class ClassroomUsageTable extends TableView<ClassroomUsage> {
 
-final class KeyLogTable extends TableView<Key> {
-
-   private static final String ICON_ASSINGED = "images/flat-arrow-up-24.png";
-   private static final String ICON_UNASSIGNED = "images/flat-arrow-down-24.png";
+   private static final String ICON_CLASSROOM_OCCUPIED = "images/lock_24_red.png";
+   private static final String ICON_CLASSROOM_FREE = "images/lock_24_green.png";
    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd  HH:mm");
-   private final ObservableList<Key> container = FXCollections.observableArrayList();
+   private final ObservableList<ClassroomUsage> container = FXCollections.observableArrayList();
 
-   public KeyLogTable(MessageSourceAdapter messages) {
+   public ClassroomUsageTable(MessageSourceAdapter messages) {
       this.setItems(container);
 
-      TableColumn<Key, Integer> keyNumberColumn =
-            new TableColumn<>(messages.get(this, ("keyNumber")));
-      keyNumberColumn.setMinWidth(120);
-      keyNumberColumn.setMaxWidth(120);
-      keyNumberColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getKeyNumber()));
+      TableColumn<ClassroomUsage, Integer> classroomNumber = new TableColumn<>(messages.get(this, ("classroomNumber")));
+      classroomNumber.setMinWidth(120);
+      classroomNumber.setMaxWidth(120);
+      classroomNumber.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getClassroomNumber()));
 
-      TableColumn<Key, Key> dateTimeColumn =
-            new TableColumn<>(messages.get(this, ("dateTime")));
+      TableColumn<ClassroomUsage, ClassroomUsage> dateTimeColumn = new TableColumn<>(messages.get(this, ("dateTime")));
       dateTimeColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
-      dateTimeColumn.setCellFactory(column -> new TableCell<Key, Key>() {
+      dateTimeColumn.setCellFactory(column -> new TableCell<ClassroomUsage, ClassroomUsage>() {
          @Override
-         protected void updateItem(Key item, boolean empty) {
+         protected void updateItem(ClassroomUsage item, boolean empty) {
             super.updateItem(item, empty);
             if (item == null || empty) {
                setText(null);
@@ -58,17 +55,16 @@ final class KeyLogTable extends TableView<Key> {
       dateTimeColumn.setMinWidth(190);
       dateTimeColumn.setMaxWidth(190);
 
-      TableColumn<Key, String> userColumn =
-            new TableColumn<>(messages.get(this, "user"));
+      TableColumn<ClassroomUsage, String> userColumn = new TableColumn<>(messages.get(this, "user"));
       userColumn.setCellValueFactory(param -> {
          User user = param.getValue().getUser();
          return new ReadOnlyObjectWrapper<>(user.firstName + " " + user.lastName);
       });
 
-      TableColumn<Key, User> groupColumn =
-            new TableColumn<>(messages.get(this, "group"));
-      groupColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getUser()));
-      groupColumn.setCellFactory(column -> new TableCell<Key, User>() {
+      TableColumn<ClassroomUsage, User> roleColumn =
+            new TableColumn<>(messages.get(this, "role"));
+      roleColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getUser()));
+      roleColumn.setCellFactory(column -> new TableCell<ClassroomUsage, User>() {
          @Override
          protected void updateItem(User item, boolean empty) {
             super.updateItem(item, empty);
@@ -77,35 +73,31 @@ final class KeyLogTable extends TableView<Key> {
                setGraphic(null);
                setStyle("");
             } else {
-               setText(item.group);
-               if (StringUtils.isNoneBlank(item.role)
-                     && StringUtils.containsIgnoreCase(item.role, "mokinys")) {
+               setText(item.role);
+               if (StringUtils.containsIgnoreCase(item.role, "mokinys")) {
                   setStyle(AppConfig.STYLE_STUDENT);
                }
             }
          }
       });
-      groupColumn.setComparator((user1, user2) -> ObjectUtils.compare(user1.group, (user2.group)));
+      roleColumn.setComparator((user1, user2) -> ObjectUtils.compare(user1.role, user2.role));
 
-      TableColumn<Key, KeyAction> actionColumn =
-            new TableColumn<>(messages.get(this, "action"));
+      TableColumn<ClassroomUsage, Boolean> actionColumn = new TableColumn<>(messages.get(this, "action"));
 
-      actionColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getKeyAction()));
-      actionColumn.setCellFactory(param -> new TableCell<Key, KeyAction>() {
+      actionColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().isOccupied()));
+      actionColumn.setCellFactory(param -> new TableCell<ClassroomUsage, Boolean>() {
          @Override
-         protected void updateItem(KeyAction value, boolean empty) {
-            super.updateItem(value, empty);
-            if (value == null || empty) {
+         protected void updateItem(Boolean item, boolean empty) {
+            super.updateItem(item, empty);
+            if (empty) {
                setText(null);
                setGraphic(null);
                setStyle("");
             } else {
-               if (value == KeyAction.ASSIGNED) {
-                  setIcon(ICON_ASSINGED);
-               } else if (value == KeyAction.UNASSIGNED) {
-                  setIcon(ICON_UNASSIGNED);
+               if (Boolean.TRUE.equals(item)) {
+                  setIcon(ICON_CLASSROOM_OCCUPIED);
                } else {
-                  throw new IllegalStateException("Not expected KeyAction value (should not happen)");
+                  setIcon(ICON_CLASSROOM_FREE);
                }
                setAlignment(Pos.CENTER);
             }
@@ -118,14 +110,14 @@ final class KeyLogTable extends TableView<Key> {
       actionColumn.setMinWidth(100);
       actionColumn.setMaxWidth(100);
 
-      getColumns().addAll(asList(keyNumberColumn, dateTimeColumn, userColumn, groupColumn, actionColumn));
+      getColumns().addAll(Arrays.asList(classroomNumber, dateTimeColumn, userColumn, roleColumn, actionColumn));
       getSortOrder().add(dateTimeColumn);
       setStyle("-fx-font-size:15; -fx-font-weight: 600; -fx-alignment: center");
       setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
       setFocusTraversable(false);
    }
 
-   public void update(List<Key> keys) {
+   public void update(List<ClassroomUsage> keys) {
       Platform.runLater(() -> {
          container.clear();
          container.addAll(keys);

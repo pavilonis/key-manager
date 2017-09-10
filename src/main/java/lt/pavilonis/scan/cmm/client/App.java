@@ -5,8 +5,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import lt.pavilonis.scan.cmm.client.service.WsRestClient;
 import lt.pavilonis.scan.cmm.client.ui.WarningBox;
+import lt.pavilonis.scan.cmm.client.ui.classusage.ClassroomUsageTab;
 import lt.pavilonis.scan.cmm.client.ui.keyassignment.KeyAssignmentTab;
 import lt.pavilonis.scan.cmm.client.ui.keylog.KeyLogTab;
 import lt.pavilonis.scan.cmm.client.ui.scanlog.ScanLogTab;
@@ -32,7 +32,8 @@ public class App extends Application {
       TabPane tabPane = new TabPane(
             context.getBean(ScanLogTab.class),
             context.getBean(KeyAssignmentTab.class),
-            context.getBean(KeyLogTab.class)
+            context.getBean(KeyLogTab.class),
+            context.getBean(ClassroomUsageTab.class)
       );
 
       ROOT_PANE.getChildren().add(tabPane);

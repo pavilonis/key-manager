@@ -1,4 +1,4 @@
-package lt.pavilonis.scan.cmm.client.representation;
+package lt.pavilonis.scan.cmm.client;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
