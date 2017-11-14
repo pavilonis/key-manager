@@ -56,14 +56,11 @@ class ClassroomUsageTable extends TableView<ScanLogBrief> {
       TableColumn<ScanLogBrief, String> userColumn = new TableColumn<>(messages.get(this, "user"));
       userColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getName()));
 
-      TableColumn<ScanLogBrief, String> roleColumn = new TableColumn<>(messages.get(this, "role"));
-      roleColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getRole()));
-
       TableColumn<ScanLogBrief, String> groupColumn = new TableColumn<>(messages.get(this, "group"));
       groupColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getGroup()));
       groupColumn.setComparator(ObjectUtils::compare);
 
-      getColumns().addAll(Arrays.asList(classroomNumber, dateTimeColumn, userColumn, roleColumn, groupColumn));
+      getColumns().addAll(Arrays.asList(classroomNumber, dateTimeColumn, userColumn, groupColumn));
       getSortOrder().add(dateTimeColumn);
       setStyle("-fx-font-size:15; -fx-font-weight: 600; -fx-alignment: center");
       setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);

@@ -37,7 +37,7 @@ public class WsRestClient {
    private static final String SEGMENT_LOG = "log";
    private static final String SEGMENT_ROLES = "roles";
    private static final String SEGMENT_SCANLOG = "scanlog";
-   private static final String DOOR_SCANNER_ID = "5";
+   private static final String SEGMENT_LASTSEEN = "lastseen";
 
    @Value(("${api.uri.base}"))
    private String baseUri;
@@ -115,7 +115,7 @@ public class WsRestClient {
          params.put("text", text);
       }
 
-      request(uri(params, SEGMENT_SCANLOG, DOOR_SCANNER_ID), HttpMethod.GET, ScanLogBrief[].class, consumer);
+      request(uri(params, SEGMENT_SCANLOG, SEGMENT_LASTSEEN), HttpMethod.GET, ScanLogBrief[].class, consumer);
    }
 
    public void loadRoles(Consumer<Optional<String[]>> rolesConsumer) {
