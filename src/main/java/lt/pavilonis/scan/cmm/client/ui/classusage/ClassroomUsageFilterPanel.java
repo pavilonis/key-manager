@@ -1,11 +1,9 @@
 package lt.pavilonis.scan.cmm.client.ui.classusage;
 
-import javafx.collections.FXCollections;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -18,15 +16,10 @@ import lt.pavilonis.scan.cmm.client.WsRestClient;
 
 public final class ClassroomUsageFilterPanel extends HBox {
 
-   private final ComboBox<String> rolesCombo = new ComboBox<>();
    private final TextField textField = new TextField();
    private final Button searchButton;
 
    public ClassroomUsageFilterPanel(MessageSourceAdapter messages, WsRestClient rest) {
-      rest.loadRoles(roles ->
-            roles.ifPresent(r ->
-                  this.rolesCombo.setItems(FXCollections.observableArrayList(r))));
-
 
       this.searchButton = new Button(
             messages.get(this, "filter"),
@@ -37,8 +30,6 @@ public final class ClassroomUsageFilterPanel extends HBox {
       getChildren().addAll(
             new Label(messages.get(this, "text")),
             textField,
-            new Label(messages.get(this, "role")),
-            rolesCombo,
             searchButton
       );
       setAlignment(Pos.CENTER_LEFT);
@@ -61,7 +52,7 @@ public final class ClassroomUsageFilterPanel extends HBox {
    }
 
    public ClassroomUsageFilter getFilter() {
-      return new ClassroomUsageFilter(textField.getText(), rolesCombo.getValue());
+      return new ClassroomUsageFilter(textField.getText());
    }
 
    public void focus() {

@@ -2,7 +2,7 @@ package lt.pavilonis.scan.cmm.client;
 
 import com.google.common.collect.ImmutableMap;
 import javafx.application.Platform;
-import lt.pavilonis.scan.cmm.client.ui.classusage.ClassroomUsage;
+import lt.pavilonis.scan.cmm.client.ui.classusage.ScanLogBrief;
 import lt.pavilonis.scan.cmm.client.ui.keylog.Key;
 import lt.pavilonis.scan.cmm.client.ui.keylog.KeyAction;
 import lt.pavilonis.scan.cmm.client.ui.keylog.KeyLogFilter;
@@ -35,9 +35,9 @@ public class WsRestClient {
    private static final Logger LOG = getLogger(WsRestClient.class.getSimpleName());
    private static final String SEGMENT_KEYS = "keys";
    private static final String SEGMENT_LOG = "log";
-   private static final String SEGMENT_CLASSROOMS = "classrooms";
-   private static final String SEGMENT_ROLES = "sclass";
+   private static final String SEGMENT_ROLES = "roles";
    private static final String SEGMENT_SCANLOG = "scanlog";
+   private static final String DOOR_SCANNER_ID = "5";
 
    @Value(("${api.uri.base}"))
    private String baseUri;
@@ -108,15 +108,14 @@ public class WsRestClient {
       request(uri, HttpMethod.GET, Key[].class, consumer);
    }
 
-   public void classroomUsage(String text, String role, Consumer<Optional<ClassroomUsage[]>> consumer) {
+   public void classroomUsage(String text, Consumer<Optional<ScanLogBrief[]>> consumer) {
       Map<String, String> params = new HashMap<>();
+
       if (StringUtils.isNotBlank(text)) {
-         params.put("textLike", scannerId);
+         params.put("text", text);
       }
-      if (StringUtils.isNotBlank(role)) {
-         params.put("role", role);
-      }
-      request(uri(params, SEGMENT_CLASSROOMS), HttpMethod.GET, ClassroomUsage[].class, consumer);
+
+      request(uri(params, SEGMENT_SCANLOG, DOOR_SCANNER_ID), HttpMethod.GET, ScanLogBrief[].class, consumer);
    }
 
    public void loadRoles(Consumer<Optional<String[]>> rolesConsumer) {

@@ -54,9 +54,9 @@ public class ClassroomUsageTab extends Tab {
 
    //TODO move to abstract class?
    private void updateTable(ClassroomUsageFilter filter) {
-      wsClient.classroomUsage(filter.getText(), filter.getRole(), response -> {
+      wsClient.classroomUsage(filter.getText(), response -> {
          if (response.isPresent()) {
-            LOG.info("Loaded keyLog [entries={}]", response.get().length);
+            LOG.info("Loaded brief scan logs [entries={}]", response.get().length);
             classUsageTable.update(Lists.newArrayList(response.get()));
          } else {
             App.displayWarning(messages.get(this, "canNotLoadClassroomUsage"));
