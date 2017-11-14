@@ -1,8 +1,7 @@
-package lt.pavilonis.scan.cmm.client.service;
+package lt.pavilonis.scan.cmm.client;
 
 import javafx.scene.input.KeyCode;
-import lt.pavilonis.scan.cmm.client.App;
-import lt.pavilonis.scan.cmm.client.representation.ScanLogRepresentation;
+import lt.pavilonis.scan.cmm.client.ui.scanlog.ScanLog;
 import lt.pavilonis.scan.cmm.client.ui.scanlog.ScanLogList;
 import lt.pavilonis.scan.service.ScannerReadEventObserver;
 import org.slf4j.Logger;
@@ -38,7 +37,7 @@ public class ScanReadObserver extends ScannerReadEventObserver {
 
    @Override
    protected void consumeScannerInput(String string) {
-      Consumer<Optional<ScanLogRepresentation>> consumer = response -> {
+      Consumer<Optional<ScanLog>> consumer = response -> {
          if (response.isPresent()) {
             LOG.info("Response [user={}]", response.get().user.firstName + " " + response.get().user.lastName);
             scanLogList.addElement(response.get());

@@ -1,20 +1,21 @@
-package lt.pavilonis.scan.cmm.client.representation;
+package lt.pavilonis.scan.cmm.client.ui.keylog;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lt.pavilonis.scan.cmm.client.User;
 
 import java.time.LocalDateTime;
 
-public class KeyRepresentation {
+public class Key {
    private final int keyNumber;
    private final LocalDateTime dateTime;
-   private final UserRepresentation user;
+   private final User user;
    private final KeyAction keyAction;
 
-   public KeyRepresentation(@JsonProperty("keyNumber") int keyNumber,
+   public Key(@JsonProperty("keyNumber") int keyNumber,
 //                            @JsonSerialize(using = IsoLocalDateTimeSerializer.class)
-                            @JsonProperty("dateTime") LocalDateTime dateTime,
-                            @JsonProperty("user") UserRepresentation user,
-                            @JsonProperty("keyAction") KeyAction keyAction) {
+              @JsonProperty("dateTime") LocalDateTime dateTime,
+              @JsonProperty("user") User user,
+              @JsonProperty("keyAction") KeyAction keyAction) {
 
       this.keyNumber = keyNumber;
       this.dateTime = dateTime;
@@ -30,7 +31,7 @@ public class KeyRepresentation {
       return dateTime;
    }
 
-   public UserRepresentation getUser() {
+   public User getUser() {
       return user;
    }
 

@@ -11,10 +11,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import lt.pavilonis.scan.cmm.client.AppConfig;
-import lt.pavilonis.scan.cmm.client.representation.KeyAction;
-import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
-import lt.pavilonis.scan.cmm.client.representation.UserRepresentation;
-import lt.pavilonis.scan.cmm.client.service.MessageSourceAdapter;
+import lt.pavilonis.scan.cmm.client.User;
+import lt.pavilonis.scan.cmm.client.MessageSourceAdapter;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -23,28 +21,28 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 
-final class KeyLogTable extends TableView<KeyRepresentation> {
+final class KeyLogTable extends TableView<Key> {
 
    private static final String ICON_ASSINGED = "images/flat-arrow-up-24.png";
    private static final String ICON_UNASSIGNED = "images/flat-arrow-down-24.png";
    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd  HH:mm");
-   private final ObservableList<KeyRepresentation> container = FXCollections.observableArrayList();
+   private final ObservableList<Key> container = FXCollections.observableArrayList();
 
    public KeyLogTable(MessageSourceAdapter messages) {
       this.setItems(container);
 
-      TableColumn<KeyRepresentation, Integer> keyNumberColumn =
+      TableColumn<Key, Integer> keyNumberColumn =
             new TableColumn<>(messages.get(this, ("keyNumber")));
       keyNumberColumn.setMinWidth(120);
       keyNumberColumn.setMaxWidth(120);
       keyNumberColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getKeyNumber()));
 
-      TableColumn<KeyRepresentation, KeyRepresentation> dateTimeColumn =
+      TableColumn<Key, Key> dateTimeColumn =
             new TableColumn<>(messages.get(this, ("dateTime")));
       dateTimeColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
-      dateTimeColumn.setCellFactory(column -> new TableCell<KeyRepresentation, KeyRepresentation>() {
+      dateTimeColumn.setCellFactory(column -> new TableCell<Key, Key>() {
          @Override
-         protected void updateItem(KeyRepresentation item, boolean empty) {
+         protected void updateItem(Key item, boolean empty) {
             super.updateItem(item, empty);
             if (item == null || empty) {
                setText(null);
@@ -60,19 +58,19 @@ final class KeyLogTable extends TableView<KeyRepresentation> {
       dateTimeColumn.setMinWidth(190);
       dateTimeColumn.setMaxWidth(190);
 
-      TableColumn<KeyRepresentation, String> userColumn =
+      TableColumn<Key, String> userColumn =
             new TableColumn<>(messages.get(this, "user"));
       userColumn.setCellValueFactory(param -> {
-         UserRepresentation user = param.getValue().getUser();
+         User user = param.getValue().getUser();
          return new ReadOnlyObjectWrapper<>(user.firstName + " " + user.lastName);
       });
 
-      TableColumn<KeyRepresentation, UserRepresentation> groupColumn =
+      TableColumn<Key, User> groupColumn =
             new TableColumn<>(messages.get(this, "group"));
       groupColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getUser()));
-      groupColumn.setCellFactory(column -> new TableCell<KeyRepresentation, UserRepresentation>() {
+      groupColumn.setCellFactory(column -> new TableCell<Key, User>() {
          @Override
-         protected void updateItem(UserRepresentation item, boolean empty) {
+         protected void updateItem(User item, boolean empty) {
             super.updateItem(item, empty);
             if (item == null || empty) {
                setText(null);
@@ -89,11 +87,11 @@ final class KeyLogTable extends TableView<KeyRepresentation> {
       });
       groupColumn.setComparator((user1, user2) -> ObjectUtils.compare(user1.group, (user2.group)));
 
-      TableColumn<KeyRepresentation, KeyAction> actionColumn =
+      TableColumn<Key, KeyAction> actionColumn =
             new TableColumn<>(messages.get(this, "action"));
 
       actionColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getKeyAction()));
-      actionColumn.setCellFactory(param -> new TableCell<KeyRepresentation, KeyAction>() {
+      actionColumn.setCellFactory(param -> new TableCell<Key, KeyAction>() {
          @Override
          protected void updateItem(KeyAction value, boolean empty) {
             super.updateItem(value, empty);
@@ -127,7 +125,7 @@ final class KeyLogTable extends TableView<KeyRepresentation> {
       setFocusTraversable(false);
    }
 
-   public void update(List<KeyRepresentation> keys) {
+   public void update(List<Key> keys) {
       Platform.runLater(() -> {
          container.clear();
          container.addAll(keys);

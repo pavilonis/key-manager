@@ -5,11 +5,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListView;
 import lt.pavilonis.scan.cmm.client.App;
-import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
-import lt.pavilonis.scan.cmm.client.representation.ScanLogRepresentation;
-import lt.pavilonis.scan.cmm.client.representation.UserRepresentation;
-import lt.pavilonis.scan.cmm.client.service.MessageSourceAdapter;
-import lt.pavilonis.scan.cmm.client.service.WsRestClient;
+import lt.pavilonis.scan.cmm.client.ui.keylog.Key;
+import lt.pavilonis.scan.cmm.client.User;
+import lt.pavilonis.scan.cmm.client.MessageSourceAdapter;
+import lt.pavilonis.scan.cmm.client.WsRestClient;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -64,14 +63,14 @@ public class ScanLogList extends ListView<ScanLogListElement> {
          lastSelection = newSelection;
 
          newSelection.activate();
-         UserRepresentation user = newSelection.getUser();
+         User user = newSelection.getUser();
 
          photoView.update(user.base16photo);
          scanLogKeyList.updateContainer(user.cardCode);
       }
    }
 
-   public void addElement(ScanLogRepresentation representation) {
+   public void addElement(ScanLog representation) {
       Platform.runLater(() -> {
          if (container.size() > QUEUE_LENGTH) {
             container.remove(container.size() - 1);
@@ -90,9 +89,9 @@ public class ScanLogList extends ListView<ScanLogListElement> {
 
    private BiConsumer<String, Integer> elementClickConsumer() {
       return (cardCode, keyNumber) -> {
-         Consumer<Optional<KeyRepresentation>> wsResponseConsumer = response -> {
+         Consumer<Optional<Key>> wsResponseConsumer = response -> {
             if (response.isPresent()) {
-               KeyRepresentation key = response.get();
+               Key key = response.get();
                scanLogKeyList.append(key);
                LOG.info("Key {} assigned to cardCode {}", key.getKeyNumber(), key.getUser().cardCode);
             } else {

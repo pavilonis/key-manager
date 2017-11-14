@@ -4,9 +4,9 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.BorderPane;
 import lt.pavilonis.scan.cmm.client.App;
-import lt.pavilonis.scan.cmm.client.representation.KeyRepresentation;
-import lt.pavilonis.scan.cmm.client.service.MessageSourceAdapter;
-import lt.pavilonis.scan.cmm.client.service.WsRestClient;
+import lt.pavilonis.scan.cmm.client.ui.keylog.Key;
+import lt.pavilonis.scan.cmm.client.MessageSourceAdapter;
+import lt.pavilonis.scan.cmm.client.WsRestClient;
 import lt.pavilonis.scan.cmm.client.ui.Footer;
 import lt.pavilonis.util.TimeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -65,7 +65,7 @@ public class KeyAssignmentTab extends Tab {
       LocalDateTime opStart = LocalDateTime.now();
       wsClient.allActiveKeys(filter.getKeyNumber(), response -> {
          if (response.isPresent()) {
-            List<KeyRepresentation> keys = newArrayList(response.get());
+            List<Key> keys = newArrayList(response.get());
             LOG.info("Loaded active keys [number={}, duration={}]", keys.size(), TimeUtils.duration(opStart));
 
             keys.removeIf(doesNotMatch(filter.getName()));
@@ -76,7 +76,7 @@ public class KeyAssignmentTab extends Tab {
       });
    }
 
-   private Predicate<KeyRepresentation> doesNotMatch(String searchString) {
+   private Predicate<Key> doesNotMatch(String searchString) {
       return key -> {
          if (StringUtils.isBlank(searchString)) {
             return false;

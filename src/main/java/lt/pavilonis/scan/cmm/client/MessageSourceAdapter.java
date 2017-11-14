@@ -1,4 +1,4 @@
-package lt.pavilonis.scan.cmm.client.service;
+package lt.pavilonis.scan.cmm.client;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;

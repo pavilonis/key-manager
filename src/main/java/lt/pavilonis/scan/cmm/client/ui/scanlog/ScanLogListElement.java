@@ -12,8 +12,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import lt.pavilonis.scan.cmm.client.representation.ScanLogRepresentation;
-import lt.pavilonis.scan.cmm.client.representation.UserRepresentation;
+import lt.pavilonis.scan.cmm.client.User;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
@@ -30,10 +29,10 @@ final class ScanLogListElement extends HBox {
    private final TextField keyNumberField = new TextField();
    private final Button addKeyButton = new Button(null, new ImageView(new Image("images/flat-arrow-up-24.png")));
    private final HBox controls = new HBox(keyNumberField, addKeyButton);
-   private final UserRepresentation user;
+   private final User user;
 
-   ScanLogListElement(ScanLogRepresentation representation, BiConsumer<String, Integer> buttonClickConsumer) {
-      UserRepresentation user = representation.user;
+   ScanLogListElement(ScanLog representation, BiConsumer<String, Integer> buttonClickConsumer) {
+      User user = representation.user;
       this.user = user;
       setSpacing(10);
       setAlignment(Pos.CENTER_LEFT);
@@ -70,7 +69,7 @@ final class ScanLogListElement extends HBox {
       controls.setVisible(false);
    }
 
-   private void assignKey(ScanLogRepresentation representation, BiConsumer<String, Integer> buttonClickConsumer) {
+   private void assignKey(ScanLog representation, BiConsumer<String, Integer> buttonClickConsumer) {
       String text = keyNumberField.getCharacters().toString();
       if (NumberUtils.isDigits(text)) {
          buttonClickConsumer.accept(representation.user.cardCode, Integer.parseInt(text));
@@ -99,7 +98,7 @@ final class ScanLogListElement extends HBox {
       keyNumberField.clear();
    }
 
-   UserRepresentation getUser() {
+   User getUser() {
       return this.user;
    }
 }

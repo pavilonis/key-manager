@@ -15,8 +15,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.util.StringConverter;
-import lt.pavilonis.scan.cmm.client.representation.KeyAction;
-import lt.pavilonis.scan.cmm.client.service.MessageSourceAdapter;
+import lt.pavilonis.scan.cmm.client.MessageSourceAdapter;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.time.LocalDate;
