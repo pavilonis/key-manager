@@ -12,14 +12,13 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import lt.pavilonis.scan.cmm.client.MessageSourceAdapter;
-import lt.pavilonis.scan.cmm.client.WsRestClient;
 
 public final class ClassroomUsageFilterPanel extends HBox {
 
    private final TextField textField = new TextField();
    private final Button searchButton;
 
-   public ClassroomUsageFilterPanel(MessageSourceAdapter messages, WsRestClient rest) {
+   public ClassroomUsageFilterPanel(MessageSourceAdapter messages) {
 
       this.searchButton = new Button(
             messages.get(this, "filter"),

@@ -1,6 +1,5 @@
 package lt.pavilonis.scan.cmm.client.ui.classusage;
 
-import com.google.common.collect.Lists;
 import javafx.geometry.Insets;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.BorderPane;
@@ -8,32 +7,36 @@ import lt.pavilonis.scan.cmm.client.App;
 import lt.pavilonis.scan.cmm.client.MessageSourceAdapter;
 import lt.pavilonis.scan.cmm.client.WsRestClient;
 import lt.pavilonis.scan.cmm.client.ui.Footer;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import java.util.List;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Controller
-public class ClassroomUsageTab extends Tab {
+public class ClassroomUsageTabTeachers extends Tab {
 
-   private static final Logger LOG = getLogger(ClassroomUsageTab.class.getSimpleName());
+   private static final Logger LOG = getLogger(ClassroomUsageTabTeachers.class.getSimpleName());
+   private static final String PREFIX_TEACHER = "Moky";
+   private static final String PREFIX_CONCERTMASTER = "Koncertm";
    private final ClassroomUsageTable classUsageTable;
-   private final WsRestClient wsClient;
-   private MessageSourceAdapter messages;
+   private final MessageSourceAdapter messages;
 
    @Autowired
-   public ClassroomUsageTab(WsRestClient wsClient, MessageSourceAdapter messages) {
+   public ClassroomUsageTabTeachers(WsRestClient wsClient, MessageSourceAdapter messages) {
       setText(messages.get(this, "title"));
-
       this.messages = messages;
-      this.wsClient = wsClient;
       this.classUsageTable = new ClassroomUsageTable(messages);
 
       setClosable(false);
 
-      ClassroomUsageFilterPanel filterPanel = new ClassroomUsageFilterPanel(messages, wsClient);
-      filterPanel.addSearchListener(event -> updateTable(filterPanel.getFilter()));
+      ClassroomUsageFilterPanel filterPanel = new ClassroomUsageFilterPanel(messages);
+      filterPanel.addSearchListener(event -> updateTable(filterPanel.getFilter(), wsClient));
 
       BorderPane.setMargin(filterPanel, new Insets(0, 0, 15, 0));
 
@@ -41,7 +44,7 @@ public class ClassroomUsageTab extends Tab {
          //TODO move to abstract class?
          if (isSelected()) {
             filterPanel.reset();
-            updateTable(filterPanel.getFilter());
+            updateTable(filterPanel.getFilter(), wsClient);
             filterPanel.focus();
          } else {
             classUsageTable.clear();
@@ -53,14 +56,25 @@ public class ClassroomUsageTab extends Tab {
    }
 
    //TODO move to abstract class?
-   private void updateTable(ClassroomUsageFilter filter) {
+   private void updateTable(ClassroomUsageFilter filter, WsRestClient wsClient) {
       wsClient.classroomUsage(filter.getText(), response -> {
          if (response.isPresent()) {
-            LOG.info("Loaded brief scan logs [entries={}]", response.get().length);
-            classUsageTable.update(Lists.newArrayList(response.get()));
+            classUsageTable.update(filterEntries(response.get()));
          } else {
             App.displayWarning(messages.get(this, "canNotLoadClassroomUsage"));
          }
       });
+   }
+
+   private List<ScanLogBrief> filterEntries(ScanLogBrief[] entries) {
+      List<ScanLogBrief> filteredEntries = Stream.of(entries)
+            .filter(entry -> StringUtils.startsWithIgnoreCase(entry.getRole(), PREFIX_TEACHER)
+                  || StringUtils.startsWithIgnoreCase(entry.getRole(), PREFIX_CONCERTMASTER))
+            .collect(toList());
+
+      LOG.info("Brief scan logs loaded (all/role filtered) [entries={}/{}]",
+            entries.length, filteredEntries.size());
+
+      return filteredEntries;
    }
 }

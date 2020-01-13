@@ -7,19 +7,15 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import lt.pavilonis.scan.cmm.client.AppConfig;
 import lt.pavilonis.scan.cmm.client.MessageSourceAdapter;
-import lt.pavilonis.scan.cmm.client.User;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
-@Component
-class ClassroomUsageTable extends TableView<ScanLogBrief> {
+final class ClassroomUsageTable extends TableView<ScanLogBrief> {
 
    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd  HH:mm");
    private final ObservableList<ScanLogBrief> container = FXCollections.observableArrayList();
@@ -48,7 +44,7 @@ class ClassroomUsageTable extends TableView<ScanLogBrief> {
             }
          }
       });
-      dateTimeColumn.setComparator((key1, key2) -> key1.getDateTime().compareTo(key2.getDateTime()));
+      dateTimeColumn.setComparator(Comparator.comparing(ScanLogBrief::getDateTime));
       dateTimeColumn.setSortType(TableColumn.SortType.DESCENDING);
       dateTimeColumn.setMinWidth(190);
       dateTimeColumn.setMaxWidth(190);
