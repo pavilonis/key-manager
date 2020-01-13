@@ -10,6 +10,7 @@ import lt.pavilonis.scan.cmm.client.ui.Footer;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
@@ -22,13 +23,16 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class ClassroomUsageTabPupils extends Tab {
 
    private static final Logger LOG = getLogger(ClassroomUsageTabPupils.class.getSimpleName());
-   private static final String PREFIX_PUPIL = "Moki";
+   private final String[] pupilGroupExclusions;
    private final ClassroomUsageTable classUsageTable;
    private final MessageSourceAdapter messages;
 
    @Autowired
-   public ClassroomUsageTabPupils(WsRestClient wsClient, MessageSourceAdapter messages) {
+   public ClassroomUsageTabPupils(WsRestClient wsClient, MessageSourceAdapter messages,
+                                  @Value("${classroomUsage.pupils.groupExclusionList:moky,koncertm,budėtoja,valytoja,derintoja,pedagog,vedėja,darbinink}")
+                                        String[] pupilGroupExclusions) {
       setText(messages.get(this, "title"));
+      this.pupilGroupExclusions = pupilGroupExclusions;
       this.messages = messages;
       this.classUsageTable = new ClassroomUsageTable(messages);
 
@@ -68,9 +72,12 @@ public class ClassroomUsageTabPupils extends Tab {
 
    private List<ScanLogBrief> filterEntries(ScanLogBrief[] entries) {
       List<ScanLogBrief> filteredEntries = Stream.of(entries)
-            .filter(entry -> StringUtils.startsWithIgnoreCase(entry.getRole(), PREFIX_PUPIL))
+            .filter(entry -> {
+               String group = StringUtils.lowerCase(entry.getGroup());
+               return StringUtils.indexOfAny(group, pupilGroupExclusions) < 0;
+            })
             .collect(toList());
-
+      ;
       LOG.info("Brief scan logs loaded (all/role filtered) [entries={}/{}]",
             entries.length, filteredEntries.size());
 

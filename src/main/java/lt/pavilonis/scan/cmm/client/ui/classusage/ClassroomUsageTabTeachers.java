@@ -10,6 +10,7 @@ import lt.pavilonis.scan.cmm.client.ui.Footer;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
@@ -22,14 +23,17 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class ClassroomUsageTabTeachers extends Tab {
 
    private static final Logger LOG = getLogger(ClassroomUsageTabTeachers.class.getSimpleName());
-   private static final String PREFIX_TEACHER = "Moky";
-   private static final String PREFIX_CONCERTMASTER = "Koncertm";
    private final ClassroomUsageTable classUsageTable;
    private final MessageSourceAdapter messages;
+   private final String[] teacherGroupInclusions;
 
    @Autowired
-   public ClassroomUsageTabTeachers(WsRestClient wsClient, MessageSourceAdapter messages) {
+   public ClassroomUsageTabTeachers(WsRestClient wsClient, MessageSourceAdapter messages,
+                                    @Value("${classroomUsage.teachers.groupInclusionList:moky,koncertm}")
+                                          String[] teacherGroupInclusions) {
+
       setText(messages.get(this, "title"));
+      this.teacherGroupInclusions = teacherGroupInclusions;
       this.messages = messages;
       this.classUsageTable = new ClassroomUsageTable(messages);
 
@@ -68,8 +72,10 @@ public class ClassroomUsageTabTeachers extends Tab {
 
    private List<ScanLogBrief> filterEntries(ScanLogBrief[] entries) {
       List<ScanLogBrief> filteredEntries = Stream.of(entries)
-            .filter(entry -> StringUtils.startsWithIgnoreCase(entry.getRole(), PREFIX_TEACHER)
-                  || StringUtils.startsWithIgnoreCase(entry.getRole(), PREFIX_CONCERTMASTER))
+            .filter(entry -> {
+               String group = StringUtils.lowerCase(entry.getGroup());
+               return StringUtils.indexOfAny(group, teacherGroupInclusions) >= 0;
+            })
             .collect(toList());
 
       LOG.info("Brief scan logs loaded (all/role filtered) [entries={}/{}]",
