@@ -1,0 +1,5 @@
+api.auth.username=admin
+api.auth.password=admin
+api.uri.base=https://localhost:8080
+scanner.id=1
+scanner.port.name=COM1

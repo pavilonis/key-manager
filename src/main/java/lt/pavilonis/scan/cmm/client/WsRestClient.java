@@ -1,6 +1,5 @@
 package lt.pavilonis.scan.cmm.client;
 
-import com.google.common.collect.ImmutableMap;
 import javafx.application.Platform;
 import lt.pavilonis.scan.cmm.client.ui.classusage.ScanLogBrief;
 import lt.pavilonis.scan.cmm.client.ui.keylog.Key;
@@ -73,7 +72,7 @@ public class WsRestClient {
    }
 
    public void userKeysAssigned(String cardCode, Consumer<Optional<Key[]>> consumer) {
-      Map<String, String> params = ImmutableMap.of("scannerId", scannerId, "cardCode", cardCode);
+      Map<String, String> params = Map.of("scannerId", scannerId, "cardCode", cardCode);
       request(uri(params, SEGMENT_KEYS), HttpMethod.GET, Key[].class, consumer);
    }
 

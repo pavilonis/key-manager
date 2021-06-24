@@ -5,16 +5,15 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListView;
 import lt.pavilonis.scan.cmm.client.App;
-import lt.pavilonis.scan.cmm.client.ui.keylog.Key;
 import lt.pavilonis.scan.cmm.client.MessageSourceAdapter;
 import lt.pavilonis.scan.cmm.client.WsRestClient;
+import lt.pavilonis.scan.cmm.client.ui.keylog.Key;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -55,21 +54,20 @@ public class ScanLogKeyList extends ListView<ScanLogKeyListElement> {
    void updateContainer(String cardCode) {
       Platform.runLater(container::clear);
 
-      wsClient.userKeysAssigned(cardCode, response -> {
-         if (response.isPresent()) {
-            List<Key> keys = newArrayList(response.get());
-            LOG.info("Loaded user assigned keys [cardCode={}, keysNum={}]", cardCode, keys.size());
+      wsClient.userKeysAssigned(cardCode, optionalResponse -> optionalResponse.ifPresentOrElse(
+            response -> {
+               List<Key> keys = List.of(response);
+               LOG.info("Loaded user assigned keys [cardCode={}, keysNum={}]", cardCode, keys.size());
 
-            container.addAll(
-                  keys.stream()
-                        .map(Key::getKeyNumber)
-                        .map(this::composeCell)
-                        .collect(toList())
-            );
-         } else {
-            App.displayWarning(messages.get(this, "canNotLoadUserAssignedKeys"));
-         }
-      });
+               List<ScanLogKeyListElement> elements = keys.stream()
+                     .map(Key::getKeyNumber)
+                     .map(this::composeCell)
+                     .collect(toList());
+
+               container.addAll(elements);
+            },
+            () -> App.displayWarning(messages.get(this, "canNotLoadUserAssignedKeys"))
+      ));
    }
 
    public void clear() {

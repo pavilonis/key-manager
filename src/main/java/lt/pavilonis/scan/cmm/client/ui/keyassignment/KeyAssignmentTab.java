@@ -4,21 +4,22 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.BorderPane;
 import lt.pavilonis.scan.cmm.client.App;
-import lt.pavilonis.scan.cmm.client.ui.keylog.Key;
 import lt.pavilonis.scan.cmm.client.MessageSourceAdapter;
 import lt.pavilonis.scan.cmm.client.WsRestClient;
 import lt.pavilonis.scan.cmm.client.ui.Footer;
-import lt.pavilonis.util.TimeUtils;
+import lt.pavilonis.scan.cmm.client.ui.keylog.Key;
+import lt.pavilonis.scan.cmm.client.utils.TimeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
@@ -63,17 +64,16 @@ public class KeyAssignmentTab extends Tab {
    //TODO move to abstract class?
    private void searchAction(KeyAssignmentFilter filter) {
       LocalDateTime opStart = LocalDateTime.now();
-      wsClient.allActiveKeys(filter.getKeyNumber(), response -> {
-         if (response.isPresent()) {
-            List<Key> keys = newArrayList(response.get());
-            LOG.info("Loaded active keys [number={}, duration={}]", keys.size(), TimeUtils.duration(opStart));
-
-            keys.removeIf(doesNotMatch(filter.getName()));
-            keyAssignmentTable.update(keys);
-         } else {
-            App.displayWarning(messages.get(this, "canNotLoadKeys"));
-         }
-      });
+      wsClient.allActiveKeys(filter.getKeyNumber(), optionalResponse -> optionalResponse.ifPresentOrElse(
+            response -> {
+               LOG.info("Loaded active keys [number={}, duration={}]", response.length, TimeUtils.duration(opStart));
+               List<Key> keys = Arrays.stream(response)
+                     .filter(doesNotMatch(filter.getName()))
+                     .collect(toList());
+               keyAssignmentTable.update(keys);
+            },
+            () -> App.displayWarning(messages.get(this, "canNotLoadKeys"))
+      ));
    }
 
    private Predicate<Key> doesNotMatch(String searchString) {

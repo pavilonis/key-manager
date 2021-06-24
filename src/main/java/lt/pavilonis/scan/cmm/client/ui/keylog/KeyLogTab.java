@@ -13,7 +13,6 @@ import org.springframework.stereotype.Controller;
 
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Controller
@@ -22,7 +21,7 @@ public class KeyLogTab extends Tab {
    private static final Logger LOG = getLogger(KeyLogTab.class.getSimpleName());
    private final KeyLogTable keyLogTable;
    private final WsRestClient wsClient;
-   private MessageSourceAdapter messages;
+   private final MessageSourceAdapter messages;
 
    @Autowired
    public KeyLogTab(WsRestClient wsClient, MessageSourceAdapter messages) {
@@ -56,14 +55,12 @@ public class KeyLogTab extends Tab {
 
    //TODO move to abstract class?
    private void updateTable(KeyLogFilter filter) {
-      wsClient.keyLog(filter, response -> {
-         if (response.isPresent()) {
-            LOG.info("Loaded keyLog [entries={}]", response.get().length);
-            List<Key> keys = newArrayList(response.get());
-            keyLogTable.update(keys);
-         } else {
-            App.displayWarning(messages.get(this, "canNotLoadKeys"));
-         }
-      });
+      wsClient.keyLog(filter, optionalResponse -> optionalResponse.ifPresentOrElse(
+            response -> {
+               LOG.info("Loaded keyLog [entries={}]", response.length);
+               keyLogTable.update(List.of(response));
+            },
+            () -> App.displayWarning(messages.get(this, "canNotLoadKeys"))
+      ));
    }
 }
