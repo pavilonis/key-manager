@@ -11,10 +11,10 @@ import javafx.scene.control.TableView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import lt.pavilonis.scan.cmm.client.AppConfig;
-import lt.pavilonis.scan.cmm.client.ui.keylog.Key;
-import lt.pavilonis.scan.cmm.client.User;
 import lt.pavilonis.scan.cmm.client.MessageSourceAdapter;
+import lt.pavilonis.scan.cmm.client.User;
 import lt.pavilonis.scan.cmm.client.WsRestClient;
+import lt.pavilonis.scan.cmm.client.ui.keylog.Key;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -25,7 +25,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static java.util.Arrays.asList;
 import static java.util.Objects.isNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -128,7 +127,7 @@ public class KeyAssignmentTable extends TableView<Key> {
       unassignmentColumn.setMinWidth(110);
       unassignmentColumn.setMaxWidth(110);
 
-      getColumns().addAll(asList(keyNumberColumn, dateTimeColumn, userColumn, descriptionColumn, unassignmentColumn));
+      getColumns().addAll(List.of(keyNumberColumn, dateTimeColumn, userColumn, descriptionColumn, unassignmentColumn));
       getSortOrder().add(dateTimeColumn);
       setStyle("-fx-font-size:15; -fx-font-weight: 600; -fx-alignment: center");
       setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);

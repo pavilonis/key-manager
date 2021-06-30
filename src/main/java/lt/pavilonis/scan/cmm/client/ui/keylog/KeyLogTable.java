@@ -11,15 +11,13 @@ import javafx.scene.control.TableView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import lt.pavilonis.scan.cmm.client.AppConfig;
-import lt.pavilonis.scan.cmm.client.User;
 import lt.pavilonis.scan.cmm.client.MessageSourceAdapter;
+import lt.pavilonis.scan.cmm.client.User;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-
-import static java.util.Arrays.asList;
 
 final class KeyLogTable extends TableView<Key> {
 
@@ -118,7 +116,7 @@ final class KeyLogTable extends TableView<Key> {
       actionColumn.setMinWidth(100);
       actionColumn.setMaxWidth(100);
 
-      getColumns().addAll(asList(keyNumberColumn, dateTimeColumn, userColumn, groupColumn, actionColumn));
+      getColumns().addAll(List.of(keyNumberColumn, dateTimeColumn, userColumn, groupColumn, actionColumn));
       getSortOrder().add(dateTimeColumn);
       setStyle("-fx-font-size:15; -fx-font-weight: 600; -fx-alignment: center");
       setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);

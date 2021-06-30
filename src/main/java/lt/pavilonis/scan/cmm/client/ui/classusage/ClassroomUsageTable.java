@@ -11,7 +11,6 @@ import lt.pavilonis.scan.cmm.client.MessageSourceAdapter;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -56,7 +55,7 @@ final class ClassroomUsageTable extends TableView<ScanLogBrief> {
       groupColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getGroup()));
       groupColumn.setComparator(ObjectUtils::compare);
 
-      getColumns().addAll(Arrays.asList(classroomNumber, dateTimeColumn, userColumn, groupColumn));
+      getColumns().addAll(List.of(classroomNumber, dateTimeColumn, userColumn, groupColumn));
       getSortOrder().add(dateTimeColumn);
       setStyle("-fx-font-size:15; -fx-font-weight: 600; -fx-alignment: center");
       setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
