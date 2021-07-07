@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static java.util.Objects.isNull;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
@@ -39,13 +39,12 @@ public class KeyAssignmentTable extends TableView<Key> {
    public KeyAssignmentTable(WsRestClient wsClient, MessageSourceAdapter messages) {
       this.setItems(container);
 
-      TableColumn<Key, Integer> keyNumberColumn = new TableColumn<>(messages.get(this, "keyNumber"));
+      var keyNumberColumn = new TableColumn<Key, Integer>(messages.get(this, "keyNumber"));
       keyNumberColumn.setMinWidth(120);
       keyNumberColumn.setMaxWidth(120);
       keyNumberColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getKeyNumber()));
 
-      TableColumn<Key, LocalDateTime> dateTimeColumn =
-            new TableColumn<>(messages.get(this, "assignmentTime"));
+      var dateTimeColumn = new TableColumn<Key, LocalDateTime>(messages.get(this, "assignmentTime"));
       dateTimeColumn.setMinWidth(190);
       dateTimeColumn.setMaxWidth(190);
       dateTimeColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getDateTime()));
@@ -56,7 +55,7 @@ public class KeyAssignmentTable extends TableView<Key> {
             if (item == null || empty) {
                setText(null);
                setGraphic(null);
-               setStyle("");
+               setStyle(EMPTY);
             } else {
                setText(DATE_TIME_FORMAT.format(item));
             }
@@ -64,15 +63,13 @@ public class KeyAssignmentTable extends TableView<Key> {
       });
       dateTimeColumn.setSortType(TableColumn.SortType.DESCENDING);
 
-      TableColumn<Key, String> userColumn = new TableColumn<>(messages.get(this, "user"));
+      var userColumn = new TableColumn<Key, String>(messages.get(this, "user"));
       userColumn.setCellValueFactory(param -> {
          User user = param.getValue().getUser();
-         String value = isNull(user) ? "" : user.firstName + " " + user.lastName;
-         return new ReadOnlyObjectWrapper<>(value);
+         return new ReadOnlyObjectWrapper<>(user == null ? EMPTY : user.name);
       });
 
-      TableColumn<Key, Key> descriptionColumn =
-            new TableColumn<>(messages.get(this, "group"));
+      var descriptionColumn = new TableColumn<Key, Key>(messages.get(this, "group"));
       descriptionColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
       descriptionColumn.setCellFactory(column -> new TableCell<Key, Key>() {
          @Override
@@ -94,8 +91,7 @@ public class KeyAssignmentTable extends TableView<Key> {
       });
       descriptionColumn.setComparator((key1, key2) -> ObjectUtils.compare(key1.getUser().group, key2.getUser().group));
 
-      TableColumn<Key, Key> unassignmentColumn =
-            new TableColumn<>(messages.get(this, "unassignment"));
+      var unassignmentColumn = new TableColumn<Key, Key>(messages.get(this, "unassignment"));
       unassignmentColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
       unassignmentColumn.setCellFactory(param -> {
          Button returnKeyButton = new Button(null, new ImageView(new Image("images/flat-arrow-down-24.png")));

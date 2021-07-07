@@ -51,7 +51,7 @@ final class ScanLogListElement extends HBox {
       });
 
       boolean pupil = StringUtils.isNotBlank(user.role) && StringUtils.containsIgnoreCase(user.role, "mokinys");
-      Label name = text(user.firstName + " " + user.lastName, (pupil ? 208 : 250));
+      Label name = text(user.name, (pupil ? 208 : 250));
       Label description = text(user.group, 240);
 
       getChildren().add(text(TIME_FORMAT.format(representation.dateTime), 80));
@@ -81,7 +81,7 @@ final class ScanLogListElement extends HBox {
    }
 
    private Label text(String content, int width) {
-      Label text = new Label(content);
+      var text = new Label(content);
       text.setFont(Font.font(null, FontWeight.SEMI_BOLD, 15));
       text.setMinWidth(width);
       text.setMaxWidth(width + 200);

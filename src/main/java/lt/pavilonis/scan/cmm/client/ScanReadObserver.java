@@ -39,7 +39,7 @@ public class ScanReadObserver extends ScannerReadEventObserver {
    protected void consumeScannerInput(String string) {
       Consumer<Optional<ScanLog>> consumer = response -> {
          if (response.isPresent()) {
-            LOG.info("Response [user={}]", response.get().user.firstName + " " + response.get().user.lastName);
+            LOG.info("Response [user={}]", response.get().user.name);
             scanLogList.addElement(response.get());
          } else {
             App.displayWarning(messages.get(this, "canNotWriteScanLog"));

@@ -19,6 +19,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+
 final class KeyLogTable extends TableView<Key> {
 
    private static final String ICON_ASSINGED = "images/flat-arrow-up-24.png";
@@ -29,14 +31,12 @@ final class KeyLogTable extends TableView<Key> {
    public KeyLogTable(MessageSourceAdapter messages) {
       this.setItems(container);
 
-      TableColumn<Key, Integer> keyNumberColumn =
-            new TableColumn<>(messages.get(this, ("keyNumber")));
+      var keyNumberColumn = new TableColumn<Key, Integer>(messages.get(this, ("keyNumber")));
       keyNumberColumn.setMinWidth(120);
       keyNumberColumn.setMaxWidth(120);
       keyNumberColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getKeyNumber()));
 
-      TableColumn<Key, Key> dateTimeColumn =
-            new TableColumn<>(messages.get(this, ("dateTime")));
+      var dateTimeColumn = new TableColumn<Key, Key>(messages.get(this, ("dateTime")));
       dateTimeColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
       dateTimeColumn.setCellFactory(column -> new TableCell<Key, Key>() {
          @Override
@@ -45,7 +45,7 @@ final class KeyLogTable extends TableView<Key> {
             if (item == null || empty) {
                setText(null);
                setGraphic(null);
-               setStyle("");
+               setStyle(EMPTY);
             } else {
                setText(DATE_TIME_FORMAT.format(item.getDateTime()));
             }
@@ -56,15 +56,13 @@ final class KeyLogTable extends TableView<Key> {
       dateTimeColumn.setMinWidth(190);
       dateTimeColumn.setMaxWidth(190);
 
-      TableColumn<Key, String> userColumn =
-            new TableColumn<>(messages.get(this, "user"));
+      var userColumn = new TableColumn<Key, String>(messages.get(this, "user"));
       userColumn.setCellValueFactory(param -> {
          User user = param.getValue().getUser();
-         return new ReadOnlyObjectWrapper<>(user.firstName + " " + user.lastName);
+         return new ReadOnlyObjectWrapper<>(user.name);
       });
 
-      TableColumn<Key, User> groupColumn =
-            new TableColumn<>(messages.get(this, "group"));
+      var groupColumn = new TableColumn<Key, User>(messages.get(this, "group"));
       groupColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getUser()));
       groupColumn.setCellFactory(column -> new TableCell<Key, User>() {
          @Override
@@ -73,7 +71,7 @@ final class KeyLogTable extends TableView<Key> {
             if (item == null || empty) {
                setText(null);
                setGraphic(null);
-               setStyle("");
+               setStyle(EMPTY);
             } else {
                setText(item.group);
                if (StringUtils.isNoneBlank(item.role)
@@ -85,8 +83,7 @@ final class KeyLogTable extends TableView<Key> {
       });
       groupColumn.setComparator((user1, user2) -> ObjectUtils.compare(user1.group, (user2.group)));
 
-      TableColumn<Key, KeyAction> actionColumn =
-            new TableColumn<>(messages.get(this, "action"));
+      var actionColumn = new TableColumn<Key, KeyAction>(messages.get(this, "action"));
 
       actionColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getKeyAction()));
       actionColumn.setCellFactory(param -> new TableCell<Key, KeyAction>() {

@@ -14,6 +14,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+
 final class ClassroomUsageTable extends TableView<ScanLogBrief> {
 
    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd  HH:mm");
@@ -22,13 +24,13 @@ final class ClassroomUsageTable extends TableView<ScanLogBrief> {
    public ClassroomUsageTable(MessageSourceAdapter messages) {
       this.setItems(container);
 
-      TableColumn<ScanLogBrief, String> classroomNumber = new TableColumn<>(messages.get(this, ("classroomNumber")));
+      var classroomNumber = new TableColumn<ScanLogBrief, String>(messages.get(this, ("classroomNumber")));
       classroomNumber.setMinWidth(150);
       classroomNumber.setMaxWidth(150);
       classroomNumber.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getLocation()));
       classroomNumber.setComparator(ObjectUtils::compare);
 
-      TableColumn<ScanLogBrief, ScanLogBrief> dateTimeColumn = new TableColumn<>(messages.get(this, ("dateTime")));
+      var dateTimeColumn = new TableColumn<ScanLogBrief, ScanLogBrief>(messages.get(this, ("dateTime")));
       dateTimeColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
       dateTimeColumn.setCellFactory(column -> new TableCell<ScanLogBrief, ScanLogBrief>() {
          @Override
@@ -37,7 +39,7 @@ final class ClassroomUsageTable extends TableView<ScanLogBrief> {
             if (item == null || empty) {
                setText(null);
                setGraphic(null);
-               setStyle("");
+               setStyle(EMPTY);
             } else {
                setText(DATE_TIME_FORMAT.format(item.getDateTime()));
             }
@@ -48,10 +50,10 @@ final class ClassroomUsageTable extends TableView<ScanLogBrief> {
       dateTimeColumn.setMinWidth(190);
       dateTimeColumn.setMaxWidth(190);
 
-      TableColumn<ScanLogBrief, String> userColumn = new TableColumn<>(messages.get(this, "user"));
+      var userColumn = new TableColumn<ScanLogBrief, String>(messages.get(this, "user"));
       userColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getName()));
 
-      TableColumn<ScanLogBrief, String> groupColumn = new TableColumn<>(messages.get(this, "group"));
+      var groupColumn = new TableColumn<ScanLogBrief, String>(messages.get(this, "group"));
       groupColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getGroup()));
       groupColumn.setComparator(ObjectUtils::compare);
 

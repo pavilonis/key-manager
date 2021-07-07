@@ -15,9 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -66,22 +66,26 @@ public class KeyAssignmentTab extends Tab {
       LocalDateTime opStart = LocalDateTime.now();
       wsClient.allActiveKeys(filter.getKeyNumber(), optionalResponse -> optionalResponse.ifPresentOrElse(
             response -> {
-               LOG.info("Loaded active keys [number={}, duration={}]", response.length, TimeUtils.duration(opStart));
-               List<Key> keys = Arrays.stream(response)
-                     .filter(doesNotMatch(filter.getName()))
-                     .collect(toList());
+
+               List<Key> keys = StringUtils.isBlank(filter.getName())
+                     ? List.of(response)
+                     : Stream.of(response).filter(matches(filter.getName())).collect(toList());
+
+               LOG.info("Loaded active keys [number={}/{}, duration={}]",
+                     keys.size(), response.length, TimeUtils.duration(opStart));
+
                keyAssignmentTable.update(keys);
             },
             () -> App.displayWarning(messages.get(this, "canNotLoadKeys"))
       ));
    }
 
-   private Predicate<Key> doesNotMatch(String searchString) {
+   private Predicate<Key> matches(String searchString) {
       return key -> {
          if (StringUtils.isBlank(searchString)) {
             return false;
          }
-         String content = key.getUser().firstName + key.getUser().lastName;
+         String content = key.getUser().name;
          return !content.toLowerCase().contains(searchString.toLowerCase());
       };
    }
