@@ -23,9 +23,9 @@ import java.util.function.BiConsumer;
 import static org.slf4j.LoggerFactory.getLogger;
 
 final class ScanLogListElement extends HBox {
-   private static final Logger LOG = getLogger(ScanLogListElement.class.getSimpleName());
-   private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm:ss");
 
+   private static final Logger LOGGER = getLogger(ScanLogListElement.class.getSimpleName());
+   private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm:ss");
    private final TextField keyNumberField = new TextField();
    private final Button addKeyButton = new Button(null, new ImageView(new Image("images/flat-arrow-up-24.png")));
    private final HBox controls = new HBox(keyNumberField, addKeyButton);
@@ -76,7 +76,7 @@ final class ScanLogListElement extends HBox {
          keyNumberField.setText(null);
          keyNumberField.requestFocus();
       } else {
-         LOG.error("Bad number format: {}", text);
+         LOGGER.error("Bad number format: {}", text);
       }
    }
 

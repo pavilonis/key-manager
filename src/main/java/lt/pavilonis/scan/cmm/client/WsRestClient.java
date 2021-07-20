@@ -8,7 +8,7 @@ import lt.pavilonis.scan.cmm.client.ui.keylog.KeyLogFilter;
 import lt.pavilonis.scan.cmm.client.ui.scanlog.ScanLog;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -27,48 +27,44 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
 @Service
 public class WsRestClient {
-   private static final Logger LOG = getLogger(WsRestClient.class.getSimpleName());
+
    private static final String SEGMENT_KEYS = "keys";
    private static final String SEGMENT_LOG = "log";
-   private static final String SEGMENT_ROLES = "roles";
    private static final String SEGMENT_SCANLOG = "scanlog";
    private static final String SEGMENT_LASTSEEN = "lastseen";
+   private static final Logger LOGGER = LoggerFactory.getLogger(WsRestClient.class);
 
-   @Value(("${api.uri.base}"))
-   private String baseUri;
-
-   @Value(("${scanner.id}"))
-   private String scannerId;
-
-   @Autowired
-   private RestTemplate restTemplate;
-
-   @Autowired
-   private MessageSourceAdapter messages;
-
+   private final String baseUri;
+   private final String scannerId;
+   private final RestTemplate restTemplate;
+   private final MessageSourceAdapter messages;
    private String lastErrorMessage;
 
+   public WsRestClient(RestTemplate restTemplate, MessageSourceAdapter messages,
+                       @Value("${api.uri.base}") String baseUri,
+                       @Value("${scanner.id}") String scannerId) {
+      this.restTemplate = restTemplate;
+      this.messages = messages;
+      this.baseUri = baseUri;
+      this.scannerId = scannerId;
+   }
+
    public void writeScanLog(String cardCode, Consumer<Optional<ScanLog>> consumer) {
-
       URI uri = uri(SEGMENT_SCANLOG, scannerId, cardCode);
-
-      LOG.info("Sending scanLog POST request [scannerId={}, cardCode={}]", scannerId, cardCode);
-
+      LOGGER.info("Sending scanLog POST request [scannerId={}, cardCode={}]", scannerId, cardCode);
       request(uri, HttpMethod.POST, ScanLog.class, consumer);
    }
 
    public void allActiveKeys(String keyNumber, Consumer<Optional<Key[]>> consumer) {
-      Map<String, String> args = new HashMap<>();
-      args.put("scannerId", scannerId);
+      var params = new HashMap<String, String>();
+      params.put("scannerId", scannerId);
       if (StringUtils.isNotBlank(keyNumber)) {
-         args.put("keyNumber", keyNumber);
+         params.put("keyNumber", keyNumber);
       }
 
-      request(uri(args, SEGMENT_KEYS), HttpMethod.GET, Key[].class, consumer);
+      request(uri(params, SEGMENT_KEYS), HttpMethod.GET, Key[].class, consumer);
    }
 
    public void userKeysAssigned(String cardCode, Consumer<Optional<Key[]>> consumer) {
@@ -117,10 +113,6 @@ public class WsRestClient {
       request(uri(params, SEGMENT_SCANLOG, SEGMENT_LASTSEEN), HttpMethod.GET, ScanLogBrief[].class, consumer);
    }
 
-   public void loadRoles(Consumer<Optional<String[]>> rolesConsumer) {
-      request(uri(SEGMENT_ROLES), HttpMethod.GET, String[].class, rolesConsumer);
-   }
-
    public Optional<String> getLastErrorMessage() {
       return Optional.ofNullable(lastErrorMessage);
    }
@@ -165,15 +157,15 @@ public class WsRestClient {
             default:
                this.lastErrorMessage = httpErr.getMessage();
          }
-         LOG.error(this.lastErrorMessage);
+         LOGGER.error(this.lastErrorMessage);
 
       } catch (ResourceAccessException e) {
          this.lastErrorMessage = e.getCause() == null ? e.getMessage() : e.getCause().getMessage();
-         LOG.error(this.lastErrorMessage);
+         LOGGER.error(this.lastErrorMessage);
       } catch (Exception e) {
          e.printStackTrace();
          this.lastErrorMessage = e.getMessage();
-         LOG.error(this.lastErrorMessage);
+         LOGGER.error(this.lastErrorMessage);
       }
       return null;
    }

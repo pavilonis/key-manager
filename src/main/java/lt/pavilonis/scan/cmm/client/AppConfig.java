@@ -12,7 +12,6 @@ import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Base64;
 import java.util.Locale;
 
 import static java.util.Collections.singletonList;
@@ -23,7 +22,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @PropertySource({"file:app.properties"})
 public class AppConfig {
 
-   public final static String STYLE_STUDENT = "-fx-background-color: rgba(255, 164, 0, 0.15)";
+   public static final String STYLE_STUDENT = "-fx-background-color: rgba(255, 164, 0, 0.15)";
 
    @Value("${api.auth.username}")
    private String apiUsername;
@@ -33,7 +32,7 @@ public class AppConfig {
 
    @Bean
    public RestTemplate getRestTemplate() {
-      RestTemplate rest = new RestTemplate();
+      var rest = new RestTemplate();
       rest.setInterceptors(singletonList(authenticatingInterceptor()));
       rest.setMessageConverters(singletonList(new MappingJackson2HttpMessageConverter()));
       return rest;
@@ -41,7 +40,7 @@ public class AppConfig {
 
    @Bean
    public ReloadableResourceBundleMessageSource messageSource() {
-      ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
+      var messageSource = new ReloadableResourceBundleMessageSource();
       messageSource.setUseCodeAsDefaultMessage(true);
       messageSource.setBasename("classpath:lang/messages");
       messageSource.setCacheSeconds(0);
@@ -52,11 +51,8 @@ public class AppConfig {
 
    private ClientHttpRequestInterceptor authenticatingInterceptor() {
       return (request, body, execution) -> {
-         String creds = apiUsername + ":" + apiPassword;
-         byte[] base64credsBytes = Base64.getEncoder().encode(creds.getBytes());
-
          HttpHeaders headers = request.getHeaders();
-         headers.add("Authorization", "Basic " + new String(base64credsBytes));
+         headers.setBasicAuth(apiUsername, apiPassword);
          headers.setAccept(singletonList(APPLICATION_JSON));
          return execution.execute(request, body);
       };

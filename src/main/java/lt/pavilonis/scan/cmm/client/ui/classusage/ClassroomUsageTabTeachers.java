@@ -9,6 +9,7 @@ import lt.pavilonis.scan.cmm.client.WsRestClient;
 import lt.pavilonis.scan.cmm.client.ui.Footer;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -17,12 +18,11 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
-import static org.slf4j.LoggerFactory.getLogger;
 
 @Controller
 public class ClassroomUsageTabTeachers extends Tab {
 
-   private static final Logger LOG = getLogger(ClassroomUsageTabTeachers.class.getSimpleName());
+   private static final Logger LOGGER = LoggerFactory.getLogger(ClassroomUsageTabTeachers.class);
    private final ClassroomUsageTable classUsageTable;
    private final MessageSourceAdapter messages;
    private final String[] teacherGroupInclusions;
@@ -39,7 +39,7 @@ public class ClassroomUsageTabTeachers extends Tab {
 
       setClosable(false);
 
-      ClassroomUsageFilterPanel filterPanel = new ClassroomUsageFilterPanel(messages);
+      var filterPanel = new ClassroomUsageFilterPanel(messages);
       filterPanel.addSearchListener(event -> updateTable(filterPanel.getFilter(), wsClient));
 
       BorderPane.setMargin(filterPanel, new Insets(0, 0, 15, 0));
@@ -53,7 +53,7 @@ public class ClassroomUsageTabTeachers extends Tab {
          } else {
             classUsageTable.clear();
          }
-         BorderPane mainTabLayout = new BorderPane(classUsageTable, filterPanel, null, new Footer(), null);
+         var mainTabLayout = new BorderPane(classUsageTable, filterPanel, null, new Footer(), null);
          mainTabLayout.setPadding(new Insets(15, 15, 0, 15));
          setContent(mainTabLayout);
       });
@@ -61,13 +61,10 @@ public class ClassroomUsageTabTeachers extends Tab {
 
    //TODO move to abstract class?
    private void updateTable(ClassroomUsageFilter filter, WsRestClient wsClient) {
-      wsClient.classroomUsage(filter.getText(), response -> {
-         if (response.isPresent()) {
-            classUsageTable.update(filterEntries(response.get()));
-         } else {
-            App.displayWarning(messages.get(this, "canNotLoadClassroomUsage"));
-         }
-      });
+      wsClient.classroomUsage(filter.getText(), response -> response.ifPresentOrElse(
+            usage -> classUsageTable.update(filterEntries(usage)),
+            () -> App.displayWarning(messages.get(this, "canNotLoadClassroomUsage"))
+      ));
    }
 
    private List<ScanLogBrief> filterEntries(ScanLogBrief[] entries) {
@@ -78,9 +75,7 @@ public class ClassroomUsageTabTeachers extends Tab {
             })
             .collect(toList());
 
-      LOG.info("Brief scan logs loaded (all/role filtered) [entries={}/{}]",
-            entries.length, filteredEntries.size());
-
+      LOGGER.info("Brief scan logs loaded (all/role filtered) [entries={}/{}]", entries.length, filteredEntries.size());
       return filteredEntries;
    }
 }

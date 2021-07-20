@@ -1,5 +1,5 @@
 api.auth.username=admin
 api.auth.password=admin
-api.uri.base=http://localhost:8080/rest
+api.uri.base=http://localhost:8080
 scanner.id=1
-scanner.port.name=COM1
+scanner.port.name=COM5

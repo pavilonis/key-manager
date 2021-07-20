@@ -83,6 +83,7 @@ public class KeyAssignmentTable extends TableView<Key> {
                User user = item.getUser();
                setText(user == null ? null : user.group);
                if (user != null && StringUtils.isNotBlank(user.role)
+                     //TODO
                      && StringUtils.containsIgnoreCase(user.role, "mokinys")) {
                   setStyle(AppConfig.STYLE_STUDENT);
                }

@@ -8,7 +8,6 @@ import lt.pavilonis.scan.cmm.client.MessageSourceAdapter;
 import lt.pavilonis.scan.cmm.client.WsRestClient;
 import lt.pavilonis.scan.cmm.client.ui.Footer;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
@@ -23,7 +22,6 @@ public class KeyLogTab extends Tab {
    private final WsRestClient wsClient;
    private final MessageSourceAdapter messages;
 
-   @Autowired
    public KeyLogTab(WsRestClient wsClient, MessageSourceAdapter messages) {
       setText(messages.get(this, "title"));
 
@@ -47,7 +45,7 @@ public class KeyLogTab extends Tab {
          } else {
             keyLogTable.clear();
          }
-         BorderPane mainTabLayout = new BorderPane(keyLogTable, filterPanel, null, new Footer(), null);
+         var mainTabLayout = new BorderPane(keyLogTable, filterPanel, null, new Footer(), null);
          mainTabLayout.setPadding(new Insets(15, 15, 0, 15));
          setContent(mainTabLayout);
       });

@@ -21,36 +21,39 @@ final class KeyAssignmentFilterPanel extends HBox {
    private final TextField keyNumberField = new TextField();
    private final TextField nameField = new TextField();
 
-   KeyAssignmentFilterPanel(MessageSourceAdapter messages,
-                            Consumer<KeyAssignmentFilter> filterConsumer) {
-
+   KeyAssignmentFilterPanel(MessageSourceAdapter messages, Consumer<KeyAssignmentFilter> filterConsumer) {
       this.filterConsumer = filterConsumer;
+      addKeyListeners();
 
-      Button searchButton = new Button(
-            messages.get(this, "filter"),
-            new ImageView(new Image("images/flat-find-16.png"))
+      getChildren().addAll(
+            new Label(messages.get(this, "keyNumber")), keyNumberField,
+            new Label(messages.get(this, "name")), nameField,
+            createSearchButton(messages)
       );
-      searchButton.setOnAction(event -> action());
+      setSpacing(15);
+      setAlignment(Pos.CENTER_LEFT);
+   }
 
-      EventHandler<KeyEvent> eventHandler = event -> {
+   private void addKeyListeners() {
+      EventHandler<KeyEvent> handler = event -> {
          if (event.getCode() == KeyCode.ENTER) {
             action();
          }
       };
 
-      Stream.of(nameField, keyNumberField)
-            .forEach(field -> {
-               field.setOnKeyReleased(eventHandler);
-               field.setPrefWidth(138);
-            });
+      Stream.of(nameField, keyNumberField).forEach(field -> {
+         field.setOnKeyReleased(handler);
+         field.setPrefWidth(138);
+      });
+   }
 
-      getChildren().addAll(
-            new Label(messages.get(this, "keyNumber")), keyNumberField,
-            new Label(messages.get(this, "name")), nameField,
-            searchButton
+   private Button createSearchButton(MessageSourceAdapter messages) {
+      var searchButton = new Button(
+            messages.get(this, "filter"),
+            new ImageView(new Image("images/flat-find-16.png"))
       );
-      setSpacing(15);
-      setAlignment(Pos.CENTER_LEFT);
+      searchButton.setOnAction(event -> action());
+      return searchButton;
    }
 
    KeyAssignmentFilter getFilter() {

@@ -5,45 +5,40 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListView;
 import lt.pavilonis.scan.cmm.client.App;
-import lt.pavilonis.scan.cmm.client.ui.keylog.Key;
-import lt.pavilonis.scan.cmm.client.User;
 import lt.pavilonis.scan.cmm.client.MessageSourceAdapter;
+import lt.pavilonis.scan.cmm.client.User;
 import lt.pavilonis.scan.cmm.client.WsRestClient;
+import lt.pavilonis.scan.cmm.client.ui.keylog.Key;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
 @Component
 public class ScanLogList extends ListView<ScanLogListElement> {
-   private static final Logger LOG = getLogger(ScanLogList.class.getSimpleName());
+
+   private static final Logger LOGGER = LoggerFactory.getLogger(ScanLogList.class);
    private static final int POSITION_FIRST = 0;
    private static final int QUEUE_LENGTH = 99;
    private final ObservableList<ScanLogListElement> container = FXCollections.observableArrayList();
    private ScanLogListElement lastSelection;
+   private final WsRestClient wsClient;
+   private final ScanLogKeyList scanLogKeyList;
+   private final PhotoView photoView;
+   private final MessageSourceAdapter messages;
 
-   @Autowired
-   private WsRestClient wsClient;
-
-   @Autowired
-   private ScanLogKeyList scanLogKeyList;
-
-   @Autowired
-   private PhotoView photoView;
-
-   @Autowired
-   private MessageSourceAdapter messages;
-
-   public ScanLogList() {
+   public ScanLogList(WsRestClient wsClient, ScanLogKeyList scanLogKeyList,
+                      PhotoView photoView, MessageSourceAdapter messages) {
       setItems(container);
       setFocusTraversable(false);
-
       setOnMouseClicked(click -> Platform.runLater(this::processClick));
+      this.wsClient = wsClient;
+      this.scanLogKeyList = scanLogKeyList;
+      this.photoView = photoView;
+      this.messages = messages;
    }
 
    private void processClick() {
@@ -71,12 +66,13 @@ public class ScanLogList extends ListView<ScanLogListElement> {
    }
 
    public void addElement(ScanLog representation) {
+      LOGGER.info("Adding scanLog [user={}]", representation.user.name);
       Platform.runLater(() -> {
          if (container.size() > QUEUE_LENGTH) {
             container.remove(container.size() - 1);
          }
 
-         ScanLogListElement element = new ScanLogListElement(representation, elementClickConsumer());
+         var element = new ScanLogListElement(representation, elementClickConsumer());
          container.add(POSITION_FIRST, element);
 
          if (lastSelection == null) {
@@ -89,15 +85,13 @@ public class ScanLogList extends ListView<ScanLogListElement> {
 
    private BiConsumer<String, Integer> elementClickConsumer() {
       return (cardCode, keyNumber) -> {
-         Consumer<Optional<Key>> wsResponseConsumer = response -> {
-            if (response.isPresent()) {
-               Key key = response.get();
-               scanLogKeyList.append(key);
-               LOG.info("Key {} assigned to cardCode {}", key.getKeyNumber(), key.getUser().cardCode);
-            } else {
-               App.displayWarning(messages.get(this, "canNotAssignKey"));
-            }
-         };
+         Consumer<Optional<Key>> wsResponseConsumer = response -> response.ifPresentOrElse(
+               key -> {
+                  scanLogKeyList.append(key);
+                  LOGGER.info("Key {} assigned to cardCode {}", key.getKeyNumber(), key.getUser().cardCode);
+               },
+               () -> App.displayWarning(messages.get(this, "canNotAssignKey"))
+         );
          wsClient.assignKey(cardCode, keyNumber, wsResponseConsumer);
       };
    }

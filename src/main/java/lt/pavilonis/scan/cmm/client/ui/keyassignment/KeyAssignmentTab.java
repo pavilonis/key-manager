@@ -25,15 +25,13 @@ import static org.slf4j.LoggerFactory.getLogger;
 @Component
 public class KeyAssignmentTab extends Tab {
 
-   private static final Logger LOG = getLogger(KeyAssignmentTab.class.getSimpleName());
+   private static final Logger LOGGER = getLogger(KeyAssignmentTab.class.getSimpleName());
    private final MessageSourceAdapter messages;
    private final WsRestClient wsClient;
    private final KeyAssignmentTable keyAssignmentTable;
 
    @Autowired
-   public KeyAssignmentTab(MessageSourceAdapter messages, WsRestClient wsClient,
-                           KeyAssignmentTable keyAssignmentTable) {
-
+   public KeyAssignmentTab(MessageSourceAdapter messages, WsRestClient wsClient, KeyAssignmentTable keyAssignmentTable) {
       this.messages = messages;
       this.wsClient = wsClient;
       this.keyAssignmentTable = keyAssignmentTable;
@@ -71,7 +69,7 @@ public class KeyAssignmentTab extends Tab {
                      ? List.of(response)
                      : Stream.of(response).filter(matches(filter.getName())).collect(toList());
 
-               LOG.info("Loaded active keys [number={}/{}, duration={}]",
+               LOGGER.info("Loaded active keys [number={}/{}, duration={}]",
                      keys.size(), response.length, TimeUtils.duration(opStart));
 
                keyAssignmentTable.update(keys);
