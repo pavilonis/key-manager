@@ -35,7 +35,7 @@ public class ScanLogTab extends Tab {
          if (isSelected()) {
             ScanLogListElement selected = scanLogList.getSelectionModel().getSelectedItem();
             if (selected != null) {
-               scanLogKeyList.updateContainer(selected.getUser().cardCode);
+               scanLogKeyList.updateContainer(selected.getUser().getCardCode());
             }
          }
       });

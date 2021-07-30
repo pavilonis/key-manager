@@ -60,13 +60,13 @@ public class ScanLogList extends ListView<ScanLogListElement> {
          newSelection.activate();
          User user = newSelection.getUser();
 
-         photoView.update(user.base16photo);
-         scanLogKeyList.updateContainer(user.cardCode);
+         photoView.update(user.getBase16photo());
+         scanLogKeyList.updateContainer(user.getCardCode());
       }
    }
 
    public void addElement(ScanLog representation) {
-      LOGGER.info("Adding scanLog [user={}]", representation.user.name);
+      LOGGER.info("Adding scanLog [user={}]", representation.user.getName());
       Platform.runLater(() -> {
          if (container.size() > QUEUE_LENGTH) {
             container.remove(container.size() - 1);
@@ -77,8 +77,8 @@ public class ScanLogList extends ListView<ScanLogListElement> {
 
          if (lastSelection == null) {
             getSelectionModel().select(element);
-            scanLogKeyList.updateContainer(element.getUser().cardCode);
-            photoView.update(element.getUser().base16photo);
+            scanLogKeyList.updateContainer(element.getUser().getCardCode());
+            photoView.update(element.getUser().getBase16photo());
          }
       });
    }
@@ -88,7 +88,7 @@ public class ScanLogList extends ListView<ScanLogListElement> {
          Consumer<Optional<Key>> wsResponseConsumer = response -> response.ifPresentOrElse(
                key -> {
                   scanLogKeyList.append(key);
-                  LOGGER.info("Key {} assigned to cardCode {}", key.getKeyNumber(), key.getUser().cardCode);
+                  LOGGER.info("Key {} assigned to cardCode {}", key.getKeyNumber(), key.getUser().getCardCode());
                },
                () -> App.displayWarning(messages.get(this, "canNotAssignKey"))
          );

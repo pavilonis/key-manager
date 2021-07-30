@@ -59,7 +59,7 @@ final class KeyLogTable extends TableView<Key> {
       var userColumn = new TableColumn<Key, String>(messages.get(this, "user"));
       userColumn.setCellValueFactory(param -> {
          User user = param.getValue().getUser();
-         return new ReadOnlyObjectWrapper<>(user.name);
+         return new ReadOnlyObjectWrapper<>(user.getName());
       });
 
       var groupColumn = new TableColumn<Key, User>(messages.get(this, "group"));
@@ -73,15 +73,15 @@ final class KeyLogTable extends TableView<Key> {
                setGraphic(null);
                setStyle(EMPTY);
             } else {
-               setText(item.group);
-               if (StringUtils.isNoneBlank(item.role)
-                     && StringUtils.containsIgnoreCase(item.role, "mokinys")) {
+               setText(item.getGroup());
+               if (StringUtils.isNoneBlank(item.getRole())
+                     && StringUtils.containsIgnoreCase(item.getRole(), "mokinys")) {
                   setStyle(AppConfig.STYLE_STUDENT);
                }
             }
          }
       });
-      groupColumn.setComparator((user1, user2) -> ObjectUtils.compare(user1.group, (user2.group)));
+      groupColumn.setComparator((user1, user2) -> ObjectUtils.compare(user1.getGroup(), (user2.getGroup())));
 
       var actionColumn = new TableColumn<Key, KeyAction>(messages.get(this, "action"));
 

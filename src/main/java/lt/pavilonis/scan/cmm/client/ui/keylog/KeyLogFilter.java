@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.time.LocalDate;
 
 public class KeyLogFilter {
+
    private final LocalDate periodStart;
    private final LocalDate periodEnd;
    private final KeyAction keyAction;

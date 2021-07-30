@@ -50,9 +50,9 @@ final class ScanLogListElement extends HBox {
          }
       });
 
-      boolean pupil = StringUtils.isNotBlank(user.role) && StringUtils.containsIgnoreCase(user.role, "mokinys");
-      Label name = text(user.name, (pupil ? 208 : 250));
-      Label description = text(user.group, 240);
+      boolean pupil = StringUtils.isNotBlank(user.getRole()) && StringUtils.containsIgnoreCase(user.getRole(), "mokinys");
+      Label name = text(user.getName(), (pupil ? 208 : 250));
+      Label description = text(user.getGroup(), 240);
 
       getChildren().add(text(TIME_FORMAT.format(representation.dateTime), 80));
       if (pupil) {
@@ -72,7 +72,7 @@ final class ScanLogListElement extends HBox {
    private void assignKey(ScanLog representation, BiConsumer<String, Integer> buttonClickConsumer) {
       String text = keyNumberField.getCharacters().toString();
       if (NumberUtils.isDigits(text)) {
-         buttonClickConsumer.accept(representation.user.cardCode, Integer.parseInt(text));
+         buttonClickConsumer.accept(representation.user.getCardCode(), Integer.parseInt(text));
          keyNumberField.setText(null);
          keyNumberField.requestFocus();
       } else {

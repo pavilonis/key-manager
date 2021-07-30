@@ -8,16 +8,15 @@ import lt.pavilonis.scan.cmm.client.MessageSourceAdapter;
 import lt.pavilonis.scan.cmm.client.WsRestClient;
 import lt.pavilonis.scan.cmm.client.ui.Footer;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
 @Controller
 public class KeyLogTab extends Tab {
 
-   private static final Logger LOG = getLogger(KeyLogTab.class.getSimpleName());
+   private static final Logger LOGGER = LoggerFactory.getLogger(KeyLogTab.class);
    private final KeyLogTable keyLogTable;
    private final WsRestClient wsClient;
    private final MessageSourceAdapter messages;
@@ -31,7 +30,7 @@ public class KeyLogTab extends Tab {
 
       setClosable(false);
 
-      KeyLogFilterPanel filterPanel = new KeyLogFilterPanel(messages);
+      var filterPanel = new KeyLogFilterPanel(messages);
       filterPanel.addSearchListener(event -> updateTable(filterPanel.getFilter()));
 
       BorderPane.setMargin(filterPanel, new Insets(0, 0, 15, 0));
@@ -55,7 +54,7 @@ public class KeyLogTab extends Tab {
    private void updateTable(KeyLogFilter filter) {
       wsClient.keyLog(filter, optionalResponse -> optionalResponse.ifPresentOrElse(
             response -> {
-               LOG.info("Loaded keyLog [entries={}]", response.length);
+               LOGGER.info("Loaded keyLog [entries={}]", response.length);
                keyLogTable.update(List.of(response));
             },
             () -> App.displayWarning(messages.get(this, "canNotLoadKeys"))

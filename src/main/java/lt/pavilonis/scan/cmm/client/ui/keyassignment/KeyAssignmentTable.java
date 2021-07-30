@@ -18,6 +18,7 @@ import lt.pavilonis.scan.cmm.client.ui.keylog.Key;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,12 +27,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 public class KeyAssignmentTable extends TableView<Key> {
 
-   private static final Logger LOG = getLogger(KeyAssignmentTable.class.getSimpleName());
+   private static final Logger LOGGER = LoggerFactory.getLogger(KeyAssignmentTable.class);
    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd  HH:mm");
    private final ObservableList<Key> container = FXCollections.observableArrayList();
 
@@ -66,7 +66,7 @@ public class KeyAssignmentTable extends TableView<Key> {
       var userColumn = new TableColumn<Key, String>(messages.get(this, "user"));
       userColumn.setCellValueFactory(param -> {
          User user = param.getValue().getUser();
-         return new ReadOnlyObjectWrapper<>(user == null ? EMPTY : user.name);
+         return new ReadOnlyObjectWrapper<>(user == null ? EMPTY : user.getName());
       });
 
       var descriptionColumn = new TableColumn<Key, Key>(messages.get(this, "group"));
@@ -81,16 +81,16 @@ public class KeyAssignmentTable extends TableView<Key> {
                setStyle("");
             } else {
                User user = item.getUser();
-               setText(user == null ? null : user.group);
-               if (user != null && StringUtils.isNotBlank(user.role)
+               setText(user == null ? null : user.getName());
+               if (user != null && StringUtils.isNotBlank(user.getName())
                      //TODO
-                     && StringUtils.containsIgnoreCase(user.role, "mokinys")) {
+                     && StringUtils.containsIgnoreCase(user.getRole(), "mokinys")) {
                   setStyle(AppConfig.STYLE_STUDENT);
                }
             }
          }
       });
-      descriptionColumn.setComparator((key1, key2) -> ObjectUtils.compare(key1.getUser().group, key2.getUser().group));
+      descriptionColumn.setComparator((key1, key2) -> ObjectUtils.compare(key1.getUser().getGroup(), key2.getUser().getGroup()));
 
       var unassignmentColumn = new TableColumn<Key, Key>(messages.get(this, "unassignment"));
       unassignmentColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
@@ -110,10 +110,10 @@ public class KeyAssignmentTable extends TableView<Key> {
                   setGraphic(returnKeyButton);
                   returnKeyButton.setOnAction(click -> wsClient.returnKey(item.getKeyNumber(), response -> {
                      if (response.isPresent()) {
-                        LOG.info("Returned key [keyNumber={}]", response.get().getKeyNumber());
+                        LOGGER.info("Returned key [keyNumber={}]", response.get().getKeyNumber());
                         container.remove(item);
                      } else {
-                        LOG.error("Erroneous state - could not return key [keyNumber={}]", item.getKeyNumber());
+                        LOGGER.error("Erroneous state - could not return key [keyNumber={}]", item.getKeyNumber());
                      }
                   }));
                }

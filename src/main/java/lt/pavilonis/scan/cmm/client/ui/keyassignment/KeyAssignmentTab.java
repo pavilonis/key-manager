@@ -83,7 +83,7 @@ public class KeyAssignmentTab extends Tab {
          if (StringUtils.isBlank(searchString)) {
             return false;
          }
-         String content = key.getUser().name;
+         String content = key.getUser().getName();
          return !content.toLowerCase().contains(searchString.toLowerCase());
       };
    }
