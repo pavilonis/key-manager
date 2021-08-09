@@ -9,10 +9,8 @@
    <properties>
       <maven.compiler.source>11</maven.compiler.source>
       <maven.compiler.target>11</maven.compiler.target>
-      <jackson.version>2.12.3</jackson.version>
+      <jackson.version>2.12.4</jackson.version>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <javafx.version>11.0.2</javafx.version>
-      <spring.version>5.3.8</spring.version>
    </properties>
    <dependencies>
 
@@ -56,22 +54,9 @@
       </dependency>
 
       <dependency>
-         <groupId>org.openjfx</groupId>
-         <artifactId>javafx-controls</artifactId>
-         <version>${javafx.version}</version>
-      </dependency>
-
-      <!--Used for working with images in PhotoView class-->
-      <dependency>
-         <groupId>org.openjfx</groupId>
-         <artifactId>javafx-swing</artifactId>
-         <version>${javafx.version}</version>
-      </dependency>
-
-      <dependency>
          <groupId>org.springframework</groupId>
          <artifactId>spring-webmvc</artifactId>
-         <version>${spring.version}</version>
+         <version>5.3.9</version>
       </dependency>
 
       <dependency>
@@ -116,7 +101,7 @@
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
-            <version>3.6.0</version>
+            <version>3.8.1</version>
             <configuration>
                <source>${maven.compiler.source}</source>
                <target>${maven.compiler.target}</target>
