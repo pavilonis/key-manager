@@ -9,14 +9,14 @@ public class User {
    private final String group;
    private final String role;
    private final String birthDate;
-   private final String base16photo;
+   private final String base64photo;
    private final User supervisor;
 
    public User(@JsonProperty("cardCode") String cardCode,
                @JsonProperty("name") String name,
                @JsonProperty("organizationGroup") String group,
                @JsonProperty("organizationRole") String role,
-               @JsonProperty("base16photo") String base16photo,
+               @JsonProperty("base64photo") String base64photo,
                @JsonProperty("birthDate") String birthDate,
                @JsonProperty("supervisor") User supervisor) {
 
@@ -24,7 +24,7 @@ public class User {
       this.name = name;
       this.group = group;
       this.role = role;
-      this.base16photo = base16photo;
+      this.base64photo = base64photo;
       this.birthDate = birthDate;
       this.supervisor = supervisor;
    }
@@ -49,8 +49,8 @@ public class User {
       return birthDate;
    }
 
-   public String getBase16photo() {
-      return base16photo;
+   public String getBase64photo() {
+      return base64photo;
    }
 
    public User getSupervisor() {

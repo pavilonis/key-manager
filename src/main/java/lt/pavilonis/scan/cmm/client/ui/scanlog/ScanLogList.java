@@ -60,7 +60,7 @@ public class ScanLogList extends ListView<ScanLogListElement> {
          newSelection.activate();
          User user = newSelection.getUser();
 
-         photoView.update(user.getBase16photo());
+         photoView.update(user.getBase64photo());
          scanLogKeyList.updateContainer(user.getCardCode());
       }
    }
@@ -78,7 +78,7 @@ public class ScanLogList extends ListView<ScanLogListElement> {
          if (lastSelection == null) {
             getSelectionModel().select(element);
             scanLogKeyList.updateContainer(element.getUser().getCardCode());
-            photoView.update(element.getUser().getBase16photo());
+            photoView.update(element.getUser().getBase64photo());
          }
       });
    }

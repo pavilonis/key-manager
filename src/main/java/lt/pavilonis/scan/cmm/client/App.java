@@ -12,13 +12,11 @@ import lt.pavilonis.scan.cmm.client.ui.keyassignment.KeyAssignmentTab;
 import lt.pavilonis.scan.cmm.client.ui.keylog.KeyLogTab;
 import lt.pavilonis.scan.cmm.client.ui.scanlog.ScanLogTab;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.support.AbstractApplicationContext;
 
 public class App extends Application {
 
    public static final StackPane ROOT_PANE = new StackPane();
    private static final WarningBox WARNING_BOX = new WarningBox(ROOT_PANE.getChildren());
-   private static AbstractApplicationContext context;
    private static WsRestClient wsClient;
 
    public static void main(String[] args) {
@@ -26,11 +24,11 @@ public class App extends Application {
    }
 
    @Override
-   public void start(Stage primaryStage) throws Exception {
-      context = new AnnotationConfigApplicationContext(AppConfig.class);
+   public void start(Stage primaryStage) {
+      var context = new AnnotationConfigApplicationContext(AppConfig.class);
       wsClient = context.getBean(WsRestClient.class);
 
-      TabPane tabPane = new TabPane(
+      var tabPane = new TabPane(
             context.getBean(ScanLogTab.class),
             context.getBean(KeyAssignmentTab.class),
             context.getBean(KeyLogTab.class),

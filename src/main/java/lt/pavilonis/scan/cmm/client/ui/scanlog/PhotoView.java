@@ -1,6 +1,5 @@
 package lt.pavilonis.scan.cmm.client.ui.scanlog;
 
-import com.google.common.io.BaseEncoding;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -13,6 +12,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Base64;
 
 @Component
 public class PhotoView extends ImageView {
@@ -24,22 +24,24 @@ public class PhotoView extends ImageView {
       setFitHeight(200);
    }
 
-   void update(String base16image) {
+   void update(String base64image) {
 
-      if (StringUtils.isBlank(base16image) || !BaseEncoding.base16().canDecode(base16image)) {
+      if (StringUtils.isBlank(base64image)) {
          this.setImage(new Image("images/contacts-200.png"));
          return;
       }
 
-      this.setImage(readImage(base16image));
+      this.setImage(readImage(base64image));
    }
 
-   private Image readImage(String base16image) {
+   private Image readImage(String base64image) {
 
-      byte[] imageBytes = BaseEncoding.base16().decode(base16image);
-
+      byte[] imageBytes = Base64.getDecoder().decode(base64image);
       try (ByteArrayInputStream input = new ByteArrayInputStream(imageBytes)) {
          BufferedImage image = ImageIO.read(input);
+         if (image == null) {
+            return null;
+         }
          return SwingFXUtils.toFXImage(image, null);
 
       } catch (IOException e) {
