@@ -58,7 +58,7 @@ public class SerialPortListener implements SerialPortEventListener {
          LOGGER.info("Read result: {}", result);
          return Optional.of(result);
       } else {
-         LOGGER.warn("Empty read result");
+         LOGGER.debug("Empty read result");
          return Optional.empty();
       }
    }

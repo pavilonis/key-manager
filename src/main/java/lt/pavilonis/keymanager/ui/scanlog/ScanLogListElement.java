@@ -31,8 +31,7 @@ final class ScanLogListElement extends HBox {
    private final User user;
 
    ScanLogListElement(ScanLog representation, BiConsumer<String, Integer> buttonClickConsumer) {
-      User user = representation.user;
-      this.user = user;
+      this.user = representation.getUser();
       setSpacing(10);
       setAlignment(Pos.CENTER_LEFT);
       keyNumberField.setPrefWidth(70);
@@ -49,13 +48,15 @@ final class ScanLogListElement extends HBox {
          }
       });
 
-      //TODO parametrize
-      boolean pupil = StringUtils.hasText(user.getRole()) && user.getRole().toLowerCase().contains("mokinys");
-      Label name = text(user.getName(), (pupil ? 208 : 250));
+      boolean isPupil = StringUtils.hasText(user.getRole())
+            //TODO parametrize
+            && user.getRole().toLowerCase().contains("mokinys");
+
+      Label name = text(user.getName(), (isPupil ? 208 : 250));
       Label description = text(user.getGroup(), 240);
 
-      getChildren().add(text(TIME_FORMAT.format(representation.dateTime), 80));
-      if (pupil) {
+      getChildren().add(text(TIME_FORMAT.format(representation.getDateTime()), 80));
+      if (isPupil) {
          ImageView studentIcon = new ImageView(new Image("images/favorite-star-24.png"));
          studentIcon.setFitWidth(24);
          studentIcon.setFitHeight(24);
@@ -73,7 +74,7 @@ final class ScanLogListElement extends HBox {
       String text = keyNumberField.getCharacters().toString();
 
       try {
-         buttonClickConsumer.accept(representation.user.getCardCode(), Integer.parseInt(text));
+         buttonClickConsumer.accept(representation.getUser().getCardCode(), Integer.parseInt(text));
          keyNumberField.setText(null);
          keyNumberField.requestFocus();
 
@@ -92,7 +93,7 @@ final class ScanLogListElement extends HBox {
 
    void activate() {
       controls.setVisible(true);
-      Platform.runLater(keyNumberField::requestFocus);
+      keyNumberField.requestFocus();
    }
 
    void deactivate() {

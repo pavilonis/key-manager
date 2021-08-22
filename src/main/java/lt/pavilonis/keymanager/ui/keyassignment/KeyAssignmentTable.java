@@ -1,8 +1,6 @@
 package lt.pavilonis.keymanager.ui.keyassignment;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
@@ -11,8 +9,10 @@ import javafx.scene.control.TableView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import lt.pavilonis.keymanager.MessageSourceAdapter;
+import lt.pavilonis.keymanager.Spring;
 import lt.pavilonis.keymanager.User;
 import lt.pavilonis.keymanager.WebServiceClient;
+import lt.pavilonis.keymanager.ui.AbstractTable;
 import lt.pavilonis.keymanager.ui.keylog.Key;
 import lt.pavilonis.keymanager.ui.keylog.KeyLogTable;
 import org.slf4j.Logger;
@@ -25,15 +25,16 @@ import java.util.List;
 
 import static java.util.Comparator.comparing;
 
-public class KeyAssignmentTable extends TableView<Key> {
+public class KeyAssignmentTable extends AbstractTable<Key> {
 
    private static final Logger LOGGER = LoggerFactory.getLogger(KeyAssignmentTable.class);
    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd  HH:mm");
-   private final ObservableList<Key> container = FXCollections.observableArrayList();
+   private final WebServiceClient webServiceClient = Spring.CONTEXT.getBean(WebServiceClient.class);
 
-   public KeyAssignmentTable(WebServiceClient webServiceClient, MessageSourceAdapter messages) {
-      this.setItems(container);
+   public KeyAssignmentTable() {
+      this.setItems(getContainer());
 
+      MessageSourceAdapter messages = Spring.CONTEXT.getBean(MessageSourceAdapter.class);
       var keyNumberColumn = new TableColumn<Key, Integer>(messages.get(this, "keyNumber"));
       keyNumberColumn.setMinWidth(120);
       keyNumberColumn.setMaxWidth(120);
@@ -108,7 +109,7 @@ public class KeyAssignmentTable extends TableView<Key> {
                      item.getKeyNumber(),
                      response -> {
                         LOGGER.info("Returned key [keyNumber={}]", response.getKeyNumber());
-                        container.remove(item);
+                        getContainer().remove(item);
                      },
                      e -> LOGGER.error("Erroneous state - could not return key " + item.getKeyNumber(), e)
                ));
@@ -124,15 +125,5 @@ public class KeyAssignmentTable extends TableView<Key> {
       setStyle("-fx-font-size:15; -fx-font-weight: 600; -fx-alignment: center");
       setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
       setFocusTraversable(false);
-   }
-
-   public void update(List<Key> keys) {
-      container.clear();
-      container.addAll(keys);
-      sort();
-   }
-
-   public void clear() {
-      container.clear();
    }
 }

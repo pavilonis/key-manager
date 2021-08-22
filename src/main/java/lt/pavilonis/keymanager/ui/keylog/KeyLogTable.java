@@ -1,9 +1,6 @@
 package lt.pavilonis.keymanager.ui.keylog;
 
-import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -11,7 +8,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import lt.pavilonis.keymanager.MessageSourceAdapter;
+import lt.pavilonis.keymanager.Spring;
 import lt.pavilonis.keymanager.User;
+import lt.pavilonis.keymanager.ui.AbstractTable;
 import org.springframework.util.StringUtils;
 
 import java.time.format.DateTimeFormatter;
@@ -19,17 +18,17 @@ import java.util.List;
 
 import static java.util.Comparator.comparing;
 
-public final class KeyLogTable extends TableView<Key> {
+public final class KeyLogTable extends AbstractTable<Key> {
 
    public static final String STYLE_STUDENT = "-fx-background-color: rgba(255, 164, 0, 0.15)";
    private static final String ICON_ASSINGED = "images/flat-arrow-up-24.png";
    private static final String ICON_UNASSIGNED = "images/flat-arrow-down-24.png";
    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd  HH:mm");
-   private final ObservableList<Key> container = FXCollections.observableArrayList();
 
-   public KeyLogTable(MessageSourceAdapter messages) {
-      this.setItems(container);
+   public KeyLogTable() {
+      setItems(getContainer());
 
+      MessageSourceAdapter messages = Spring.CONTEXT.getBean(MessageSourceAdapter.class);
       var keyNumberColumn = new TableColumn<Key, Integer>(messages.get(this, ("keyNumber")));
       keyNumberColumn.setMinWidth(120);
       keyNumberColumn.setMaxWidth(120);
@@ -116,17 +115,5 @@ public final class KeyLogTable extends TableView<Key> {
       setStyle("-fx-font-size:15; -fx-font-weight: 600; -fx-alignment: center");
       setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
       setFocusTraversable(false);
-   }
-
-   public void update(List<Key> keys) {
-      Platform.runLater(() -> {
-         container.clear();
-         container.addAll(keys);
-         sort();
-      });
-   }
-
-   public void clear() {
-      container.clear();
    }
 }

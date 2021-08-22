@@ -4,24 +4,24 @@ import javafx.collections.FXCollections;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
+import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.HBox;
 import javafx.util.StringConverter;
 import lt.pavilonis.keymanager.MessageSourceAdapter;
+import lt.pavilonis.keymanager.Spring;
+import lt.pavilonis.keymanager.ui.AbstractFilterPanel;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.stream.Stream;
 
-final class KeyLogFilterPanel extends HBox {
+final class KeyLogFilterPanel extends AbstractFilterPanel<KeyLogFilter> {
 
    private final static StringConverter<LocalDate> LOCAL_DATE_CONVERTER = new StringConverter<>() {
       @Override
@@ -35,21 +35,55 @@ final class KeyLogFilterPanel extends HBox {
       }
    };
 
-   private final DatePicker periodStart = new DatePicker();
-   private final DatePicker periodEnd = new DatePicker();
-   private final TextField keyNumberField = new TextField();
-   private final TextField nameField = new TextField();
-   private final ComboBox<KeyAction> actionComboBox =
-         new ComboBox<>(FXCollections.observableArrayList(KeyAction.values()));
+   private DatePicker periodStart;
+   private DatePicker periodEnd;
+   private TextField keyNumberField;
+   private TextField nameField;
+   private ComboBox<KeyAction> actionComboBox;
 
-   private final Button searchButton;
+   KeyLogFilterPanel() {
+      setAlignment(Pos.CENTER_LEFT);
+      setSpacing(15);
+   }
 
-   KeyLogFilterPanel(MessageSourceAdapter messages) {
-      searchButton = new Button(
-            messages.get(this, "filter"),
-            new ImageView(new Image("images/flat-find-16.png"))
+   @Override
+   public void reset() {
+      keyNumberField.clear();
+      nameField.clear();
+      periodStart.setValue(LocalDate.now().minusWeeks(1));
+      periodEnd.setValue(LocalDate.now());
+      actionComboBox.setValue(KeyAction.ALL);
+   }
+
+   @Override
+   public List<Node> getPanelElements() {
+      MessageSourceAdapter messages = Spring.CONTEXT.getBean(MessageSourceAdapter.class);
+      actionComboBox = createActionCombo(messages);
+
+      periodStart = new DatePicker();
+      periodStart.setConverter(LOCAL_DATE_CONVERTER);
+
+      periodEnd = new DatePicker();
+      periodEnd.setConverter(LOCAL_DATE_CONVERTER);
+
+      keyNumberField = new TextField();
+      nameField = new TextField();
+
+      Stream.of(periodStart, periodEnd, actionComboBox, keyNumberField, nameField)
+            .forEach(f -> f.setPrefWidth(138));
+
+      return List.of(
+            new Label(messages.get(this, "keyNumber")), keyNumberField,
+            new Label(messages.get(this, "name")), nameField,
+            actionComboBox,
+            periodStart,
+            periodEnd
       );
-      actionComboBox.setConverter(new StringConverter<>() {
+   }
+
+   private ComboBox<KeyAction> createActionCombo(MessageSourceAdapter messages) {
+      ComboBox<KeyAction> combo = new ComboBox<>(FXCollections.observableArrayList(KeyAction.values()));
+      combo.setConverter(new StringConverter<>() {
          @Override
          public String toString(KeyAction object) {
             return messages.get(object, object.name());
@@ -60,33 +94,12 @@ final class KeyLogFilterPanel extends HBox {
             throw new IllegalStateException("Not implemented - was not needed yet");
          }
       });
-      periodStart.setConverter(LOCAL_DATE_CONVERTER);
-      periodEnd.setConverter(LOCAL_DATE_CONVERTER);
-      Stream.of(periodStart, periodEnd, actionComboBox, keyNumberField, nameField)
-            .forEach(f -> f.setPrefWidth(138));
-
-      getChildren().addAll(
-            new Label(messages.get(this, "keyNumber")), keyNumberField,
-            new Label(messages.get(this, "name")), nameField,
-            actionComboBox,
-            periodStart,
-            periodEnd,
-            searchButton
-      );
-      setAlignment(Pos.CENTER_LEFT);
-      setSpacing(15);
+      return combo;
    }
 
-   public void reset() {
-      keyNumberField.clear();
-      nameField.clear();
-      periodStart.setValue(LocalDate.now().minusWeeks(1));
-      periodEnd.setValue(LocalDate.now());
-      actionComboBox.setValue(KeyAction.ALL);
-   }
-
-   void addSearchListener(EventHandler<Event> handler) {
-
+   @Override
+   public void addSearchListener(EventHandler<Event> handler) {
+      super.addSearchListener(handler);
       EventHandler<KeyEvent> eventHandler = (KeyEvent event) -> {
          if (event.getCode() == KeyCode.ENTER) {
             handler.handle(event);
@@ -95,11 +108,10 @@ final class KeyLogFilterPanel extends HBox {
 
       Stream.of(periodStart, periodEnd, actionComboBox, keyNumberField, nameField)
             .forEach(field -> field.setOnKeyReleased(eventHandler));
-
-      searchButton.setOnAction(handler::handle);
    }
 
-   KeyLogFilter getFilter() {
+   @Override
+   public KeyLogFilter getFilter() {
       return new KeyLogFilter(
             periodStart.getValue(),
             periodEnd.getValue(),
@@ -109,7 +121,8 @@ final class KeyLogFilterPanel extends HBox {
       );
    }
 
-   void focus() {
+   @Override
+   public void focus() {
       keyNumberField.requestFocus();
    }
 }

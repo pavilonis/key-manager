@@ -1,15 +1,15 @@
 package lt.pavilonis.keymanager.ui.classusage;
 
+import javafx.application.Platform;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
-import javafx.scene.control.Tab;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
 import lt.pavilonis.keymanager.MessageSourceAdapter;
-import lt.pavilonis.keymanager.NotificationDisplay;
 import lt.pavilonis.keymanager.Spring;
 import lt.pavilonis.keymanager.WebServiceClient;
-import lt.pavilonis.keymanager.ui.Footer;
+import lt.pavilonis.keymanager.ui.AbstractTab;
+import lt.pavilonis.keymanager.ui.AbstractTable;
+import lt.pavilonis.keymanager.ui.AbstractFilterPanel;
+import lt.pavilonis.keymanager.ui.NotificationDisplay;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,43 +19,37 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
-public class ClassroomUsageTabPupils extends Tab implements NotificationDisplay {
+public class ClassroomUsageTabPupils extends AbstractTab<ScanLogBrief, ClassroomUsageFilter> {
 
    private static final Logger LOGGER = LoggerFactory.getLogger(ClassroomUsageTabPupils.class);
    private final WebServiceClient webServiceClient = Spring.CONTEXT.getBean(WebServiceClient.class);
    private final MessageSourceAdapter messages = Spring.CONTEXT.getBean(MessageSourceAdapter.class);
-   private final ClassroomUsageTable classUsageTable = new ClassroomUsageTable(messages);
    private final Set<String> pupilGroupExclusions =
          Set.of(Spring.getStringProperty("classroomUsage.pupils.groupExclusionList", String[].class));
 
-   public ClassroomUsageTabPupils(Footer footer) {
+   public ClassroomUsageTabPupils(NotificationDisplay notifications) {
+      super(notifications);
       setText(messages.get(this, "title"));
-      setClosable(false);
-
-      var filterPanel = new ClassroomUsageFilterPanel(messages);
-      filterPanel.addSearchListener(event -> updateTable(filterPanel.getFilter()));
-
-      BorderPane.setMargin(filterPanel, new Insets(0, 0, 15, 0));
-      setOnSelectionChanged(event -> {
-         //TODO move to abstract class?
-         if (isSelected()) {
-            filterPanel.reset();
-            updateTable(filterPanel.getFilter());
-            filterPanel.focus();
-         } else {
-            classUsageTable.clear();
-         }
-         var mainTabLayout = new BorderPane(classUsageTable, filterPanel, null, footer, null);
-         mainTabLayout.setPadding(new Insets(15, 15, 0, 15));
-         setContent(mainTabLayout);
-      });
    }
 
-   //TODO move to abstract class?
-   private void updateTable(ClassroomUsageFilter filter) {
+   @Override
+   protected AbstractFilterPanel<ClassroomUsageFilter> createFilterPanel() {
+      var filterPanel = new ClassroomUsageFilterPanel();
+      BorderPane.setMargin(filterPanel, new Insets(0, 0, 15, 0));
+      return filterPanel;
+   }
+
+   @Override
+   protected AbstractTable<ScanLogBrief> createTable() {
+      return new ClassroomUsageTable();
+   }
+
+   @Override
+   protected void updateTable(ClassroomUsageFilter filter) {
+      Platform.runLater(notifications::clear);
       webServiceClient.classroomUsage(filter.getText(),
-            usage -> classUsageTable.update(filterEntries(usage)),
-            exception -> warn(messages.get(this, "canNotLoadClassroomUsage"), exception)
+            usage -> getTable().update(filterEntries(usage)),
+            exception -> notifications.warn(messages.get(this, "canNotLoadClassroomUsage"), exception)
       );
    }
 
@@ -67,11 +61,5 @@ public class ClassroomUsageTabPupils extends Tab implements NotificationDisplay 
 
       LOGGER.info("Brief scan logs loaded (all/role filtered) [entries={}/{}]", entries.length, filteredEntries.size());
       return filteredEntries;
-   }
-
-   @Override
-   public List<Node> getStackPaneChildren() {
-      StackPane stackPane = (StackPane) getTabPane().getParent();
-      return stackPane.getChildren();
    }
 }

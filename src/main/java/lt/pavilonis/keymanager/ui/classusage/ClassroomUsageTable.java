@@ -1,26 +1,25 @@
 package lt.pavilonis.keymanager.ui.classusage;
 
-import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import lt.pavilonis.keymanager.MessageSourceAdapter;
+import lt.pavilonis.keymanager.Spring;
+import lt.pavilonis.keymanager.ui.AbstractTable;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 
-final class ClassroomUsageTable extends TableView<ScanLogBrief> {
+final class ClassroomUsageTable extends AbstractTable<ScanLogBrief> {
 
    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd  HH:mm");
-   private final ObservableList<ScanLogBrief> container = FXCollections.observableArrayList();
 
-   public ClassroomUsageTable(MessageSourceAdapter messages) {
-      this.setItems(container);
+   public ClassroomUsageTable() {
+      this.setItems(getContainer());
 
+      MessageSourceAdapter messages = Spring.CONTEXT.getBean(MessageSourceAdapter.class);
       var classroomNumber = new TableColumn<ScanLogBrief, String>(messages.get(this, ("classroomNumber")));
       classroomNumber.setMinWidth(150);
       classroomNumber.setMaxWidth(150);
@@ -59,17 +58,5 @@ final class ClassroomUsageTable extends TableView<ScanLogBrief> {
       setStyle("-fx-font-size:15; -fx-font-weight: 600; -fx-alignment: center");
       setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
       setFocusTraversable(false);
-   }
-
-   public void update(List<ScanLogBrief> logs) {
-      Platform.runLater(() -> {
-         container.clear();
-         container.addAll(logs);
-         sort();
-      });
-   }
-
-   public void clear() {
-      container.clear();
    }
 }

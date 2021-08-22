@@ -3,58 +3,52 @@ package lt.pavilonis.keymanager.ui.classusage;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.HBox;
-import lt.pavilonis.keymanager.MessageSourceAdapter;
+import lt.pavilonis.keymanager.ui.AbstractFilterPanel;
 
-final class ClassroomUsageFilterPanel extends HBox {
+import java.util.List;
 
-   private final TextField textField = new TextField();
-   private final Button searchButton;
+final class ClassroomUsageFilterPanel extends AbstractFilterPanel<ClassroomUsageFilter> {
 
-   ClassroomUsageFilterPanel(MessageSourceAdapter messages) {
+   private TextField textField;
 
-      this.searchButton = new Button(
-            messages.get(this, "filter"),
-            new ImageView(new Image("images/flat-find-16.png"))
-      );
-
-      textField.setPrefWidth(138);
-      getChildren().addAll(
-            new Label(messages.get(this, "text")),
-            textField,
-            searchButton
-      );
+   ClassroomUsageFilterPanel() {
       setAlignment(Pos.CENTER_LEFT);
       setSpacing(15);
    }
 
-   void reset() {
+   @Override
+   public List<Node> getPanelElements() {
+      textField = new TextField();
+      textField.setPrefWidth(138);
+      return List.of(new Label(messages.get("ClassroomUsageFilterPanel.text")), textField);
+   }
+
+   @Override
+   public void reset() {
       textField.clear();
    }
 
-   void addSearchListener(EventHandler<Event> handler) {
-      EventHandler<KeyEvent> eventHandler = (KeyEvent event) -> {
+   @Override
+   public void addSearchListener(EventHandler<Event> handler) {
+      super.addSearchListener(handler);
+      textField.setOnKeyReleased(event -> {
          if (event.getCode() == KeyCode.ENTER) {
             handler.handle(event);
          }
-      };
-
-      textField.setOnKeyReleased(eventHandler);
-      searchButton.setOnAction(handler::handle);
+      });
    }
 
-   ClassroomUsageFilter getFilter() {
+   @Override
+   public ClassroomUsageFilter getFilter() {
       return new ClassroomUsageFilter(textField.getText());
    }
 
-   void focus() {
+   @Override
+   public void focus() {
       textField.requestFocus();
    }
 }

@@ -1,68 +1,56 @@
 package lt.pavilonis.keymanager.ui.keylog;
 
+import javafx.application.Platform;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
 import lt.pavilonis.keymanager.MessageSourceAdapter;
-import lt.pavilonis.keymanager.NotificationDisplay;
 import lt.pavilonis.keymanager.Spring;
 import lt.pavilonis.keymanager.WebServiceClient;
+import lt.pavilonis.keymanager.ui.AbstractFilterPanel;
+import lt.pavilonis.keymanager.ui.AbstractTab;
+import lt.pavilonis.keymanager.ui.AbstractTable;
 import lt.pavilonis.keymanager.ui.Footer;
+import lt.pavilonis.keymanager.ui.NotificationDisplay;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class KeyLogTab extends Tab implements NotificationDisplay {
+public class KeyLogTab extends AbstractTab<Key, KeyLogFilter> {
 
    private static final Logger LOGGER = LoggerFactory.getLogger(KeyLogTab.class);
    private final WebServiceClient webServiceClient = Spring.CONTEXT.getBean(WebServiceClient.class);
    private final MessageSourceAdapter messages = Spring.CONTEXT.getBean(MessageSourceAdapter.class);
-   private final KeyLogTable keyLogTable;
 
-   public KeyLogTab(Footer footer) {
-      this.keyLogTable = new KeyLogTable(messages);
-
+   public KeyLogTab(NotificationDisplay notifications) {
+      super(notifications);
       setText(messages.get(this, "title"));
       setClosable(false);
-
-      var filterPanel = new KeyLogFilterPanel(messages);
-      filterPanel.addSearchListener(event -> updateTable(filterPanel.getFilter()));
-
-      BorderPane.setMargin(filterPanel, new Insets(0, 0, 15, 0));
-
-      setOnSelectionChanged(event -> {
-         //TODO move to abstract class?
-         if (isSelected()) {
-            filterPanel.reset();
-            updateTable(filterPanel.getFilter());
-            filterPanel.focus();
-         } else {
-            keyLogTable.clear();
-         }
-         var mainTabLayout = new BorderPane(keyLogTable, filterPanel, null, footer, null);
-         mainTabLayout.setPadding(new Insets(15, 15, 0, 15));
-         setContent(mainTabLayout);
-      });
    }
 
-   //TODO move to abstract class?
-   private void updateTable(KeyLogFilter filter) {
+   @Override
+   protected AbstractTable<Key> createTable() {
+      return new KeyLogTable();
+   }
+
+   @Override
+   protected AbstractFilterPanel<KeyLogFilter> createFilterPanel() {
+      var filterPanel = new KeyLogFilterPanel();
+      BorderPane.setMargin(filterPanel, new Insets(0, 0, 15, 0));
+      return filterPanel;
+   }
+
+   @Override
+   public void updateTable(KeyLogFilter filter) {
+      Platform.runLater(notifications::clear);
       webServiceClient.keyLog(
             filter,
             response -> {
                LOGGER.info("Loaded keyLog [entries={}]", response.length);
-               keyLogTable.update(List.of(response));
+               getTable().update(List.of(response));
             },
-            exception -> warn(messages.get(this, "canNotLoadKeys"), exception)
+            exception -> notifications.warn(messages.get(this, "canNotLoadKeys"), exception)
       );
-   }
-
-   @Override
-   public List<Node> getStackPaneChildren() {
-      StackPane stackPane = (StackPane) getTabPane().getParent();
-      return stackPane.getChildren();
    }
 }

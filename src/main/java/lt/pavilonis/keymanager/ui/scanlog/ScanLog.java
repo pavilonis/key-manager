@@ -9,9 +9,9 @@ import java.util.List;
 
 public class ScanLog {
 
-   public final LocalDateTime dateTime;
-   public final User user;
-   public final List<Key> keys;
+   private final LocalDateTime dateTime;
+   private final User user;
+   private final List<Key> keys;
 
    public ScanLog(@JsonProperty("dateTime") LocalDateTime dateTime,
                   @JsonProperty("user") User user,
@@ -20,5 +20,17 @@ public class ScanLog {
       this.dateTime = dateTime;
       this.user = user;
       this.keys = keys;
+   }
+
+   public LocalDateTime getDateTime() {
+      return dateTime;
+   }
+
+   public User getUser() {
+      return user;
+   }
+
+   public List<Key> getKeys() {
+      return keys;
    }
 }

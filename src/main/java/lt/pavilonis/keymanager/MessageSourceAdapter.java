@@ -15,4 +15,8 @@ public class MessageSourceAdapter {
    public String get(Object classObject, String propertyName) {
       return messageSource.getMessage(classObject.getClass().getSimpleName() + "." + propertyName, null, null);
    }
+
+   public String get(String propertyName) {
+      return messageSource.getMessage(propertyName, null, null);
+   }
 }

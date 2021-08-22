@@ -8,6 +8,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import lt.pavilonis.keymanager.ui.Footer;
+import lt.pavilonis.keymanager.ui.NotificationDisplay;
 import lt.pavilonis.keymanager.ui.classusage.ClassroomUsageTabPupils;
 import lt.pavilonis.keymanager.ui.classusage.ClassroomUsageTabTeachers;
 import lt.pavilonis.keymanager.ui.keyassignment.KeyAssignmentTab;
@@ -26,20 +27,22 @@ public final class JavaFxApp extends Application {
    @Override
    public void start(Stage stage) {
       try {
+         var stackPane = new StackPane();
+         var notifications = new NotificationDisplay(stackPane);
 
-         var footer = new Footer();
-         ScanLogTab scanLogTab = createScanLogTab(footer);
+         ScanLogTab scanLogTab = createScanLogTab(notifications);
          new SerialPortListener(Spring.getStringProperty("scanner.port.name"), scanLogTab);
 
          var tabPane = new TabPane(
                scanLogTab,
-               new KeyAssignmentTab(footer),
-               new KeyLogTab(footer),
-               new ClassroomUsageTabTeachers(footer),
-               new ClassroomUsageTabPupils(footer)
+               new KeyAssignmentTab(notifications),
+               new KeyLogTab(notifications),
+               new ClassroomUsageTabTeachers(notifications),
+               new ClassroomUsageTabPupils(notifications)
          );
 
-         stage.setScene(createScene(new StackPane(tabPane)));
+         stackPane.getChildren().add(tabPane);
+         stage.setScene(createScene(stackPane));
          stage.setMaximized(true);
          stage.setMinHeight(700);
          stage.setMinWidth(1020);
@@ -50,11 +53,11 @@ public final class JavaFxApp extends Application {
       }
    }
 
-   private ScanLogTab createScanLogTab(Footer footer) {
-      var scanLogKeyList = new ScanLogKeyList();
+   private ScanLogTab createScanLogTab(NotificationDisplay notifications) {
+      var scanLogKeyList = new ScanLogKeyList(notifications);
       var photoView = new PhotoView();
-      var scanLogList = new ScanLogList(scanLogKeyList, photoView);
-      return new ScanLogTab(scanLogKeyList, scanLogList, photoView, footer);
+      var scanLogList = new ScanLogList(scanLogKeyList, photoView, notifications);
+      return new ScanLogTab(scanLogKeyList, scanLogList, photoView, notifications);
    }
 
    private Scene createScene(StackPane rootPane) {

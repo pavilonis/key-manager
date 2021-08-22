@@ -1,74 +1,67 @@
 package lt.pavilonis.keymanager.ui.keyassignment;
 
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.HBox;
-import lt.pavilonis.keymanager.MessageSourceAdapter;
+import lt.pavilonis.keymanager.ui.AbstractFilterPanel;
 
-import java.util.function.Consumer;
+import java.util.List;
 import java.util.stream.Stream;
 
-final class KeyAssignmentFilterPanel extends HBox {
+final class KeyAssignmentFilterPanel extends AbstractFilterPanel<KeyAssignmentFilter> {
 
-   private final Consumer<KeyAssignmentFilter> filterConsumer;
-   private final TextField keyNumberField = new TextField();
-   private final TextField nameField = new TextField();
+   private TextField keyNumberField;
+   private TextField nameField;
 
-   KeyAssignmentFilterPanel(MessageSourceAdapter messages, Consumer<KeyAssignmentFilter> filterConsumer) {
-      this.filterConsumer = filterConsumer;
-      addKeyListeners();
-
-      getChildren().addAll(
-            new Label(messages.get(this, "keyNumber")), keyNumberField,
-            new Label(messages.get(this, "name")), nameField,
-            createSearchButton(messages)
-      );
+   KeyAssignmentFilterPanel() {
       setSpacing(15);
       setAlignment(Pos.CENTER_LEFT);
    }
 
-   private void addKeyListeners() {
-      EventHandler<KeyEvent> handler = event -> {
+   @Override
+   public void addSearchListener(EventHandler<Event> handler) {
+      super.addSearchListener(handler);
+      EventHandler<KeyEvent> keyPressHandler = event -> {
          if (event.getCode() == KeyCode.ENTER) {
-            action();
+            handler.handle(event);
          }
       };
 
       Stream.of(nameField, keyNumberField).forEach(field -> {
-         field.setOnKeyReleased(handler);
+         field.setOnKeyReleased(keyPressHandler);
          field.setPrefWidth(138);
       });
    }
 
-   private Button createSearchButton(MessageSourceAdapter messages) {
-      var searchButton = new Button(
-            messages.get(this, "filter"),
-            new ImageView(new Image("images/flat-find-16.png"))
+   @Override
+   public List<Node> getPanelElements() {
+      keyNumberField = new TextField();
+      nameField = new TextField();
+      return List.of(
+            new Label(messages.get(this, "keyNumber")),
+            keyNumberField,
+            new Label(messages.get(this, "name")),
+            nameField
       );
-      searchButton.setOnAction(event -> action());
-      return searchButton;
    }
 
-   KeyAssignmentFilter getFilter() {
+   @Override
+   public KeyAssignmentFilter getFilter() {
       return new KeyAssignmentFilter(keyNumberField.getText(), nameField.getText());
    }
 
-   void reset() {
+   @Override
+   public void reset() {
       keyNumberField.clear();
       nameField.clear();
    }
 
-   void action() {
-      filterConsumer.accept(getFilter());
-   }
-
+   @Override
    public void focus() {
       keyNumberField.requestFocus();
    }

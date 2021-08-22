@@ -47,8 +47,8 @@ public class WebServiceClient {
    private final RestTemplate restTemplate;
 
    public WebServiceClient(@Value("${api.uri.base}") String baseUri,
-                           @Value("api.auth.username") String username,
-                           @Value("api.auth.password") String password,
+                           @Value("${api.auth.username}") String username,
+                           @Value("${api.auth.password}") String password,
                            @Value("${scanner.id}") String scannerId) {
 
       Assert.hasText(baseUri, "Not expecting empty base URI");
@@ -61,7 +61,6 @@ public class WebServiceClient {
 
    public void writeScanLog(String cardCode, Consumer<ScanLog> consumer, Consumer<Exception> exceptionConsumer) {
       URI uri = uri(SEGMENT_SCANLOG, scannerId, cardCode);
-      LOGGER.info("Sending scanLog POST request [scannerId={}, cardCode={}]", scannerId, cardCode);
       request(uri, HttpMethod.POST, ScanLog.class, consumer, exceptionConsumer);
    }
 
@@ -139,13 +138,13 @@ public class WebServiceClient {
                            Consumer<T> consumer, Consumer<Exception> exceptionConsumer) {
       runInBackground(() -> {
          try {
-            LOGGER.info("Making request [uri={}]", uri);
+            LOGGER.info("Making request [method={}, uri={}]", requestMethod, uri);
             ResponseEntity<T> response = restTemplate.exchange(uri, requestMethod, null, responseType);
-            if (response.getStatusCode().is2xxSuccessful()) {
-               Platform.runLater(() -> consumer.accept(response.getBody()));
+            if (!response.getStatusCode().is2xxSuccessful()) {
+               throw new HttpStatusCodeException(response.getStatusCode()) {
+               };
             }
-            throw new HttpStatusCodeException(response.getStatusCode()) {
-            };
+            Platform.runLater(() -> consumer.accept(response.getBody()));
          } catch (Exception e) {
             LOGGER.error("Failed to get REST service response", e);
             Platform.runLater(() -> exceptionConsumer.accept(e));

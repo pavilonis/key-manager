@@ -14,9 +14,7 @@ public class Footer extends HBox {
 
    public Footer() {
       getChildren().addAll(createVersionLabel());
-
       setAlignment(Pos.CENTER_LEFT);
-//      setStyle("-fx-border-color: black");
    }
 
    private Label createVersionLabel() {
