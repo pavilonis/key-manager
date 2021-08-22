@@ -1,10 +1,8 @@
 .idea
 *.iml
-target
+target/
+logs/
 out
 
-pom.xml.releaseBackup
 release.properties
 app.properties
-app.log
-applog.log
