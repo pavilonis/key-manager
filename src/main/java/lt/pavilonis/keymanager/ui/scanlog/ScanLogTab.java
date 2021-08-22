@@ -6,10 +6,10 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import lt.pavilonis.keymanager.MessageSourceAdapter;
-import lt.pavilonis.keymanager.ui.NotificationDisplay;
 import lt.pavilonis.keymanager.Spring;
 import lt.pavilonis.keymanager.WebServiceClient;
 import lt.pavilonis.keymanager.ui.Footer;
+import lt.pavilonis.keymanager.ui.NotificationDisplay;
 
 import java.util.function.Consumer;
 
@@ -56,7 +56,7 @@ public class ScanLogTab extends Tab implements Consumer<String> {
       webServiceClient.writeScanLog(
             cardCode,
             scanLogList::addElement,
-            exception -> notifications.warn(messages.get(this, "canNotWriteScanLog"), exception)
+            exception -> notifications.warn(messages.get("ScanLogTab.canNotWriteScanLog"), exception)
       );
    }
 }

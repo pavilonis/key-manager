@@ -12,23 +12,44 @@ import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 
+import static java.util.Comparator.naturalOrder;
+
 final class ClassroomUsageTable extends AbstractTable<ScanLogBrief> {
 
    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd  HH:mm");
+   private final MessageSourceAdapter messages = Spring.CONTEXT.getBean(MessageSourceAdapter.class);
 
    public ClassroomUsageTable() {
       this.setItems(getContainer());
 
-      MessageSourceAdapter messages = Spring.CONTEXT.getBean(MessageSourceAdapter.class);
-      var classroomNumber = new TableColumn<ScanLogBrief, String>(messages.get(this, ("classroomNumber")));
-      classroomNumber.setMinWidth(150);
-      classroomNumber.setMaxWidth(150);
-      classroomNumber.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getLocation()));
-      classroomNumber.setComparator(Comparator.naturalOrder());
+      TableColumn<ScanLogBrief, ScanLogBrief> dateTimeColumn = createDateTimeColumn();
 
-      var dateTimeColumn = new TableColumn<ScanLogBrief, ScanLogBrief>(messages.get(this, ("dateTime")));
+      getColumns().addAll(List.of(
+            createScannerColumn(), createRoomNumberColumn(), dateTimeColumn, createUserColumn(), createGroupColumn()));
+
+      getSortOrder().add(dateTimeColumn);
+      setStyle("-fx-font-size:15; -fx-font-weight: 600; -fx-alignment: center");
+      setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+      setFocusTraversable(false);
+   }
+
+   private TableColumn<ScanLogBrief, String> createUserColumn() {
+      var userColumn = new TableColumn<ScanLogBrief, String>(messages.get("ClassroomUsageTable.user"));
+      userColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getName()));
+      return userColumn;
+   }
+
+   private TableColumn<ScanLogBrief, String> createGroupColumn() {
+      var groupColumn = new TableColumn<ScanLogBrief, String>(messages.get("ClassroomUsageTable.group"));
+      groupColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getGroup()));
+      groupColumn.setComparator(naturalOrder());
+      return groupColumn;
+   }
+
+   private TableColumn<ScanLogBrief, ScanLogBrief> createDateTimeColumn() {
+      var dateTimeColumn = new TableColumn<ScanLogBrief, ScanLogBrief>(messages.get("ClassroomUsageTable.dateTime"));
       dateTimeColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
-      dateTimeColumn.setCellFactory(column -> new TableCell<ScanLogBrief, ScanLogBrief>() {
+      dateTimeColumn.setCellFactory(column -> new TableCell<>() {
          @Override
          protected void updateItem(ScanLogBrief item, boolean empty) {
             super.updateItem(item, empty);
@@ -45,18 +66,24 @@ final class ClassroomUsageTable extends AbstractTable<ScanLogBrief> {
       dateTimeColumn.setSortType(TableColumn.SortType.DESCENDING);
       dateTimeColumn.setMinWidth(190);
       dateTimeColumn.setMaxWidth(190);
+      return dateTimeColumn;
+   }
 
-      var userColumn = new TableColumn<ScanLogBrief, String>(messages.get(this, "user"));
-      userColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getName()));
+   private TableColumn<ScanLogBrief, String> createRoomNumberColumn() {
+      var classroomNumber = new TableColumn<ScanLogBrief, String>(messages.get("ClassroomUsageTable.classroomNumber"));
+      classroomNumber.setMinWidth(150);
+      classroomNumber.setMaxWidth(150);
+      classroomNumber.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getLocation()));
+      classroomNumber.setComparator(naturalOrder());
+      return classroomNumber;
+   }
 
-      var groupColumn = new TableColumn<ScanLogBrief, String>(messages.get(this, "group"));
-      groupColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getGroup()));
-      groupColumn.setComparator(Comparator.naturalOrder());
-
-      getColumns().addAll(List.of(classroomNumber, dateTimeColumn, userColumn, groupColumn));
-      getSortOrder().add(dateTimeColumn);
-      setStyle("-fx-font-size:15; -fx-font-weight: 600; -fx-alignment: center");
-      setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-      setFocusTraversable(false);
+   private TableColumn<ScanLogBrief, String> createScannerColumn() {
+      var scanner = new TableColumn<ScanLogBrief, String>(messages.get("ClassroomUsageTable.scanner"));
+      scanner.setMinWidth(160);
+      scanner.setMaxWidth(160);
+      scanner.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getScanner()));
+      scanner.setComparator(naturalOrder());
+      return scanner;
    }
 }
