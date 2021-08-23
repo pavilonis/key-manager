@@ -23,8 +23,8 @@ public class ScanLogKeyList extends ListView<ScanLogKeyListElement> {
 
    private static final Logger LOGGER = LoggerFactory.getLogger(ScanLogKeyList.class);
    private final ObservableList<ScanLogKeyListElement> container = synchronizedObservableList(observableArrayList());
-   private final WebServiceClient webServiceClient = Spring.CONTEXT.getBean(WebServiceClient.class);
-   private final MessageSourceAdapter messages = Spring.CONTEXT.getBean(MessageSourceAdapter.class);
+   private final WebServiceClient webServiceClient = Spring.getBean(WebServiceClient.class);
+   private final MessageSourceAdapter messages = Spring.getBean(MessageSourceAdapter.class);
    private final NotificationDisplay notifications;
 
    public ScanLogKeyList(NotificationDisplay notifications) {

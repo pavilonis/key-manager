@@ -57,7 +57,7 @@ final class KeyLogFilterPanel extends AbstractFilterPanel<KeyLogFilter> {
 
    @Override
    public List<Node> getPanelElements() {
-      MessageSourceAdapter messages = Spring.CONTEXT.getBean(MessageSourceAdapter.class);
+      MessageSourceAdapter messages = Spring.getBean(MessageSourceAdapter.class);
       actionComboBox = createActionCombo(messages);
 
       periodStart = new DatePicker();

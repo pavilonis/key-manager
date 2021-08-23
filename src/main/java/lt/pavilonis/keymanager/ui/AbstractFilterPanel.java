@@ -14,7 +14,7 @@ import java.util.List;
 
 public abstract class AbstractFilterPanel<T> extends HBox {
 
-   protected final MessageSourceAdapter messages = Spring.CONTEXT.getBean(MessageSourceAdapter.class);
+   protected final MessageSourceAdapter messages = Spring.getBean(MessageSourceAdapter.class);
    protected final Button searchButton;
 
    public AbstractFilterPanel() {

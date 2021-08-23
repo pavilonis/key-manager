@@ -15,8 +15,8 @@ import java.util.function.Consumer;
 
 public class ScanLogTab extends Tab implements Consumer<String> {
 
-   private final WebServiceClient webServiceClient = Spring.CONTEXT.getBean(WebServiceClient.class);
-   private final MessageSourceAdapter messages = Spring.CONTEXT.getBean(MessageSourceAdapter.class);
+   private final WebServiceClient webServiceClient = Spring.getBean(WebServiceClient.class);
+   private final MessageSourceAdapter messages = Spring.getBean(MessageSourceAdapter.class);
    private final ScanLogList scanLogList;
    private final NotificationDisplay notifications;
 

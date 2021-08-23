@@ -20,8 +20,8 @@ import java.util.List;
 public class KeyLogTab extends AbstractTab<Key, KeyLogFilter> {
 
    private static final Logger LOGGER = LoggerFactory.getLogger(KeyLogTab.class);
-   private final WebServiceClient webServiceClient = Spring.CONTEXT.getBean(WebServiceClient.class);
-   private final MessageSourceAdapter messages = Spring.CONTEXT.getBean(MessageSourceAdapter.class);
+   private final WebServiceClient webServiceClient = Spring.getBean(WebServiceClient.class);
+   private final MessageSourceAdapter messages = Spring.getBean(MessageSourceAdapter.class);
 
    public KeyLogTab(NotificationDisplay notifications) {
       super(notifications);

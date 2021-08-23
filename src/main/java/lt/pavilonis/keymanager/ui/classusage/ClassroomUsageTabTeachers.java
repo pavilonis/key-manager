@@ -24,8 +24,8 @@ import static java.util.stream.Collectors.toList;
 public class ClassroomUsageTabTeachers extends AbstractTab<ScanLogBrief, ClassroomUsageFilter> {
 
    private static final Logger LOGGER = LoggerFactory.getLogger(ClassroomUsageTabTeachers.class);
-   private final WebServiceClient webServiceClient = Spring.CONTEXT.getBean(WebServiceClient.class);
-   private final MessageSourceAdapter messages = Spring.CONTEXT.getBean(MessageSourceAdapter.class);
+   private final WebServiceClient webServiceClient = Spring.getBean(WebServiceClient.class);
+   private final MessageSourceAdapter messages = Spring.getBean(MessageSourceAdapter.class);
    private final Set<String> teacherGroupInclusions =
          Set.of(Spring.getStringProperty("classroomUsage.teachers.groupInclusionList", String[].class));
 

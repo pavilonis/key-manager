@@ -19,8 +19,8 @@ public class ScanLogList extends ListView<ScanLogListElement> {
    private static final Logger LOGGER = LoggerFactory.getLogger(ScanLogList.class);
    private static final int POSITION_FIRST = 0;
    private static final int QUEUE_LENGTH = 99;
-   private final WebServiceClient webServiceClient = Spring.CONTEXT.getBean(WebServiceClient.class);
-   private final MessageSourceAdapter messages = Spring.CONTEXT.getBean(MessageSourceAdapter.class);
+   private final WebServiceClient webServiceClient = Spring.getBean(WebServiceClient.class);
+   private final MessageSourceAdapter messages = Spring.getBean(MessageSourceAdapter.class);
    private final ObservableList<ScanLogListElement> container = FXCollections.observableArrayList();
    private final ScanLogKeyList scanLogKeyList;
    private final PhotoView photoView;

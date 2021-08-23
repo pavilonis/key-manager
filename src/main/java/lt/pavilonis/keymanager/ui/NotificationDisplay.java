@@ -8,11 +8,17 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import lt.pavilonis.keymanager.MessageSourceAdapter;
+import lt.pavilonis.keymanager.Spring;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
 public class NotificationDisplay {
 
+   // This constant should match same constant on server side
+   private static final String UNKNOWN_USER = "Unknown user";
+   private final MessageSourceAdapter messages = Spring.getBean(MessageSourceAdapter.class);
    private final StackPane rootStackPane;
 
    public NotificationDisplay(StackPane rootStackPane) {
@@ -29,7 +35,12 @@ public class NotificationDisplay {
 
    private String extractMessage(Exception e) {
       if (e instanceof HttpClientErrorException) {
-         return "Unexpected HTTP response code: " + ((HttpClientErrorException) e).getStatusCode();
+         var httpException = (HttpClientErrorException) e;
+         String body = httpException.getResponseBodyAsString();
+
+         return StringUtils.hasText(body) && body.contains(UNKNOWN_USER)
+               ? body.replace(UNKNOWN_USER, messages.get("NotificationDisplay.unknownUser"))
+               : "Unexpected HTTP response code: " + httpException.getStatusCode();
 
       } else if (e instanceof ResourceAccessException) {
          return "Could not access resource: " + (e.getCause() == null ? e.getMessage() : e.getCause().getMessage());

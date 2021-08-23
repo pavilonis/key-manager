@@ -26,8 +26,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class KeyAssignmentTab extends AbstractTab<Key, KeyAssignmentFilter> {
 
    private static final Logger LOGGER = getLogger(KeyAssignmentTab.class.getSimpleName());
-   private final WebServiceClient webServiceClient = Spring.CONTEXT.getBean(WebServiceClient.class);
-   private final MessageSourceAdapter messages = Spring.CONTEXT.getBean(MessageSourceAdapter.class);
+   private final WebServiceClient webServiceClient = Spring.getBean(WebServiceClient.class);
+   private final MessageSourceAdapter messages = Spring.getBean(MessageSourceAdapter.class);
 
    public KeyAssignmentTab(NotificationDisplay notifications) {
       super(notifications);

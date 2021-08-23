@@ -28,7 +28,7 @@ public final class KeyLogTable extends AbstractTable<Key> {
    public KeyLogTable() {
       setItems(getContainer());
 
-      MessageSourceAdapter messages = Spring.CONTEXT.getBean(MessageSourceAdapter.class);
+      MessageSourceAdapter messages = Spring.getBean(MessageSourceAdapter.class);
       var keyNumberColumn = new TableColumn<Key, Integer>(messages.get(this, ("keyNumber")));
       keyNumberColumn.setMinWidth(120);
       keyNumberColumn.setMaxWidth(120);

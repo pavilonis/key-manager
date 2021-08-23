@@ -17,7 +17,7 @@ import static java.util.Comparator.naturalOrder;
 final class ClassroomUsageTable extends AbstractTable<ScanLogBrief> {
 
    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd  HH:mm");
-   private final MessageSourceAdapter messages = Spring.CONTEXT.getBean(MessageSourceAdapter.class);
+   private final MessageSourceAdapter messages = Spring.getBean(MessageSourceAdapter.class);
 
    public ClassroomUsageTable() {
       this.setItems(getContainer());

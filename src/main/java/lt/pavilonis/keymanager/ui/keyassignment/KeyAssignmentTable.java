@@ -29,12 +29,12 @@ public class KeyAssignmentTable extends AbstractTable<Key> {
 
    private static final Logger LOGGER = LoggerFactory.getLogger(KeyAssignmentTable.class);
    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd  HH:mm");
-   private final WebServiceClient webServiceClient = Spring.CONTEXT.getBean(WebServiceClient.class);
+   private final WebServiceClient webServiceClient = Spring.getBean(WebServiceClient.class);
 
    public KeyAssignmentTable() {
       this.setItems(getContainer());
 
-      MessageSourceAdapter messages = Spring.CONTEXT.getBean(MessageSourceAdapter.class);
+      MessageSourceAdapter messages = Spring.getBean(MessageSourceAdapter.class);
       var keyNumberColumn = new TableColumn<Key, Integer>(messages.get(this, "keyNumber"));
       keyNumberColumn.setMinWidth(120);
       keyNumberColumn.setMaxWidth(120);
