@@ -3,6 +3,8 @@ package lt.pavilonis.keymanager.ui;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
@@ -39,7 +41,7 @@ public class NotificationDisplay {
          String body = httpException.getResponseBodyAsString();
 
          return StringUtils.hasText(body) && body.contains(UNKNOWN_USER)
-               ? body.replace(UNKNOWN_USER, messages.get("NotificationDisplay.unknownUser"))
+               ? handleUnknownUserResponse(body)
                : "Unexpected HTTP response code: " + httpException.getStatusCode();
 
       } else if (e instanceof ResourceAccessException) {
@@ -48,6 +50,19 @@ public class NotificationDisplay {
       } else {
          return "Unknown error: " + (e == null ? "" : e.getMessage());
       }
+   }
+
+   private String handleUnknownUserResponse(String body) {
+      putCardCodeToClipboard(body);
+      return body.replace(UNKNOWN_USER, messages.get("NotificationDisplay.unknownUser"));
+   }
+
+   private void putCardCodeToClipboard(String body) {
+      String unknownCardCode = body.replace(UNKNOWN_USER, "").strip();
+      var content = new ClipboardContent();
+      content.putString(unknownCardCode);
+      Clipboard.getSystemClipboard()
+            .setContent(content);
    }
 
    public void clear() {

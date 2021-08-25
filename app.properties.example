@@ -1,5 +1,7 @@
 api.auth.username=admin
 api.auth.password=admin
-api.uri.base=http://localhost:8080
+api.uri.base=http://localhost:8080/rest/
 scanner.id=1
 scanner.port.name=COM5
+classroomUsage.teachers.groupInclusionList=moky,darb
+classroomUsage.pupils.groupExclusionList=moky,darb
