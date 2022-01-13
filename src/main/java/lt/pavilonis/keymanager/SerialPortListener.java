@@ -5,16 +5,15 @@ import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+@Slf4j
 public class SerialPortListener implements SerialPortEventListener {
 
-   private static final Logger LOGGER = LoggerFactory.getLogger(SerialPortListener.class);
    private final SerialPort serialPort;
    private final Consumer<String> inputConsumer;
 
@@ -35,15 +34,15 @@ public class SerialPortListener implements SerialPortEventListener {
 
       if (event.isCTS()) {//If CTS line has changed state
          if (event.getEventValue() == 1) {//If line is ON
-            LOGGER.warn("CTS - ON");
+            log.warn("CTS - ON");
          } else {
-            LOGGER.warn("CTS - OFF");
+            log.warn("CTS - OFF");
          }
       } else if (event.isDSR()) {///If DSR line has changed state
          if (event.getEventValue() == 1) {//If line is ON
-            LOGGER.warn("DSR - ON");
+            log.warn("DSR - ON");
          } else {
-            LOGGER.warn("DSR - OFF");
+            log.warn("DSR - OFF");
          }
       }
       return Optional.empty();
@@ -55,10 +54,10 @@ public class SerialPortListener implements SerialPortEventListener {
                .replace("\r", "")
                .replace("\n", "");
 
-         LOGGER.info("Read result: {}", result);
+         log.info("Read result: {}", result);
          return Optional.of(result);
       } else {
-         LOGGER.debug("Empty read result");
+         log.debug("Empty read result");
          return Optional.empty();
       }
    }
@@ -68,7 +67,7 @@ public class SerialPortListener implements SerialPortEventListener {
          Thread.sleep(50);
          return serialPort.readString();
       } catch (InterruptedException | SerialPortException e) {
-         LOGGER.error("Failed to read data from serial port", e);
+         log.error("Failed to read data from serial port", e);
       }
       return "error";
    }
@@ -76,11 +75,11 @@ public class SerialPortListener implements SerialPortEventListener {
    private SerialPort createSerialPort(String portName) {
 
       List<String> availablePorts = List.of(SerialPortList.getPortNames());
-      LOGGER.info("Ports found: {}", availablePorts);
+      log.info("Ports found: {}", availablePorts);
       if (!availablePorts.contains(portName)) {
-         LOGGER.warn("Port {} not found in list of available ports - should not work", portName);
+         log.warn("Port {} not found in list of available ports - should not work", portName);
       }
-      LOGGER.info("Trying to use port: {}", portName);
+      log.info("Trying to use port: {}", portName);
 
       var port = new SerialPort(portName);
       try {
@@ -96,10 +95,10 @@ public class SerialPortListener implements SerialPortEventListener {
          );
 
          port.addEventListener(this);
-         LOGGER.info("Listener added");
+         log.info("Listener added");
 
       } catch (SerialPortException e) {
-         LOGGER.error("Failed to configure serial port", e);
+         log.error("Failed to configure serial port", e);
       }
       return port;
    }

@@ -4,19 +4,19 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListView;
+import lombok.extern.slf4j.Slf4j;
 import lt.pavilonis.keymanager.MessageSourceAdapter;
 import lt.pavilonis.keymanager.Spring;
 import lt.pavilonis.keymanager.User;
 import lt.pavilonis.keymanager.WebServiceClient;
 import lt.pavilonis.keymanager.ui.NotificationDisplay;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
+@Slf4j
 public class ScanLogList extends ListView<ScanLogListElement> {
 
-   private static final Logger LOGGER = LoggerFactory.getLogger(ScanLogList.class);
    private static final int POSITION_FIRST = 0;
    private static final int QUEUE_LENGTH = 99;
    private final WebServiceClient webServiceClient = Spring.getBean(WebServiceClient.class);
@@ -35,6 +35,7 @@ public class ScanLogList extends ListView<ScanLogListElement> {
       setItems(container);
       setFocusTraversable(false);
       setOnMouseClicked(click -> Platform.runLater(this::processClick));
+      loadInitialElements();
    }
 
    private void processClick() {
@@ -63,7 +64,7 @@ public class ScanLogList extends ListView<ScanLogListElement> {
    }
 
    public void addElement(ScanLog scan) {
-      LOGGER.info("Adding scanLog [user={}]", scan.getUser().getName());
+      log.info("Adding scanLog element [user={}]", scan.getUser().getName());
       Platform.runLater(() -> {
          if (container.size() > QUEUE_LENGTH) {
             container.remove(container.size() - 1);
@@ -88,10 +89,21 @@ public class ScanLogList extends ListView<ScanLogListElement> {
                keyNumber,
                key -> {
                   scanLogKeyList.append(key);
-                  LOGGER.info("Key {} assigned to cardCode {}", key.getKeyNumber(), key.getUser().getCardCode());
+                  log.info("Key {} assigned to cardCode {}", key.getKeyNumber(), key.getUser().getCardCode());
                },
-               exception -> notifications.warn(messages.get(this, "canNotAssignKey"), exception)
+               exception -> showNotification("canNotAssignKey", exception)
          );
       };
+   }
+
+   private void showNotification(String messageCode, Exception exception) {
+      notifications.warn(messages.get(this, messageCode), exception);
+   }
+
+   private void loadInitialElements() {
+      webServiceClient.readScanLog(
+            scanLogs -> Stream.of(scanLogs).forEach(this::addElement),
+            exception -> showNotification("canNotFetchLastScanLogs", exception)
+      );
    }
 }

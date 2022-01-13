@@ -59,6 +59,11 @@ public class WebServiceClient {
       this.restTemplate = createRestTemplate(username, password);
    }
 
+   public void readScanLog(Consumer<ScanLog[]> consumer, Consumer<Exception> exceptionConsumer) {
+      URI uri = uri(SEGMENT_SCANLOG, scannerId);
+      request(uri, HttpMethod.GET, ScanLog[].class, consumer, exceptionConsumer);
+   }
+
    public void writeScanLog(String cardCode, Consumer<ScanLog> consumer, Consumer<Exception> exceptionConsumer) {
       URI uri = uri(SEGMENT_SCANLOG, scannerId, cardCode);
       request(uri, HttpMethod.POST, ScanLog.class, consumer, exceptionConsumer);

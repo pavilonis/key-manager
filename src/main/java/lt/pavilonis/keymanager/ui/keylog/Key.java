@@ -1,41 +1,21 @@
 package lt.pavilonis.keymanager.ui.keylog;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Value;
 import lt.pavilonis.keymanager.User;
 
 import java.time.LocalDateTime;
 
+@Value
+@NoArgsConstructor(force = true, access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class Key {
 
-   private final int keyNumber;
-   private final LocalDateTime dateTime;
-   private final User user;
-   private final KeyAction keyAction;
+   int keyNumber;
+   LocalDateTime dateTime;
+   User user;
+   KeyAction keyAction;
 
-   public Key(@JsonProperty("keyNumber") int keyNumber,
-              @JsonProperty("dateTime") LocalDateTime dateTime,
-              @JsonProperty("user") User user,
-              @JsonProperty("keyAction") KeyAction keyAction) {
-
-      this.keyNumber = keyNumber;
-      this.dateTime = dateTime;
-      this.user = user;
-      this.keyAction = keyAction;
-   }
-
-   public int getKeyNumber() {
-      return keyNumber;
-   }
-
-   public LocalDateTime getDateTime() {
-      return dateTime;
-   }
-
-   public User getUser() {
-      return user;
-   }
-
-   public KeyAction getKeyAction() {
-      return keyAction;
-   }
 }
