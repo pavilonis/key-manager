@@ -3,6 +3,7 @@ package lt.pavilonis.keymanager.ui.keyassignment;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.layout.BorderPane;
+import lombok.extern.slf4j.Slf4j;
 import lt.pavilonis.keymanager.MessageSourceAdapter;
 import lt.pavilonis.keymanager.Spring;
 import lt.pavilonis.keymanager.WebServiceClient;
@@ -11,7 +12,6 @@ import lt.pavilonis.keymanager.ui.AbstractTab;
 import lt.pavilonis.keymanager.ui.AbstractTable;
 import lt.pavilonis.keymanager.ui.NotificationDisplay;
 import lt.pavilonis.keymanager.ui.keylog.Key;
-import org.slf4j.Logger;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -20,12 +20,11 @@ import java.util.stream.Stream;
 
 import static java.time.LocalDateTime.now;
 import static java.util.stream.Collectors.toList;
-import static lt.pavilonis.keymanager.TimeUtils.duration;
-import static org.slf4j.LoggerFactory.getLogger;
+import static lt.pavilonis.keymanager.util.TimeUtils.duration;
 
+@Slf4j
 public class KeyAssignmentTab extends AbstractTab<Key, KeyAssignmentFilter> {
 
-   private static final Logger LOGGER = getLogger(KeyAssignmentTab.class.getSimpleName());
    private final WebServiceClient webServiceClient = Spring.getBean(WebServiceClient.class);
    private final MessageSourceAdapter messages = Spring.getBean(MessageSourceAdapter.class);
 
@@ -52,7 +51,7 @@ public class KeyAssignmentTab extends AbstractTab<Key, KeyAssignmentFilter> {
       var start = now();
       Consumer<Key[]> consumer = response -> {
          List<Key> keys = filter(filter, response);
-         LOGGER.info("Loaded active keys [number={}/{}, duration={}]", keys.size(), response.length, duration(start));
+         log.info("Loaded active keys [number={}/{}, duration={}]", keys.size(), response.length, duration(start));
          getTable().update(keys);
       };
 

@@ -7,11 +7,13 @@ import lt.pavilonis.keymanager.ui.keylog.Key;
 import lt.pavilonis.keymanager.ui.keylog.KeyAction;
 import lt.pavilonis.keymanager.ui.keylog.KeyLogFilter;
 import lt.pavilonis.keymanager.ui.scanlog.ScanLog;
+import lt.pavilonis.keymanager.ui.scanlog.UserRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
@@ -94,6 +96,11 @@ public class WebServiceClient {
       request(uri, HttpMethod.DELETE, Key.class, consumer, exceptionConsumer);
    }
 
+   public void createUser(UserRepresentation user, Runnable runnable, Consumer<Exception> exceptionConsumer) {
+      RequestEntity<UserRepresentation> requestEntity = new RequestEntity<>(user, HttpMethod.POST, uri("users"));
+      request(requestEntity, Object.class, input -> runnable.run(), exceptionConsumer);
+   }
+
    public void keyLog(KeyLogFilter filter, Consumer<Key[]> consumer, Consumer<Exception> exceptionConsumer) {
 
       var params = new HashMap<String, String>();
@@ -139,12 +146,18 @@ public class WebServiceClient {
             .toUri();
    }
 
-   public <T> void request(URI uri, HttpMethod requestMethod, Class<T> responseType,
-                           Consumer<T> consumer, Consumer<Exception> exceptionConsumer) {
+   private <T> void request(URI uri, HttpMethod requestMethod, Class<T> responseType,
+                            Consumer<T> consumer, Consumer<Exception> exceptionConsumer) {
+      RequestEntity<T> request = new RequestEntity<>(null, requestMethod, uri);
+      request(request, responseType, consumer, exceptionConsumer);
+   }
+
+   private <T, R> void request(RequestEntity<T> requestEntity, Class<R> responseType,
+                               Consumer<R> consumer, Consumer<Exception> exceptionConsumer) {
       runInBackground(() -> {
          try {
-            LOGGER.info("Making request [method={}, uri={}]", requestMethod, uri);
-            ResponseEntity<T> response = restTemplate.exchange(uri, requestMethod, null, responseType);
+            LOGGER.info("Making request [method={}, uri={}]", requestEntity.getMethod(), requestEntity.getUrl());
+            ResponseEntity<R> response = restTemplate.exchange(requestEntity, responseType);
             if (!response.getStatusCode().is2xxSuccessful()) {
                throw new HttpStatusCodeException(response.getStatusCode()) {
                };
@@ -157,7 +170,7 @@ public class WebServiceClient {
       });
    }
 
-   public RestTemplate createRestTemplate(String username, String password) {
+   private RestTemplate createRestTemplate(String username, String password) {
       var rest = new RestTemplate();
       rest.setInterceptors(List.of((request, body, execution) -> {
          HttpHeaders headers = request.getHeaders();

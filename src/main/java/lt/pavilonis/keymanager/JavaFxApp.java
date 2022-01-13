@@ -3,7 +3,6 @@ package lt.pavilonis.keymanager;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.TabPane;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -39,7 +38,7 @@ public final class JavaFxApp extends Application {
          );
 
          stackPane.getChildren().add(tabPane);
-         stage.setScene(createScene(stackPane));
+         stage.setScene(new Scene(stackPane, Color.WHITE));
          stage.setMaximized(true);
          stage.setMinHeight(700);
          stage.setMinWidth(1020);
@@ -55,16 +54,6 @@ public final class JavaFxApp extends Application {
       var photoView = new PhotoView();
       var scanLogList = new ScanLogList(scanLogKeyList, photoView, notifications);
       return new ScanLogTab(scanLogKeyList, scanLogList, photoView, notifications);
-   }
-
-   private Scene createScene(StackPane rootPane) {
-      var scene = new Scene(rootPane, Color.WHITE);
-      scene.setOnKeyPressed(event -> {
-         if (event.getCode() == KeyCode.ESCAPE) {
-            stop();
-         }
-      });
-      return scene;
    }
 
    @Override

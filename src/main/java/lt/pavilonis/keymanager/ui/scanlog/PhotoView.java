@@ -3,8 +3,7 @@ package lt.pavilonis.keymanager.ui.scanlog;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
 import javax.imageio.ImageIO;
@@ -13,9 +12,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Base64;
 
+@Slf4j
 public class PhotoView extends ImageView {
-
-   private static final Logger LOGGER = LoggerFactory.getLogger(PhotoView.class);
 
    public PhotoView() {
       setFitWidth(200);
@@ -42,7 +40,7 @@ public class PhotoView extends ImageView {
          return SwingFXUtils.toFXImage(image, null);
 
       } catch (IOException e) {
-         LOGGER.error("Failed to read image from string", e);
+         log.error("Failed to read image from string", e);
          return null;
       }
    }

@@ -3,8 +3,6 @@ package lt.pavilonis.keymanager.ui;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
@@ -12,6 +10,8 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import lt.pavilonis.keymanager.MessageSourceAdapter;
 import lt.pavilonis.keymanager.Spring;
+import lt.pavilonis.keymanager.ui.scanlog.UserCreationForm;
+import lt.pavilonis.keymanager.util.ClipboardUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
@@ -19,7 +19,7 @@ import org.springframework.web.client.ResourceAccessException;
 public class NotificationDisplay {
 
    // This constant should match same constant on server side
-   private static final String UNKNOWN_USER = "Unknown user";
+   public static final String UNKNOWN_USER = "Unknown user";
    private final MessageSourceAdapter messages = Spring.getBean(MessageSourceAdapter.class);
    private final StackPane rootStackPane;
 
@@ -29,10 +29,25 @@ public class NotificationDisplay {
 
    public void warn(String mainMessage, Exception exception) {
       String exceptionMessage = extractMessage(exception);
-      var warningBox = new WarningBox(mainMessage == null ? exceptionMessage : mainMessage + "\n" + exceptionMessage);
+      String notificationMessage = mainMessage == null ? exceptionMessage : mainMessage + "\n" + exceptionMessage;
+      var warningBox = new NotificationBox(notificationMessage)
+                  .yellow();
 
       warningBox.setOnMouseClicked(click -> rootStackPane.getChildren().remove(warningBox));
       rootStackPane.getChildren().add(warningBox);
+   }
+
+   public void notify(String mainMessage) {
+      var infoBox = new NotificationBox(mainMessage)
+            .green();
+
+      infoBox.setOnMouseClicked(click -> rootStackPane.getChildren().remove(infoBox));
+      rootStackPane.getChildren().add(infoBox);
+   }
+
+   public void show(UserCreationForm form) {
+      form.setCloseAction(() -> rootStackPane.getChildren().remove(form));
+      rootStackPane.getChildren().add(form);
    }
 
    private String extractMessage(Exception e) {
@@ -53,25 +68,18 @@ public class NotificationDisplay {
    }
 
    private String handleUnknownUserResponse(String body) {
-      putCardCodeToClipboard(body);
+      String unknownCardCode = body.replace(UNKNOWN_USER, "").strip();
+      ClipboardUtils.addToClipboard(unknownCardCode);
       return body.replace(UNKNOWN_USER, messages.get("NotificationDisplay.unknownUser"));
    }
 
-   private void putCardCodeToClipboard(String body) {
-      String unknownCardCode = body.replace(UNKNOWN_USER, "").strip();
-      var content = new ClipboardContent();
-      content.putString(unknownCardCode);
-      Clipboard.getSystemClipboard()
-            .setContent(content);
-   }
-
    public void clear() {
-      Platform.runLater(() -> rootStackPane.getChildren().removeIf(child -> child instanceof WarningBox));
+      Platform.runLater(() -> rootStackPane.getChildren().removeIf(child -> child instanceof NotificationBox));
    }
 
-   private static final class WarningBox extends HBox {
+   private static final class NotificationBox extends HBox {
 
-      public WarningBox(String text) {
+      public NotificationBox(String text) {
          setMaxSize(1, 1);
          setPadding(new Insets(10));
 
@@ -79,9 +87,19 @@ public class NotificationDisplay {
          textNode.setStyle("-fx-padding: 10");
          textNode.setFont(Font.font(null, FontWeight.BOLD, 40));
 
-         setStyle("-fx-background-color: #ffc550; -fx-background-radius: 10 10 10 10;");
+         setStyle("-fx-background-radius: 10 10 10 10;");
          getChildren().add(textNode);
          setAlignment(Pos.CENTER);
+      }
+
+      NotificationBox yellow() {
+         setStyle("-fx-background-color: #ffc550;");
+         return this;
+      }
+
+      NotificationBox green() {
+         setStyle("-fx-background-color: #BEFFB0;");
+         return this;
       }
    }
 }

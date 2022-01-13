@@ -3,14 +3,13 @@ package lt.pavilonis.keymanager.ui.scanlog;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListView;
+import lombok.extern.slf4j.Slf4j;
 import lt.pavilonis.keymanager.MessageSourceAdapter;
 import lt.pavilonis.keymanager.Spring;
-import lt.pavilonis.keymanager.TimeUtils;
+import lt.pavilonis.keymanager.util.TimeUtils;
 import lt.pavilonis.keymanager.WebServiceClient;
 import lt.pavilonis.keymanager.ui.NotificationDisplay;
 import lt.pavilonis.keymanager.ui.keylog.Key;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -19,9 +18,9 @@ import static java.util.stream.Collectors.toList;
 import static javafx.collections.FXCollections.observableArrayList;
 import static javafx.collections.FXCollections.synchronizedObservableList;
 
+@Slf4j
 public class ScanLogKeyList extends ListView<ScanLogKeyListElement> {
 
-   private static final Logger LOGGER = LoggerFactory.getLogger(ScanLogKeyList.class);
    private final ObservableList<ScanLogKeyListElement> container = synchronizedObservableList(observableArrayList());
    private final WebServiceClient webServiceClient = Spring.getBean(WebServiceClient.class);
    private final MessageSourceAdapter messages = Spring.getBean(MessageSourceAdapter.class);
@@ -42,7 +41,7 @@ public class ScanLogKeyList extends ListView<ScanLogKeyListElement> {
       cell.addRemoveKeyButtonListener(key -> webServiceClient.returnKey(
             key,
             responseKey -> container.remove(cell),
-            exception -> LOGGER.error("Could not remove key " + key, exception)
+            exception -> log.error("Could not remove key " + key, exception)
       ));
       return cell;
    }
@@ -55,7 +54,7 @@ public class ScanLogKeyList extends ListView<ScanLogKeyListElement> {
             cardCode,
             response -> {
                addKeysToContainer(List.of(response));
-               LOGGER.info("Loaded user assigned keys [cardCode={}, keysNum={}, t={}]",
+               log.info("Loaded user assigned keys [cardCode={}, keysNum={}, t={}]",
                      cardCode, response.length, TimeUtils.duration(start));
             },
             exception -> notifications.warn(messages.get(this, "canNotLoadUserAssignedKeys"), exception)

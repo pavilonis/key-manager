@@ -1,4 +1,4 @@
-package lt.pavilonis.keymanager;
+package lt.pavilonis.keymanager.util;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;

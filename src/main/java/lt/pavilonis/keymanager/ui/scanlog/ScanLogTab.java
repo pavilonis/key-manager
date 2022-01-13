@@ -10,8 +10,11 @@ import lt.pavilonis.keymanager.Spring;
 import lt.pavilonis.keymanager.WebServiceClient;
 import lt.pavilonis.keymanager.ui.Footer;
 import lt.pavilonis.keymanager.ui.NotificationDisplay;
+import lt.pavilonis.keymanager.util.ClipboardUtils;
 
 import java.util.function.Consumer;
+
+import static lt.pavilonis.keymanager.ui.NotificationDisplay.UNKNOWN_USER;
 
 public class ScanLogTab extends Tab implements Consumer<String> {
 
@@ -53,10 +56,40 @@ public class ScanLogTab extends Tab implements Consumer<String> {
    @Override
    public void accept(String cardCode) {
       notifications.clear();
+      writeScanLog(cardCode);
+   }
+
+   private void writeScanLog(String cardCode) {
       webServiceClient.writeScanLog(
             cardCode,
             scanLogList::addElement,
-            exception -> notifications.warn(messages.get("ScanLogTab.canNotWriteScanLog"), exception)
+            exception -> handleException(exception, cardCode)
+      );
+   }
+
+   private void handleException(Exception exception, String cardCode) {
+      String message = exception.getMessage();
+
+      if (message != null && message.contains(UNKNOWN_USER)) {
+         UserCreationForm form = new UserCreationForm(cardCode);
+         form.setConfirmAction(() -> createUser(form, cardCode));
+         ClipboardUtils.addToClipboard(cardCode);
+         notifications.show(form);
+
+      } else {
+         notifications.warn(messages.get("ScanLogTab.canNotWriteScanLog"), exception);
+      }
+   }
+
+   private void createUser(UserCreationForm form, String cardCode) {
+      webServiceClient.createUser(
+            form.getValue(),
+            () -> {
+               form.close();
+               writeScanLog(cardCode);
+               notifications.notify("User created");
+            },
+            exception -> notifications.warn("User not created", exception)
       );
    }
 }
