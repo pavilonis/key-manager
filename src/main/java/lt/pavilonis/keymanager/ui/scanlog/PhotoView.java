@@ -17,7 +17,10 @@ public class PhotoView extends ImageView {
 
    public PhotoView() {
       setFitWidth(200);
-      setFitHeight(200);
+      setFitHeight(280);
+      setPreserveRatio(true);
+//      setSmooth(true);
+      setCache(true);
    }
 
    void update(String base64image) {
