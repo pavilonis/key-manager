@@ -96,12 +96,12 @@ public class WebServiceClient {
       request(uri, HttpMethod.DELETE, Key.class, consumer, exceptionConsumer);
    }
 
-   public void createUser(UserRepresentation user, Runnable runnable, Consumer<Exception> exceptionConsumer) {
+   public void createUser(UserRepresentation user, Runnable responseCallback, Consumer<Exception> exceptionConsumer) {
       RequestEntity<UserRepresentation> requestEntity = new RequestEntity<>(user, HttpMethod.POST, uri("users"));
-      request(requestEntity, Object.class, input -> runnable.run(), exceptionConsumer);
+      request(requestEntity, Object.class, input -> responseCallback.run(), exceptionConsumer);
    }
 
-   public void keyLog(KeyLogFilter filter, Consumer<Key[]> consumer, Consumer<Exception> exceptionConsumer) {
+   public void keyLog(KeyLogFilter filter, Consumer<Key[]> responseConsumer, Consumer<Exception> exceptionConsumer) {
 
       var params = new HashMap<String, String>();
       params.put("scannerId", scannerId);
@@ -119,7 +119,7 @@ public class WebServiceClient {
       }
 
       URI uri = uri(params, SEGMENT_KEYS, SEGMENT_LOG);
-      request(uri, HttpMethod.GET, Key[].class, consumer, exceptionConsumer);
+      request(uri, HttpMethod.GET, Key[].class, responseConsumer, exceptionConsumer);
    }
 
    public void classroomUsage(String text, Consumer<ScanLogBrief[]> consumer, Consumer<Exception> exceptionConsumer) {

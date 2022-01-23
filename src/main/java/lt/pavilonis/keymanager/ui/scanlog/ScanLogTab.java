@@ -1,10 +1,12 @@
 package lt.pavilonis.keymanager.ui.scanlog;
 
 import javafx.geometry.Insets;
+import javafx.scene.Scene;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import lt.pavilonis.keymanager.MessageSourceAdapter;
 import lt.pavilonis.keymanager.Spring;
 import lt.pavilonis.keymanager.WebServiceClient;
@@ -71,25 +73,33 @@ public class ScanLogTab extends Tab implements Consumer<String> {
       String message = exception.getMessage();
 
       if (message != null && message.contains(UNKNOWN_USER)) {
-         UserCreationForm form = new UserCreationForm(cardCode);
-         form.setConfirmAction(() -> createUser(form, cardCode));
+
          ClipboardUtils.addToClipboard(cardCode);
-         notifications.show(form);
+         var userCreationWindow = new Stage();
+         userCreationWindow.setTitle(messages.get("ScanLogTab.newUser"));
+         userCreationWindow.setScene(new Scene(createForm(cardCode, userCreationWindow)));
+         userCreationWindow.show();
 
       } else {
          notifications.warn(messages.get("ScanLogTab.canNotWriteScanLog"), exception);
       }
    }
 
+   private UserCreationForm createForm(String cardCode, Stage newUserPopup) {
+      var form = new UserCreationForm(cardCode);
+      form.setConfirmAction(() -> createUser(form, cardCode));
+      form.setCloseAction(newUserPopup::close);
+      return form;
+   }
+
    private void createUser(UserCreationForm form, String cardCode) {
-      webServiceClient.createUser(
-            form.getValue(),
-            () -> {
-               form.close();
-               writeScanLog(cardCode);
-               notifications.notify("User created");
-            },
-            exception -> notifications.warn("User not created", exception)
-      );
+      Consumer<Exception> exceptionConsumer = e -> notifications.warn("User not created", e);
+      Runnable responseCallback = () -> {
+         form.close();
+         writeScanLog(cardCode);
+         notifications.notify(messages.get("ScanLogTab.userCreated"));
+      };
+
+      webServiceClient.createUser(form.getValue(), responseCallback, exceptionConsumer);
    }
 }

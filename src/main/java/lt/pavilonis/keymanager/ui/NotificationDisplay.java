@@ -20,6 +20,7 @@ public class NotificationDisplay {
 
    // This constant should match same constant on server side
    public static final String UNKNOWN_USER = "Unknown user";
+   private static final double POPUP_RATIO = 0.7;
    private final MessageSourceAdapter messages = Spring.getBean(MessageSourceAdapter.class);
    private final StackPane rootStackPane;
 
@@ -31,7 +32,7 @@ public class NotificationDisplay {
       String exceptionMessage = extractMessage(exception);
       String notificationMessage = mainMessage == null ? exceptionMessage : mainMessage + "\n" + exceptionMessage;
       var warningBox = new NotificationBox(notificationMessage)
-                  .yellow();
+            .yellow();
 
       warningBox.setOnMouseClicked(click -> rootStackPane.getChildren().remove(warningBox));
       rootStackPane.getChildren().add(warningBox);
@@ -46,6 +47,10 @@ public class NotificationDisplay {
    }
 
    public void show(UserCreationForm form) {
+      double maxWidth = rootStackPane.getWidth() * POPUP_RATIO;
+      double maxHeight = rootStackPane.getHeight() * POPUP_RATIO;
+      form.setMaxSize(maxWidth, maxHeight);
+
       form.setCloseAction(() -> rootStackPane.getChildren().remove(form));
       rootStackPane.getChildren().add(form);
    }
@@ -98,7 +103,7 @@ public class NotificationDisplay {
       }
 
       NotificationBox green() {
-         setStyle("-fx-background-color: #BEFFB0;");
+         setStyle("-fx-background-color: #77C5A2;");
          return this;
       }
    }

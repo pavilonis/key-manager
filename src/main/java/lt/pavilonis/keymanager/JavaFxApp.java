@@ -42,6 +42,7 @@ public final class JavaFxApp extends Application {
          stage.setMaximized(true);
          stage.setMinHeight(700);
          stage.setMinWidth(1020);
+         stage.setTitle("Key Manager");
          stage.show();
 
       } catch (Exception e) {

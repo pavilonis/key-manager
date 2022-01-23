@@ -13,25 +13,27 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import lt.pavilonis.keymanager.MessageSourceAdapter;
 import lt.pavilonis.keymanager.Spring;
+import org.springframework.util.StringUtils;
 
 public class UserCreationForm extends BorderPane {
 
    private static final int SPACING = 10;
    private static final Font DEFAULT_FONT = Font.font(null, FontWeight.SEMI_BOLD, 18);
+   private static final Insets PADDING = new Insets(32);
    private final MessageSourceAdapter messages = Spring.getBean(MessageSourceAdapter.class);
    private final TextField fieldName = new TextField();
    private final TextField fieldRole = new TextField();
    private final TextField fieldGroup = new TextField();
-   private final Button buttonConfirm = new Button(messages.get("confirm"));
+   private final Button buttonConfirm = new Button(messages.get("create"));
    private final Button buttonCancel = new Button(messages.get("cancel"));
    private final String cardCode;
    private Runnable closeAction;
 
    public UserCreationForm(String cardCode) {
       this.cardCode = cardCode;
-      setPadding(new Insets(100));
+      setPadding(PADDING);
       setStyle("-fx-background-color: #D5D5D5;");
-
+      setPrefSize(700, 500);
       setTop(createTitle());
       Pane fields = createFields();
       setCenter(fields);
@@ -98,7 +100,11 @@ public class UserCreationForm extends BorderPane {
    }
 
    public void setConfirmAction(Runnable confirmAction) {
-      buttonConfirm.setOnMouseClicked(click -> confirmAction.run());
+      buttonConfirm.setOnMouseClicked(click -> {
+         if (StringUtils.hasText(fieldName.getText())) {
+            confirmAction.run();
+         }
+      });
    }
 
    public void setCloseAction(Runnable closeAction) {
