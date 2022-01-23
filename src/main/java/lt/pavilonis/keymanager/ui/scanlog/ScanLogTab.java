@@ -6,6 +6,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.AudioClip;
 import javafx.stage.Stage;
 import lt.pavilonis.keymanager.MessageSourceAdapter;
 import lt.pavilonis.keymanager.Spring;
@@ -14,6 +15,9 @@ import lt.pavilonis.keymanager.ui.Footer;
 import lt.pavilonis.keymanager.ui.NotificationDisplay;
 import lt.pavilonis.keymanager.util.ClipboardUtils;
 
+import java.io.File;
+import java.net.URL;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import static lt.pavilonis.keymanager.ui.NotificationDisplay.UNKNOWN_USER;
@@ -75,6 +79,8 @@ public class ScanLogTab extends Tab implements Consumer<String> {
       if (message != null && message.contains(UNKNOWN_USER)) {
 
          ClipboardUtils.addToClipboard(cardCode);
+         new AudioClip(findFile()).play();
+
          var userCreationWindow = new Stage();
          userCreationWindow.setTitle(messages.get("ScanLogTab.newUser"));
          userCreationWindow.setScene(new Scene(createForm(cardCode, userCreationWindow)));
@@ -101,5 +107,21 @@ public class ScanLogTab extends Tab implements Consumer<String> {
       };
 
       webServiceClient.createUser(form.getValue(), responseCallback, exceptionConsumer);
+   }
+
+   private String findFile() {
+      return findResource("audio/warning.mp3")
+            .or(() -> findResource("audio/warning.wav"))
+            .orElseGet(() -> {
+               URL resource = getClass().getClassLoader().getResource("audio/warning.wav");
+               return resource.toExternalForm();
+            });
+   }
+
+   private Optional<String> findResource(String path) {
+      var file = new File(path);
+      return file.isFile()
+            ? Optional.of(file.toURI().toString())
+            : Optional.empty();
    }
 }
