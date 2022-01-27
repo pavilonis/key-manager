@@ -93,16 +93,15 @@ public class ScanLogTab extends Tab implements Consumer<String> {
 
    private UserCreationForm createForm(String cardCode, Stage newUserPopup) {
       var form = new UserCreationForm(cardCode);
-      form.setConfirmAction(() -> createUser(form, cardCode));
+      form.setConfirmAction(() -> createUser(form));
       form.setCloseAction(newUserPopup::close);
       return form;
    }
 
-   private void createUser(UserCreationForm form, String cardCode) {
+   private void createUser(UserCreationForm form) {
       Consumer<Exception> exceptionConsumer = e -> notifications.warn("User not created", e);
       Runnable responseCallback = () -> {
          form.close();
-         writeScanLog(cardCode);
          notifications.notify(messages.get("ScanLogTab.userCreated"));
       };
 
